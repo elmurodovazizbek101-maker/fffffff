@@ -1,0 +1,24 @@
+# Alisher Mobile - Robots.txt
+User-agent: *
+Allow: /
+Disallow: /admin/
+Disallow: /admin/*
+
+# Sitemap
+Sitemap: https://alisher-mobile.uz/sitemap.xml
+
+# Crawl delay
+Crawl-delay: 1
+
+# Popular bots
+User-agent: Googlebot
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+User-agent: Yandex
+Allow: /
+
+User-agent: Baiduspider
+Allow: /
