@@ -9,6 +9,7 @@ const WebsiteLayout = lazy(() => import('./website/WebsiteLayout'))
 const HomePage = lazy(() => import('./website/pages/HomePage'))
 const ProductsPage = lazy(() => import('./website/pages/ProductsPage'))
 const AboutPage = lazy(() => import('./website/pages/AboutPage'))
+const CategoriesPage = lazy(() => import('./website/pages/CategoriesPage'))
 
 const CustomerSite = memo(() => {
   const { loading } = useData()
@@ -43,6 +44,7 @@ const CustomerSite = memo(() => {
           <Route path="/" element={<HomePage />} />
           <Route path="/home" element={<HomePage />} />
           <Route path="/products" element={<ProductsPage />} />
+          <Route path="/categories" element={<CategoriesPage />} />
           <Route path="/about" element={<AboutPage />} />
           <Route path="*" element={<NotFoundPage />} />
         </Routes>

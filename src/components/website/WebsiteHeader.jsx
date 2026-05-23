@@ -1,21 +1,42 @@
 import React, { useState, useEffect } from 'react'
-import { Link, useLocation } from 'react-router-dom'
-import { User, LogOut, Grid, Sun, Moon, Smartphone, Apple, Zap, Shield, Gamepad2, Flame, Plus, Hexagon, Circle, ShoppingCart } from 'lucide-react'
-import { useAuth } from './context/AuthContext'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
+import { Grid, LayoutGrid, Sun, Moon, Smartphone, Apple, Zap, Shield, Gamepad2, Flame, Plus, Hexagon, Circle, ShoppingCart, LogIn, LogOut, User } from 'lucide-react'
 import { useCart } from './context/CartContext'
 import { useData } from '../../context/DataContext'
 
-const WebsiteHeader = ({ onAuthClick, onCartClick }) => {
+const WebsiteHeader = ({ onCartClick }) => {
   const [showCatalog, setShowCatalog] = useState(false)
   const [darkMode, setDarkMode] = useState(() => {
     const saved = localStorage.getItem('alisher_mobile_theme')
     return saved === 'dark'
   })
+  const [currentUser, setCurrentUser] = useState(null)
 
   const location = useLocation()
-  const { user, logout, isAuthenticated } = useAuth()
+  const navigate = useNavigate()
   const { getTotalItems } = useCart()
   const { productsByBrand } = useData()
+
+  // Check if user is logged in
+  useEffect(() => {
+    const checkUser = () => {
+      const user = localStorage.getItem('alisher_mobile_customer')
+      if (user) {
+        try {
+          setCurrentUser(JSON.parse(user))
+        } catch (e) {
+          setCurrentUser(null)
+        }
+      } else {
+        setCurrentUser(null)
+      }
+    }
+
+    checkUser()
+    // Listen for storage changes
+    window.addEventListener('storage', checkUser)
+    return () => window.removeEventListener('storage', checkUser)
+  }, [])
 
   // Apply dark mode to document
   useEffect(() => {
@@ -26,6 +47,7 @@ const WebsiteHeader = ({ onAuthClick, onCartClick }) => {
   const navigation = [
     { name: 'Bosh sahifa', href: '/' },
     { name: 'Mahsulotlar', href: '/products' },
+    { name: 'Kataloglar', href: '/categories' },
     { name: 'Biz haqimizda', href: '/about' }
   ]
 
@@ -54,12 +76,14 @@ const WebsiteHeader = ({ onAuthClick, onCartClick }) => {
     window.location.href = `/products?brand=${brandName}`
   }
 
-  const handleUserClick = () => {
-    if (isAuthenticated) {
-      logout()
-    } else {
-      onAuthClick()
-    }
+  const handleAdminLogin = () => {
+    navigate('/admin/login')
+  }
+
+  const handleLogout = () => {
+    localStorage.removeItem('alisher_mobile_customer')
+    setCurrentUser(null)
+    navigate('/')
   }
 
   return (
@@ -75,84 +99,86 @@ const WebsiteHeader = ({ onAuthClick, onCartClick }) => {
         transition: 'background-color 0.3s ease'
       }}>
         <div style={{
-          maxWidth: '1200px',
+          maxWidth: '1400px',
           margin: '0 auto',
           padding: '0 20px',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          height: '80px',
-          gap: '20px'
+          height: '70px',
+          gap: '30px'
         }}>
-          {/* Left Side - Logo and Catalog */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-            {/* Logo */}
-            <Link to="/" style={{
+          {/* Left Side - Logo */}
+          <Link to="/" style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '12px',
+            textDecoration: 'none',
+            flexShrink: 0
+          }}>
+            <div style={{
+              width: '40px',
+              height: '40px',
+              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+              borderRadius: '12px',
               display: 'flex',
               alignItems: 'center',
-              gap: '12px',
-              textDecoration: 'none'
+              justifyContent: 'center'
             }}>
+              <Smartphone size={24} color="white" />
+            </div>
+            <div>
               <div style={{
-                width: '40px',
-                height: '40px',
-                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                borderRadius: '12px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center'
+                fontSize: '18px',
+                fontWeight: '800',
+                color: darkMode ? 'white' : '#1f2937',
+                lineHeight: '1',
+                whiteSpace: 'nowrap'
               }}>
-                <Smartphone size={24} color="white" />
+                Alisher Mobile
               </div>
-              <div>
-                <div style={{
-                  fontSize: '20px',
-                  fontWeight: '800',
-                  color: darkMode ? 'white' : '#1f2937',
-                  lineHeight: '1'
-                }}>
-                  Alisher Mobile
-                </div>
-                <div style={{
-                  fontSize: '10px',
-                  color: darkMode ? '#9ca3af' : '#6b7280',
-                  fontWeight: '500'
-                }}>
-                  O'zbekistondagi Eng Yaxshi Telefon Do'koni
-                </div>
+              <div style={{
+                fontSize: '9px',
+                color: darkMode ? '#9ca3af' : '#6b7280',
+                fontWeight: '500',
+                whiteSpace: 'nowrap'
+              }}>
+                Eng Yaxshi Telefon Do'koni
               </div>
-            </Link>
+            </div>
+          </Link>
 
-            {/* Catalog Button */}
-            <button
-              onClick={() => setShowCatalog(true)}
-              title="Katalog"
-              aria-label="Katalog"
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
-                color: 'white',
-                border: 'none',
-                borderRadius: '14px',
-                width: '48px',
-                height: '48px',
-                cursor: 'pointer',
-                boxShadow: '0 4px 12px rgba(239, 68, 68, 0.3)',
-                transition: 'transform 0.2s'
-              }}
-              onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-1px)'}
-              onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'}
-            >
-              <Grid size={22} />
-            </button>
-          </div>
+          {/* Catalog Button */}
+          <Link
+            to="/categories"
+            title="Katalog"
+            aria-label="Katalog"
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              background: 'linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%)',
+              color: 'white',
+              border: 'none',
+              borderRadius: '12px',
+              width: '44px',
+              height: '44px',
+              cursor: 'pointer',
+              boxShadow: '0 4px 12px rgba(139, 92, 246, 0.3)',
+              transition: 'transform 0.2s',
+              flexShrink: 0,
+              textDecoration: 'none'
+            }}
+            onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-1px)'}
+            onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'}
+          >
+            <LayoutGrid size={20} />
+          </Link>
 
           {/* Center Navigation */}
           <nav style={{
             display: 'flex',
-            gap: '16px',
+            gap: '20px',
             alignItems: 'center',
             flex: 1,
             justifyContent: 'center'
@@ -167,62 +193,72 @@ const WebsiteHeader = ({ onAuthClick, onCartClick }) => {
                     ? '#4f46e5'
                     : darkMode ? '#d1d5db' : '#6b7280',
                   fontWeight: isActive(item.href) ? '600' : '500',
-                  fontSize: '16px',
-                  padding: '12px 16px',
+                  fontSize: '15px',
+                  padding: '10px 14px',
                   borderRadius: '8px',
                   borderBottom: isActive(item.href) ? '2px solid #4f46e5' : 'none',
-                  transition: 'all 0.2s'
+                  transition: 'all 0.2s',
+                  whiteSpace: 'nowrap'
                 }}
               >
                 {item.name}
               </Link>
             ))}
-          </nav>
 
-          {/* Right Side - Dark Mode only */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
             {/* Dark Mode Toggle */}
             <button
               onClick={toggleDarkMode}
               style={{
                 background: darkMode ? '#374151' : 'white',
                 border: `2px solid ${darkMode ? '#4b5563' : '#e5e7eb'}`,
-                borderRadius: '12px',
-                padding: '10px',
+                borderRadius: '10px',
+                padding: '8px',
                 cursor: 'pointer',
                 color: darkMode ? '#fbbf24' : '#f59e0b',
                 transition: 'all 0.2s',
-                boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+                boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                flexShrink: 0
               }}
               title={darkMode ? 'Yorug\' rejimga o\'tish' : 'Qorong\'u rejimga o\'tish'}
             >
-              {darkMode ? <Sun size={20} /> : <Moon size={20} />}
+              {darkMode ? <Sun size={18} /> : <Moon size={18} />}
             </button>
-          </div>
+          </nav>
 
-          {/* Right Side - Fixed Position (Cart, User Info, Login) */}
+          {/* Right Side - User Info, Cart, Login/Logout */}
           <div style={{
-            position: 'fixed',
-            top: '16px',
-            right: '20px',
             display: 'flex',
             alignItems: 'center',
-            gap: '12px',
-            zIndex: 1001
+            gap: '10px',
+            flexShrink: 0
           }}>
-            {/* User Info - Small */}
-            {isAuthenticated && (
-              <span style={{
-                fontSize: '11px',
-                color: darkMode ? '#9ca3af' : '#6b7280',
-                fontWeight: '500',
+            {/* User Info */}
+            {currentUser && (
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px',
                 background: darkMode ? '#374151' : '#f3f4f6',
                 padding: '6px 10px',
                 borderRadius: '8px',
-                border: `1px solid ${darkMode ? '#4b5563' : '#e5e7eb'}`
+                border: `2px solid ${darkMode ? '#4b5563' : '#e5e7eb'}`
               }}>
-                👋 {user.name}
-              </span>
+                <User size={14} color={darkMode ? '#9ca3af' : '#6b7280'} />
+                <span style={{
+                  fontSize: '12px',
+                  fontWeight: '600',
+                  color: darkMode ? '#d1d5db' : '#374151',
+                  maxWidth: '100px',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                  whiteSpace: 'nowrap'
+                }}>
+                  {currentUser.name}
+                </span>
+              </div>
             )}
 
             {/* Cart Button */}
@@ -236,18 +272,19 @@ const WebsiteHeader = ({ onAuthClick, onCartClick }) => {
                 background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
                 color: 'white',
                 border: 'none',
-                borderRadius: '12px',
-                width: '48px',
-                height: '48px',
+                borderRadius: '10px',
+                width: '44px',
+                height: '44px',
                 cursor: 'pointer',
                 boxShadow: '0 4px 12px rgba(16, 185, 129, 0.3)',
-                transition: 'all 0.2s'
+                transition: 'all 0.2s',
+                flexShrink: 0
               }}
               onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-2px)'}
               onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'}
               title="Savat"
             >
-              <ShoppingCart size={22} />
+              <ShoppingCart size={20} />
               {getTotalItems() > 0 && (
                 <span style={{
                   position: 'absolute',
@@ -256,12 +293,12 @@ const WebsiteHeader = ({ onAuthClick, onCartClick }) => {
                   background: '#ef4444',
                   color: 'white',
                   borderRadius: '50%',
-                  width: '24px',
-                  height: '24px',
+                  width: '20px',
+                  height: '20px',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  fontSize: '12px',
+                  fontSize: '11px',
                   fontWeight: '700',
                   border: '2px solid white',
                   boxShadow: '0 2px 4px rgba(0,0,0,0.2)'
@@ -271,34 +308,62 @@ const WebsiteHeader = ({ onAuthClick, onCartClick }) => {
               )}
             </button>
 
-            {/* User Button */}
-            <button
-              onClick={handleUserClick}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '8px',
-                background: isAuthenticated
-                  ? 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)'
-                  : 'linear-gradient(135deg, #4f46e5 0%, #4338ca 100%)',
-                color: 'white',
-                border: 'none',
-                borderRadius: '12px',
-                padding: '12px 20px',
-                cursor: 'pointer',
-                fontSize: '14px',
-                fontWeight: '600',
-                transition: 'all 0.2s',
-                boxShadow: isAuthenticated
-                  ? '0 4px 12px rgba(239, 68, 68, 0.3)'
-                  : '0 4px 12px rgba(79, 70, 229, 0.3)'
-              }}
-              onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-2px)'}
-              onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'}
-            >
-              {isAuthenticated ? <LogOut size={18} /> : <User size={18} />}
-              {isAuthenticated ? 'Chiqish' : 'Kirish'}
-            </button>
+            {/* Login/Logout Button */}
+            {currentUser ? (
+              <button
+                onClick={handleLogout}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '10px',
+                  padding: '10px 16px',
+                  cursor: 'pointer',
+                  fontSize: '13px',
+                  fontWeight: '600',
+                  transition: 'all 0.2s',
+                  boxShadow: '0 4px 12px rgba(239, 68, 68, 0.3)',
+                  whiteSpace: 'nowrap',
+                  flexShrink: 0
+                }}
+                onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-2px)'}
+                onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'}
+                title="Chiqish"
+              >
+                <LogOut size={16} />
+                Chiqish
+              </button>
+            ) : (
+              <button
+                onClick={handleAdminLogin}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  background: 'linear-gradient(135deg, #4f46e5 0%, #4338ca 100%)',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '10px',
+                  padding: '10px 16px',
+                  cursor: 'pointer',
+                  fontSize: '13px',
+                  fontWeight: '600',
+                  transition: 'all 0.2s',
+                  boxShadow: '0 4px 12px rgba(79, 70, 229, 0.3)',
+                  whiteSpace: 'nowrap',
+                  flexShrink: 0
+                }}
+                onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-2px)'}
+                onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'}
+                title="Kirish"
+              >
+                <LogIn size={16} />
+                Kirish
+              </button>
+            )}
           </div>
         </div>
       </header>

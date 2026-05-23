@@ -1,23 +1,90 @@
 import { useState } from 'react'
-import { Eye, EyeOff, User, Lock, Shield } from 'lucide-react'
+import { Eye, EyeOff, User, Lock, Shield, UserPlus } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
+import { verifyAdminCredentials, verifyCustomerCredentials, registerCustomer } from '../utils/auth'
 
 const LoginPage = ({ onLogin }) => {
+  const [mode, setMode] = useState('login') // 'login' or 'register'
   const [login, setLogin] = useState('')
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState('')
+  const [success, setSuccess] = useState('')
   const [isLoading, setIsLoading] = useState(false)
+  const navigate = useNavigate()
+
+  // Register fields
+  const [name, setName] = useState('')
+  const [phone, setPhone] = useState('')
+  const [region, setRegion] = useState('')
+  const [district, setDistrict] = useState('')
 
   const handleSubmit = async (e) => {
     e.preventDefault()
     setError('')
+    setSuccess('')
     setIsLoading(true)
 
-    // Admin login: admin / admin123
-    const success = await onLogin(login.trim(), password)
+    try {
+      if (mode === 'login') {
+        // Try admin login first
+        const isAdmin = await verifyAdminCredentials(login.trim(), password)
 
-    if (!success) {
-      setError('Login yoki parol noto\'g\'ri!')
+        if (isAdmin) {
+          // Admin login successful
+          const adminSuccess = await onLogin(login.trim(), password)
+          if (adminSuccess) {
+            // Will redirect to admin panel automatically
+            return
+          }
+        }
+
+        // Try customer login
+        const customerResult = verifyCustomerCredentials(login.trim(), password)
+
+        if (customerResult.success) {
+          // Customer login successful - redirect to website
+          localStorage.setItem('alisher_mobile_customer', JSON.stringify(customerResult.customer))
+          setSuccess('Muvaffaqiyatli kirdingiz! Saytga yo\'naltirilmoqda...')
+          setTimeout(() => {
+            navigate('/')
+          }, 1500)
+        } else {
+          // No match found
+          setError('Login yoki parol noto\'g\'ri! Ro\'yxatdan o\'tmagan bo\'lsangiz, ro\'yxatdan o\'ting.')
+          setIsLoading(false)
+        }
+      } else {
+        // Register mode
+        if (!name || !login || !password || !phone) {
+          setError('Barcha maydonlarni to\'ldiring!')
+          setIsLoading(false)
+          return
+        }
+
+        const result = registerCustomer({
+          name: name.trim(),
+          login: login.trim(),
+          password: password,
+          phone: phone.trim(),
+          region: region.trim(),
+          district: district.trim()
+        })
+
+        if (result.success) {
+          setSuccess('Ro\'yxatdan o\'tdingiz! Endi kirish mumkin.')
+          // Auto login after register
+          localStorage.setItem('alisher_mobile_customer', JSON.stringify(result.customer))
+          setTimeout(() => {
+            navigate('/')
+          }, 1500)
+        } else {
+          setError(result.message)
+          setIsLoading(false)
+        }
+      }
+    } catch (err) {
+      setError('Xatolik yuz berdi. Qayta urinib ko\'ring.')
       setIsLoading(false)
     }
   }
@@ -60,7 +127,7 @@ const LoginPage = ({ onLogin }) => {
             color: '#1f2937',
             margin: '0 0 6px 0'
           }}>
-            Admin Panel
+            {mode === 'login' ? 'Kirish' : 'Ro\'yxatdan O\'tish'}
           </h1>
           <p style={{
             color: '#6b7280',
@@ -70,6 +137,26 @@ const LoginPage = ({ onLogin }) => {
             Alisher Mobile
           </p>
         </div>
+
+        {/* Success */}
+        {success && (
+          <div style={{
+            background: '#dcfce7',
+            color: '#166534',
+            padding: '12px 16px',
+            borderRadius: '10px',
+            marginBottom: '20px',
+            fontSize: '14px',
+            fontWeight: '600',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            border: '2px solid #bbf7d0'
+          }}>
+            <Shield size={16} />
+            {success}
+          </div>
+        )}
 
         {/* Error */}
         {error && (
@@ -93,6 +180,41 @@ const LoginPage = ({ onLogin }) => {
 
         {/* Form */}
         <form onSubmit={handleSubmit}>
+          {/* Register fields */}
+          {mode === 'register' && (
+            <div style={{ marginBottom: '20px' }}>
+              <label style={{
+                display: 'block',
+                marginBottom: '8px',
+                fontWeight: '600',
+                color: '#374151',
+                fontSize: '14px'
+              }}>
+                ISM
+              </label>
+              <input
+                type="text"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="Ismingiz"
+                style={{
+                  width: '100%',
+                  padding: '14px',
+                  border: '2px solid #e5e7eb',
+                  borderRadius: '10px',
+                  fontSize: '15px',
+                  outline: 'none',
+                  transition: 'all 0.2s',
+                  boxSizing: 'border-box',
+                  fontWeight: '500'
+                }}
+                onFocus={(e) => e.target.style.borderColor = '#667eea'}
+                onBlur={(e) => e.target.style.borderColor = '#e5e7eb'}
+                required
+              />
+            </div>
+          )}
+
           {/* Login */}
           <div style={{ marginBottom: '20px' }}>
             <label style={{
@@ -120,8 +242,9 @@ const LoginPage = ({ onLogin }) => {
                 onChange={(e) => {
                   setLogin(e.target.value)
                   setError('')
+                  setSuccess('')
                 }}
-                placeholder="admin"
+                placeholder={mode === 'login' ? 'Login' : 'Login yarating'}
                 style={{
                   width: '100%',
                   padding: '14px 14px 14px 44px',
@@ -167,6 +290,7 @@ const LoginPage = ({ onLogin }) => {
                 onChange={(e) => {
                   setPassword(e.target.value)
                   setError('')
+                  setSuccess('')
                 }}
                 placeholder="••••••••"
                 style={{
@@ -207,6 +331,107 @@ const LoginPage = ({ onLogin }) => {
             </div>
           </div>
 
+          {/* Register additional fields */}
+          {mode === 'register' && (
+            <>
+              <div style={{ marginBottom: '20px' }}>
+                <label style={{
+                  display: 'block',
+                  marginBottom: '8px',
+                  fontWeight: '600',
+                  color: '#374151',
+                  fontSize: '14px'
+                }}>
+                  TELEFON
+                </label>
+                <input
+                  type="tel"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  placeholder="+998 90 123 45 67"
+                  style={{
+                    width: '100%',
+                    padding: '14px',
+                    border: '2px solid #e5e7eb',
+                    borderRadius: '10px',
+                    fontSize: '15px',
+                    outline: 'none',
+                    transition: 'all 0.2s',
+                    boxSizing: 'border-box',
+                    fontWeight: '500'
+                  }}
+                  onFocus={(e) => e.target.style.borderColor = '#667eea'}
+                  onBlur={(e) => e.target.style.borderColor = '#e5e7eb'}
+                  required
+                />
+              </div>
+
+              <div style={{ marginBottom: '20px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                <div>
+                  <label style={{
+                    display: 'block',
+                    marginBottom: '8px',
+                    fontWeight: '600',
+                    color: '#374151',
+                    fontSize: '14px'
+                  }}>
+                    VILOYAT
+                  </label>
+                  <input
+                    type="text"
+                    value={region}
+                    onChange={(e) => setRegion(e.target.value)}
+                    placeholder="Toshkent"
+                    style={{
+                      width: '100%',
+                      padding: '14px',
+                      border: '2px solid #e5e7eb',
+                      borderRadius: '10px',
+                      fontSize: '15px',
+                      outline: 'none',
+                      transition: 'all 0.2s',
+                      boxSizing: 'border-box',
+                      fontWeight: '500'
+                    }}
+                    onFocus={(e) => e.target.style.borderColor = '#667eea'}
+                    onBlur={(e) => e.target.style.borderColor = '#e5e7eb'}
+                  />
+                </div>
+
+                <div>
+                  <label style={{
+                    display: 'block',
+                    marginBottom: '8px',
+                    fontWeight: '600',
+                    color: '#374151',
+                    fontSize: '14px'
+                  }}>
+                    TUMAN
+                  </label>
+                  <input
+                    type="text"
+                    value={district}
+                    onChange={(e) => setDistrict(e.target.value)}
+                    placeholder="Chilonzor"
+                    style={{
+                      width: '100%',
+                      padding: '14px',
+                      border: '2px solid #e5e7eb',
+                      borderRadius: '10px',
+                      fontSize: '15px',
+                      outline: 'none',
+                      transition: 'all 0.2s',
+                      boxSizing: 'border-box',
+                      fontWeight: '500'
+                    }}
+                    onFocus={(e) => e.target.style.borderColor = '#667eea'}
+                    onBlur={(e) => e.target.style.borderColor = '#e5e7eb'}
+                  />
+                </div>
+              </div>
+            </>
+          )}
+
           {/* Submit */}
           <button
             type="submit"
@@ -245,59 +470,37 @@ const LoginPage = ({ onLogin }) => {
               </>
             ) : (
               <>
-                <Shield size={18} />
-                Kirish
+                {mode === 'login' ? <Shield size={18} /> : <UserPlus size={18} />}
+                {mode === 'login' ? 'Kirish' : 'Ro\'yxatdan O\'tish'}
               </>
             )}
           </button>
         </form>
 
-        {/* Info */}
+        {/* Toggle Mode */}
         <div style={{
-          marginTop: '24px',
-          padding: '16px',
-          background: '#f0f9ff',
-          borderRadius: '10px',
-          border: '2px solid #bae6fd',
+          marginTop: '20px',
           textAlign: 'center'
         }}>
-          <div style={{
-            fontSize: '12px',
-            color: '#0369a1',
-            fontWeight: '600',
-            marginBottom: '6px'
-          }}>
-            Admin Ma'lumotlari
-          </div>
-          <div style={{
-            display: 'flex',
-            gap: '8px',
-            justifyContent: 'center',
-            flexWrap: 'wrap'
-          }}>
-            <code style={{
-              background: 'white',
-              padding: '4px 10px',
-              borderRadius: '6px',
-              fontSize: '12px',
+          <button
+            type="button"
+            onClick={() => {
+              setMode(mode === 'login' ? 'register' : 'login')
+              setError('')
+              setSuccess('')
+            }}
+            style={{
+              background: 'none',
+              border: 'none',
+              color: '#4f46e5',
+              fontSize: '14px',
               fontWeight: '600',
-              color: '#0c4a6e',
-              border: '1px solid #7dd3fc'
-            }}>
-              admin
-            </code>
-            <code style={{
-              background: 'white',
-              padding: '4px 10px',
-              borderRadius: '6px',
-              fontSize: '12px',
-              fontWeight: '600',
-              color: '#0c4a6e',
-              border: '1px solid #7dd3fc'
-            }}>
-              admin123
-            </code>
-          </div>
+              cursor: 'pointer',
+              textDecoration: 'underline'
+            }}
+          >
+            {mode === 'login' ? 'Ro\'yxatdan o\'tish' : 'Kirish'}
+          </button>
         </div>
 
         {/* Footer */}

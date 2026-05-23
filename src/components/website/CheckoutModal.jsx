@@ -1,25 +1,48 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { X, CheckCircle } from 'lucide-react'
 import { useCart } from './context/CartContext'
-import { useAuth } from './context/AuthContext'
 import { OrderService } from '../../utils/orderService'
 
 const CheckoutModal = ({ isOpen, onClose }) => {
   const { cartItems, getTotalPrice, clearCart } = useCart()
-  const { user, isAuthenticated } = useAuth()
+  const [currentUser, setCurrentUser] = useState(null)
 
   const [loading, setLoading] = useState(false)
   const [orderSuccess, setOrderSuccess] = useState(false)
 
+  // Get current user from localStorage
+  useEffect(() => {
+    const user = localStorage.getItem('alisher_mobile_customer')
+    if (user) {
+      try {
+        setCurrentUser(JSON.parse(user))
+      } catch (e) {
+        setCurrentUser(null)
+      }
+    }
+  }, [])
+
   const [formData, setFormData] = useState({
-    name: user?.name || '',
-    phone: user?.phone || '',
-    email: user?.email || '',
+    name: '',
+    phone: '',
+    email: '',
     address: '',
     city: 'Toshkent',
     notes: '',
     paymentMethod: 'cash'
   })
+
+  // Update form data when user is loaded
+  useEffect(() => {
+    if (currentUser) {
+      setFormData(prev => ({
+        ...prev,
+        name: currentUser.name || '',
+        phone: currentUser.phone || '',
+        email: currentUser.email || ''
+      }))
+    }
+  }, [currentUser])
 
   if (!isOpen) return null
 
@@ -30,7 +53,7 @@ const CheckoutModal = ({ isOpen, onClose }) => {
     setLoading(true)
 
     try {
-      const isNewCustomer = !isAuthenticated
+      const isNewCustomer = !currentUser
 
       if (isNewCustomer) {
         await OrderService.registerCustomer({
@@ -45,7 +68,7 @@ const CheckoutModal = ({ isOpen, onClose }) => {
           name: formData.name,
           phone: formData.phone,
           email: formData.email,
-          id: user?.id || `TEMP_${Date.now()}`
+          id: currentUser?.id || `TEMP_${Date.now()}`
         },
         items: cartItems.map(item => ({
           id: item.id,

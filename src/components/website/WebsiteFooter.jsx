@@ -148,6 +148,19 @@ const WebsiteFooter = () => {
               </li>
               <li style={{ marginBottom: '12px' }}>
                 <Link
+                  to="/categories"
+                  style={{
+                    color: '#9ca3af',
+                    textDecoration: 'none',
+                    fontSize: '16px',
+                    transition: 'color 0.2s'
+                  }}
+                >
+                  Kataloglar
+                </Link>
+              </li>
+              <li style={{ marginBottom: '12px' }}>
+                <Link
                   to="/about"
                   style={{
                     color: '#9ca3af',
@@ -204,7 +217,7 @@ const WebsiteFooter = () => {
             }}>
               <li style={{ marginBottom: '12px' }}>
                 <Link
-                  to="/products?category=apple"
+                  to="/products?brand=Apple"
                   style={{
                     color: '#9ca3af',
                     textDecoration: 'none',
@@ -217,7 +230,7 @@ const WebsiteFooter = () => {
               </li>
               <li style={{ marginBottom: '12px' }}>
                 <Link
-                  to="/products?category=samsung"
+                  to="/products?brand=Samsung"
                   style={{
                     color: '#9ca3af',
                     textDecoration: 'none',
@@ -230,7 +243,7 @@ const WebsiteFooter = () => {
               </li>
               <li style={{ marginBottom: '12px' }}>
                 <Link
-                  to="/products?category=honor"
+                  to="/products?brand=Honor"
                   style={{
                     color: '#9ca3af',
                     textDecoration: 'none',
@@ -243,7 +256,7 @@ const WebsiteFooter = () => {
               </li>
               <li style={{ marginBottom: '12px' }}>
                 <Link
-                  to="/products?category=vivo"
+                  to="/products?brand=Vivo"
                   style={{
                     color: '#9ca3af',
                     textDecoration: 'none',
@@ -256,7 +269,7 @@ const WebsiteFooter = () => {
               </li>
               <li style={{ marginBottom: '12px' }}>
                 <Link
-                  to="/products?category=nokia"
+                  to="/products?brand=Nokia"
                   style={{
                     color: '#9ca3af',
                     textDecoration: 'none',
@@ -269,7 +282,7 @@ const WebsiteFooter = () => {
               </li>
               <li style={{ marginBottom: '12px' }}>
                 <Link
-                  to="/products?category=oneplus"
+                  to="/products?brand=Oneplus"
                   style={{
                     color: '#9ca3af',
                     textDecoration: 'none',
@@ -282,7 +295,7 @@ const WebsiteFooter = () => {
               </li>
               <li style={{ marginBottom: '12px' }}>
                 <Link
-                  to="/products?category=accessories"
+                  to="/products?brand=Redmi"
                   style={{
                     color: '#9ca3af',
                     textDecoration: 'none',
@@ -290,7 +303,20 @@ const WebsiteFooter = () => {
                     transition: 'color 0.2s'
                   }}
                 >
-                  Aksessuarlar
+                  Redmi
+                </Link>
+              </li>
+              <li style={{ marginBottom: '12px' }}>
+                <Link
+                  to="/products?brand=Oppo"
+                  style={{
+                    color: '#9ca3af',
+                    textDecoration: 'none',
+                    fontSize: '16px',
+                    transition: 'color 0.2s'
+                  }}
+                >
+                  Oppo
                 </Link>
               </li>
             </ul>

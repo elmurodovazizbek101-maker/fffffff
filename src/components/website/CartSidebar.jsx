@@ -1,24 +1,19 @@
 import { useState } from 'react'
 import { X, Plus, Minus, Trash2, ShoppingCart, Smartphone } from 'lucide-react'
 import { useCart } from './context/CartContext'
-import { useAuth } from './context/AuthContext'
 import CheckoutModal from './CheckoutModal'
 
-const CartSidebar = ({ isOpen, onClose, onAuthRequired }) => {
+const CartSidebar = ({ isOpen, onClose }) => {
   const { cartItems, updateQuantity, removeFromCart, getTotalPrice } = useCart()
-  const { isAuthenticated } = useAuth()
   const [showCheckout, setShowCheckout] = useState(false)
 
   const handleCheckout = () => {
-    if (!isAuthenticated) {
-      onAuthRequired()
-      return
-    }
-
     if (cartItems.length === 0) return
-
     setShowCheckout(true)
   }
+
+  // Cart works without authentication
+  const isAuthenticated = true
 
   if (!isOpen) return null
 
@@ -277,19 +272,8 @@ const CartSidebar = ({ isOpen, onClose, onAuthRequired }) => {
                 cursor: 'pointer'
               }}
             >
-              {isAuthenticated ? 'Buyurtma berish' : 'Kirish'}
+              Buyurtma berish
             </button>
-
-            {!isAuthenticated && (
-              <p style={{
-                fontSize: '11px',
-                color: '#6b7280',
-                textAlign: 'center',
-                margin: '8px 0 0 0'
-              }}>
-                Buyurtma uchun ro'yxatdan o'ting
-              </p>
-            )}
           </div>
         )}
       </div>

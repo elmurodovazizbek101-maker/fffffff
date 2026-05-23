@@ -2,12 +2,10 @@ import { useState, useEffect, useMemo } from 'react'
 import { Smartphone, ShoppingCart, Star, ChevronLeft, ChevronRight, Eye, User } from 'lucide-react'
 import { useData } from '../../../context/DataContext'
 import { useCart } from '../context/CartContext'
-import { useAuth } from '../context/AuthContext'
 
 const HomePage = () => {
   const { featuredProducts } = useData()
   const { addToCart } = useCart()
-  const { isAuthenticated } = useAuth()
   const [currentSlide, setCurrentSlide] = useState(0)
   const [showProductModal, setShowProductModal] = useState(false)
   const [selectedProduct, setSelectedProduct] = useState(null)
@@ -113,10 +111,6 @@ const HomePage = () => {
   }
 
   const handleAddToCart = (product) => {
-    if (!isAuthenticated) {
-      setShowAuthRequired(true)
-      return
-    }
     addToCart(product, 1)
     setShowProductModal(false)
   }

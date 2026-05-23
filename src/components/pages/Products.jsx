@@ -27,7 +27,11 @@ const Products = () => {
   const totalProducts = products.length
   const lowStock = products.filter(p => p.quantity > 0 && p.quantity <= 5).length
   const outOfStock = products.filter(p => p.quantity === 0).length
-  const totalValue = products.reduce((sum, p) => sum + (p.priceUZS * p.quantity), 0)
+  const totalValue = products.reduce((sum, p) => {
+    const price = p.priceUZS || 0
+    const quantity = p.quantity || 0
+    return sum + (price * quantity)
+  }, 0)
 
   const filteredProducts = products.filter(product => {
     const matchesSearch = product.name.toLowerCase().includes(searchQuery.toLowerCase())
@@ -289,14 +293,14 @@ const Products = () => {
                   marginBottom: '4px'
                 }}>
                   <span style={{ fontSize: '14px', fontWeight: '600' }}>
-                    ${product.priceUSD}
+                    ${product.priceUSD || 0}
                   </span>
                   <span style={{ fontSize: '14px', color: '#6b7280' }}>
-                    {product.quantity} {product.unit}
+                    {product.quantity || 0} {product.unit || 'dona'}
                   </span>
                 </div>
                 <div style={{ fontSize: '16px', fontWeight: 'bold', color: '#10b981' }}>
-                  {product.priceUZS.toLocaleString()} so'm
+                  {(product.priceUZS || 0).toLocaleString()} so'm
                 </div>
               </div>
 

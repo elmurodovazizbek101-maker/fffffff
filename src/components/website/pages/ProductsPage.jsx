@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react'
-import { Search, Filter, Star, ShoppingCart, Smartphone, User } from 'lucide-react'
+import { Search, Star, ShoppingCart, Smartphone, User } from 'lucide-react'
 import { useCart } from '../context/CartContext'
-import { useAuth } from '../context/AuthContext'
 import { useData } from '../../../context/DataContext'
+import { useLocation } from 'react-router-dom'
 
 const ProductsPage = () => {
+  const location = useLocation()
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedCategory, setSelectedCategory] = useState('all')
   const [sortBy, setSortBy] = useState('name')
@@ -15,14 +16,10 @@ const ProductsPage = () => {
   })
 
   const { addToCart } = useCart()
-  const { isAuthenticated } = useAuth()
   const { activeProducts } = useData()
 
   const handleAddToCart = (product) => {
-    if (!isAuthenticated) {
-      setShowAuthRequired(true)
-      return
-    }
+    // Cart functionality works without authentication
     addToCart(product, 1)
   }
 
@@ -39,14 +36,23 @@ const ProductsPage = () => {
     return () => observer.disconnect()
   }, [])
 
-  // Check for brand filter from URL
+  // Check for brand filter from URL - updates when location changes
   useEffect(() => {
-    const urlParams = new URLSearchParams(window.location.search)
-    const brandFilter = urlParams.get('brand')
+    const urlParams = new URLSearchParams(location.search)
+    const brandFilter = urlParams.get('brand') || urlParams.get('category')
+
+    console.log('URL changed:', location.search)
+    console.log('Brand filter:', brandFilter)
+
     if (brandFilter) {
-      setSelectedCategory(brandFilter)
+      // Capitalize first letter to match brand names
+      const formattedBrand = brandFilter.charAt(0).toUpperCase() + brandFilter.slice(1).toLowerCase()
+      console.log('Setting category to:', formattedBrand)
+      setSelectedCategory(formattedBrand)
+    } else {
+      setSelectedCategory('all')
     }
-  }, [])
+  }, [location.search])
 
   const categories = ['all', 'Apple', 'Samsung', 'Honor', 'Vivo', 'Nokia', 'ROG', 'Redmi', 'OnePlus', 'Oppo', 'Realme']
 

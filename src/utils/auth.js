@@ -1,28 +1,79 @@
-// Admin credentials
-const ADMIN_LOGIN = 'admin'
-const ADMIN_PASSWORD = 'admin123'
+// Admin credentials management - stored in localStorage
+const ADMIN_CREDENTIALS_KEY = 'alisher_mobile_admin_credentials'
+
+// Default admin credentials (first time only)
+const DEFAULT_ADMIN = {
+  login: 'superadmin',
+  password: 'Admin@2024!Secure'
+}
+
+// Initialize admin credentials if not exists
+export const initializeAdminCredentials = () => {
+  const stored = localStorage.getItem(ADMIN_CREDENTIALS_KEY)
+  if (!stored) {
+    localStorage.setItem(ADMIN_CREDENTIALS_KEY, JSON.stringify(DEFAULT_ADMIN))
+    console.log('✅ Admin credentials initialized with default values')
+    return DEFAULT_ADMIN
+  }
+  return JSON.parse(stored)
+}
+
+// Get current admin credentials
+export const getAdminCredentials = () => {
+  const stored = localStorage.getItem(ADMIN_CREDENTIALS_KEY)
+  if (!stored) {
+    return initializeAdminCredentials()
+  }
+  return JSON.parse(stored)
+}
+
+// Update admin credentials (only admin can do this)
+export const updateAdminCredentials = (newLogin, newPassword) => {
+  if (!newLogin || !newPassword) {
+    return { success: false, message: 'Login va parol bo\'sh bo\'lmasligi kerak!' }
+  }
+
+  if (newLogin.length < 4) {
+    return { success: false, message: 'Login kamida 4 ta belgidan iborat bo\'lishi kerak!' }
+  }
+
+  if (newPassword.length < 6) {
+    return { success: false, message: 'Parol kamida 6 ta belgidan iborat bo\'lishi kerak!' }
+  }
+
+  const newCredentials = {
+    login: newLogin.trim(),
+    password: newPassword.trim()
+  }
+
+  localStorage.setItem(ADMIN_CREDENTIALS_KEY, JSON.stringify(newCredentials))
+  console.log('✅ Admin credentials updated successfully')
+
+  return { success: true, message: 'Admin login va parol muvaffaqiyatli o\'zgartirildi!' }
+}
 
 // Verify admin login with username and password
 export const verifyAdminCredentials = async (login, password) => {
   console.log('=== ADMIN LOGIN ATTEMPT ===')
   console.log('Input login:', JSON.stringify(login))
   console.log('Input password:', JSON.stringify(password))
-  console.log('Expected login:', JSON.stringify(ADMIN_LOGIN))
-  console.log('Expected password:', JSON.stringify(ADMIN_PASSWORD))
 
   if (!login || !password) {
     console.log('❌ Missing credentials')
     return false
   }
 
-  const normalizedLogin = String(login).trim().toLowerCase()
+  const adminCreds = getAdminCredentials()
+  console.log('Stored admin login:', JSON.stringify(adminCreds.login))
+
+  const normalizedLogin = String(login).trim()
   const normalizedPassword = String(password).trim()
 
   console.log('Normalized login:', JSON.stringify(normalizedLogin))
   console.log('Normalized password:', JSON.stringify(normalizedPassword))
 
-  const loginMatch = normalizedLogin === ADMIN_LOGIN.toLowerCase()
-  const passwordMatch = normalizedPassword === ADMIN_PASSWORD
+  const loginMatch = normalizedLogin === adminCreds.login
+  const passwordMatch = normalizedPassword === adminCreds.password
 
   console.log('Login match:', loginMatch)
   console.log('Password match:', passwordMatch)

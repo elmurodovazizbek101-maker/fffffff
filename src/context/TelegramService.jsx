@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState } from 'react'
+import React, { createContext, useContext, useEffect, useState } from 'react'
 
 const TelegramContext = createContext()
 
@@ -20,17 +20,17 @@ const TelegramProvider = ({ children }) => {
       // Telegram Web App mavjudligini tekshirish
       if (typeof window !== 'undefined' && window.Telegram && window.Telegram.WebApp) {
         const tg = window.Telegram.WebApp
-        
+
         // Telegram WebApp ni ishga tushirish
         tg.ready()
-        
+
         // Faqat mavjud bo'lgan funksiyalarni ishlatish
         const telegramUser = tg.initDataUnsafe?.user || null
         const fromTelegram = !!tg.initData
-        
+
         setUser(telegramUser)
         setIsFromTelegram(fromTelegram)
-        
+
         // Theme parametrlarini olish (agar mavjud bo'lsa)
         if (tg.themeParams) {
           setThemeParams(tg.themeParams)

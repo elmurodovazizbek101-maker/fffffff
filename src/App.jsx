@@ -1,3 +1,4 @@
+import React from 'react'
 import { HashRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
 import LoginPage from './components/LoginPage'
 import AdminPanel from './components/AdminPanel'
@@ -7,6 +8,10 @@ import { LanguageProvider } from './context/LanguageContext'
 import { DataProvider } from './context/DataContext'
 import { TelegramProvider } from './context/TelegramService'
 import { AdminAuthProvider, useAdminAuth } from './context/AdminAuthContext'
+import { initializeAdminCredentials } from './utils/auth'
+
+// Initialize admin credentials on app load
+initializeAdminCredentials()
 
 function AppRoutes() {
   const { isAuthenticated, login, logout } = useAdminAuth()
@@ -41,7 +46,12 @@ function App() {
         <DataProvider>
           <TelegramProvider>
             <AdminAuthProvider>
-              <Router>
+              <Router
+                future={{
+                  v7_startTransition: true,
+                  v7_relativeSplatPath: true
+                }}
+              >
                 <AppRoutes />
               </Router>
             </AdminAuthProvider>

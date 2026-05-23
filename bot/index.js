@@ -12,7 +12,7 @@ app.use(cors());
 app.use(express.json());
 
 const PORT = 3004;
-const webAppUrl = 'http://localhost:5173';
+const webAppUrl = 'http://localhost:3000';
 
 // Admin chat ID
 const ADMIN_CHAT_ID = '8512936274';
