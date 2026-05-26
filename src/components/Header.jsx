@@ -1,5 +1,5 @@
-import { useState } from 'react'
-import { Search, Menu, User, LogOut, Edit } from 'lucide-react'
+import { useState, useEffect, useRef } from 'react'
+import { Search, Menu, LogOut, Edit } from 'lucide-react'
 import { useLanguage } from '../context/LanguageContext'
 
 const Header = ({ onToggleSidebar, onLogout }) => {
@@ -7,6 +7,24 @@ const Header = ({ onToggleSidebar, onLogout }) => {
   const [searchQuery, setSearchQuery] = useState('')
   const [showProfileMenu, setShowProfileMenu] = useState(false)
   const [showEditProfile, setShowEditProfile] = useState(false)
+  const profileMenuRef = useRef(null)
+
+  // Tashqariga bosganda dropdown yopish
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (profileMenuRef.current && !profileMenuRef.current.contains(event.target)) {
+        setShowProfileMenu(false)
+      }
+    }
+
+    if (showProfileMenu) {
+      document.addEventListener('mousedown', handleClickOutside)
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [showProfileMenu])
 
   const handleSearch = (e) => {
     e.preventDefault()
@@ -72,7 +90,7 @@ const Header = ({ onToggleSidebar, onLogout }) => {
           </form>
         </div>
 
-        <div style={{ position: 'relative' }}>
+        <div style={{ position: 'relative' }} ref={profileMenuRef}>
           <button
             onClick={() => setShowProfileMenu(!showProfileMenu)}
             style={{
