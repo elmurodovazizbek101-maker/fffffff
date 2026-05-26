@@ -70,7 +70,7 @@ const Categories = () => {
       {/* Categories Grid */}
       <div style={{
         display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))',
+        gridTemplateColumns: 'repeat(3, 1fr)',
         gap: '20px'
       }}>
         {categories.map(category => (
