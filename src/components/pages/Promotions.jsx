@@ -150,9 +150,10 @@ const Promotions = () => {
       </div>
 
       {/* Slides Grid */}
+      {/* Promotions Grid - 2 ustun (katta kartochkalar) */}
       <div style={{
         display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fill, minmax(350px, 1fr))',
+        gridTemplateColumns: 'repeat(2, 1fr)',
         gap: '1.5rem'
       }}>
         {slides.map(slide => (

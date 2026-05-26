@@ -149,9 +149,10 @@ const Employees = () => {
       </div>
 
       {/* Stats */}
+      {/* Stats Cards - 4 ustun */}
       <div style={{
         display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+        gridTemplateColumns: 'repeat(4, 1fr)',
         gap: '16px',
         marginBottom: '24px'
       }}>
@@ -225,9 +226,10 @@ const Employees = () => {
       </div>
 
       {/* Employees Grid */}
+      {/* Employees Grid - 2 ustun (katta kartochkalar) */}
       <div style={{
         display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fill, minmax(350px, 1fr))',
+        gridTemplateColumns: 'repeat(2, 1fr)',
         gap: '20px'
       }}>
         {filteredEmployees.map(employee => (

@@ -103,10 +103,10 @@ const Products = () => {
         </button>
       </div>
 
-      {/* Stats Cards */}
+      {/* Stats Cards - 4 ustun */}
       <div style={{
         display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+        gridTemplateColumns: 'repeat(4, 1fr)',
         gap: '16px',
         marginBottom: '24px'
       }}>
@@ -215,10 +215,10 @@ const Products = () => {
         </div>
       </div>
 
-      {/* Products Grid */}
+      {/* Products Grid - 3 ustun (katta kartochkalar) */}
       <div style={{
         display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
+        gridTemplateColumns: 'repeat(3, 1fr)',
         gap: '20px'
       }}>
         {filteredProducts.map(product => {

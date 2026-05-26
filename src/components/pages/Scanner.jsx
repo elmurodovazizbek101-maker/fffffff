@@ -291,9 +291,10 @@ const Scanner = () => {
                 </p>
               </div>
 
+              {/* Stats - 3 ustun */}
               <div style={{
                 display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))',
+                gridTemplateColumns: 'repeat(3, 1fr)',
                 gap: '16px',
                 marginBottom: '20px'
               }}>
@@ -422,9 +423,10 @@ const Scanner = () => {
           Tez kirish - Mashhur mahsulotlar
         </h3>
 
+        {/* Products Grid - 3 ustun */}
         <div style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))',
+          gridTemplateColumns: 'repeat(3, 1fr)',
           gap: '16px'
         }}>
           {products.slice(0, 4).map(product => {

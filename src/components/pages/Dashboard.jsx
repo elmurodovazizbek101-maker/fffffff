@@ -97,10 +97,10 @@ const Dashboard = () => {
         </p>
       </div>
 
-      {/* Stats Grid */}
+      {/* Stats Grid - 4 ustun */}
       <div style={{
         display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+        gridTemplateColumns: 'repeat(4, 1fr)',
         gap: '20px',
         marginBottom: '30px'
       }}>
@@ -146,7 +146,7 @@ const Dashboard = () => {
         </h3>
         <div style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+          gridTemplateColumns: 'repeat(3, 1fr)',
           gap: '16px'
         }}>
           <div style={{

@@ -139,9 +139,10 @@ const Debts = () => {
       </div>
 
       {/* Stats */}
+      {/* Stats Cards - 4 ustun */}
       <div style={{
         display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+        gridTemplateColumns: 'repeat(4, 1fr)',
         gap: '16px',
         marginBottom: '24px'
       }}>
@@ -259,9 +260,10 @@ const Debts = () => {
       </div>
 
       {/* Debts List */}
+      {/* Debts Grid - 2 ustun (katta kartochkalar) */}
       <div style={{
         display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fill, minmax(350px, 1fr))',
+        gridTemplateColumns: 'repeat(2, 1fr)',
         gap: '16px'
       }}>
         {filteredDebts.map(debt => {

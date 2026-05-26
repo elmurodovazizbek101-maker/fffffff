@@ -149,9 +149,10 @@ const Suppliers = () => {
       </div>
 
       {/* Stats */}
+      {/* Stats Cards - 4 ustun */}
       <div style={{
         display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+        gridTemplateColumns: 'repeat(4, 1fr)',
         gap: '16px',
         marginBottom: '24px'
       }}>
@@ -225,9 +226,10 @@ const Suppliers = () => {
       </div>
 
       {/* Suppliers Grid */}
+      {/* Suppliers Grid - 2 ustun (katta kartochkalar) */}
       <div style={{
         display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fill, minmax(400px, 1fr))',
+        gridTemplateColumns: 'repeat(2, 1fr)',
         gap: '20px'
       }}>
         {filteredSuppliers.map(supplier => (

@@ -538,9 +538,10 @@ const Settings = () => {
           Qo'shimcha sozlamalar
         </h2>
 
+        {/* Settings Grid - 3 ustun */}
         <div style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
+          gridTemplateColumns: 'repeat(3, 1fr)',
           gap: '16px'
         }}>
           <div style={{
