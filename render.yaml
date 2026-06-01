@@ -2,8 +2,8 @@ services:
   # Static Site (Frontend)
   - type: web
     name: alisher-mobile
-    env: static
-    buildCommand: npm install && npm run build
+    runtime: static
+    buildCommand: npm ci && npm run build
     staticPublishPath: ./dist
     pullRequestPreviewsEnabled: true
     headers:
@@ -22,7 +22,7 @@ services:
         destination: /index.html
     envVars:
       - key: NODE_VERSION
-        value: 18.17.0
+        value: 20
       - key: VITE_SUPABASE_URL
         sync: false
       - key: VITE_SUPABASE_ANON_KEY

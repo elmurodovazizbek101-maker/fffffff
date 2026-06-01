@@ -4,7 +4,7 @@
   "description": "Alisher Mobile - Professional online store for mobile phones",
   "author": "Alisher Mobile Team",
   "license": "MIT",
-  "main": "index.js",
+  "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
