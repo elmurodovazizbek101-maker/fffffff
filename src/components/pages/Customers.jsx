@@ -1,47 +1,14 @@
 import { useState } from 'react'
 import { Plus, Search, Edit, Trash2, User, MapPin, Phone, Calendar, Users, BarChart3 } from 'lucide-react'
 import { useLanguage } from '../../context/LanguageContext'
+import { useData } from '../../context/DataContext'
 
 const Customers = () => {
   const { t } = useLanguage()
+  const { customers, addCustomer, updateCustomer, deleteCustomer } = useData()
   const [showAddModal, setShowAddModal] = useState(false)
   const [editingCustomer, setEditingCustomer] = useState(null)
   const [searchQuery, setSearchQuery] = useState('')
-  const [customers, setCustomers] = useState([
-    {
-      id: 1,
-      name: 'Akmal Karimov',
-      phone: '+998901234567',
-      region: 'Toshkent',
-      district: 'Chilonzor',
-      joinDate: '2024-01-15',
-      totalPurchases: 15,
-      totalAmount: 45000000,
-      notes: 'Doimiy mijoz, iPhone foydalanuvchisi'
-    },
-    {
-      id: 2,
-      name: 'Dilshod Toshev',
-      phone: '+998907654321',
-      region: 'Samarqand',
-      district: 'Markaz',
-      joinDate: '2024-02-20',
-      totalPurchases: 8,
-      totalAmount: 24000000,
-      notes: 'Samsung mahsulotlarini afzal ko\'radi'
-    },
-    {
-      id: 3,
-      name: 'Nodira Saidova',
-      phone: '+998909876543',
-      region: 'Andijon',
-      district: 'Xo\'jaobod',
-      joinDate: '2024-03-10',
-      totalPurchases: 12,
-      totalAmount: 32000000,
-      notes: 'Xiaomi va Oppo brendlarini tanlaydi'
-    }
-  ])
 
   const [newCustomer, setNewCustomer] = useState({
     name: '',
@@ -66,13 +33,12 @@ const Customers = () => {
   const handleAddCustomer = (e) => {
     e.preventDefault()
     const customer = {
-      id: Date.now(),
       ...newCustomer,
       joinDate: new Date().toISOString().split('T')[0],
       totalPurchases: 0,
       totalAmount: 0
     }
-    setCustomers([...customers, customer])
+    addCustomer(customer)
     setNewCustomer({
       name: '',
       phone: '',
@@ -85,14 +51,12 @@ const Customers = () => {
 
   const handleEditCustomer = (e) => {
     e.preventDefault()
-    setCustomers(customers.map(customer =>
-      customer.id === editingCustomer.id ? editingCustomer : customer
-    ))
+    updateCustomer(editingCustomer.id, editingCustomer)
     setEditingCustomer(null)
   }
 
   const handleDeleteCustomer = (id) => {
-    setCustomers(customers.filter(customer => customer.id !== id))
+    deleteCustomer(id)
   }
 
   const totalCustomers = customers.length

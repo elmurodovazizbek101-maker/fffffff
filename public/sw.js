@@ -76,8 +76,8 @@ self.addEventListener('fetch', (event) => {
 self.addEventListener('push', (event) => {
   const options = {
     body: event.data ? event.data.text() : 'Yangi xabar',
-    icon: '/icon-192x192.png',
-    badge: '/icon-72x72.png',
+    icon: '/favicon.ico',
+    badge: '/favicon.ico',
     vibrate: [200, 100, 200],
     tag: 'notification',
     requireInteraction: false

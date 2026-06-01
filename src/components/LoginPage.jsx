@@ -15,9 +15,59 @@ const LoginPage = ({ onLogin }) => {
 
   // Register fields
   const [name, setName] = useState('')
-  const [phone, setPhone] = useState('')
+  const [phone, setPhone] = useState('+998 ')
   const [region, setRegion] = useState('')
   const [district, setDistrict] = useState('')
+
+  // O'zbekiston viloyatlari
+  const uzbekistanRegions = [
+    'Toshkent shahri',
+    'Toshkent viloyati', 
+    'Andijon',
+    'Buxoro',
+    'Farg\'ona',
+    'Jizzax',
+    'Xorazm',
+    'Namangan',
+    'Navoiy',
+    'Qashqadaryo',
+    'Qoraqalpog\'iston',
+    'Samarqand',
+    'Sirdaryo',
+    'Surxondaryo'
+  ]
+
+  const handlePhoneChange = (value) => {
+    // +998 ni olib tashlash va qayta qo'shish
+    let cleanValue = value.replace(/[^\d]/g, '')
+    
+    // Agar 998 bilan boshlansa, uni olib tashlash
+    if (cleanValue.startsWith('998')) {
+      cleanValue = cleanValue.substring(3)
+    }
+    
+    // Maksimal 9 ta raqam (998 dan keyin)
+    if (cleanValue.length > 9) {
+      cleanValue = cleanValue.substring(0, 9)
+    }
+    
+    // Formatlash: +998 XX XXX XX XX
+    let formatted = '+998'
+    if (cleanValue.length > 0) {
+      formatted += ' ' + cleanValue.substring(0, 2)
+    }
+    if (cleanValue.length > 2) {
+      formatted += ' ' + cleanValue.substring(2, 5)
+    }
+    if (cleanValue.length > 5) {
+      formatted += ' ' + cleanValue.substring(5, 7)
+    }
+    if (cleanValue.length > 7) {
+      formatted += ' ' + cleanValue.substring(7, 9)
+    }
+    
+    setPhone(formatted)
+  }
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -34,7 +84,12 @@ const LoginPage = ({ onLogin }) => {
           // Admin login successful
           const adminSuccess = await onLogin(login.trim(), password)
           if (adminSuccess) {
+            setSuccess('Admin panelga yo\'naltirilmoqda...')
             // Will redirect to admin panel automatically
+            return
+          } else {
+            setError('Admin panelga kirish xatoligi!')
+            setIsLoading(false)
             return
           }
         }
@@ -84,6 +139,7 @@ const LoginPage = ({ onLogin }) => {
         }
       }
     } catch (err) {
+      console.error('Login error:', err)
       setError('Xatolik yuz berdi. Qayta urinib ko\'ring.')
       setIsLoading(false)
     }
@@ -347,7 +403,7 @@ const LoginPage = ({ onLogin }) => {
                 <input
                   type="tel"
                   value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
+                  onChange={(e) => handlePhoneChange(e.target.value)}
                   placeholder="+998 90 123 45 67"
                   style={{
                     width: '100%',
@@ -377,11 +433,9 @@ const LoginPage = ({ onLogin }) => {
                   }}>
                     VILOYAT
                   </label>
-                  <input
-                    type="text"
+                  <select
                     value={region}
                     onChange={(e) => setRegion(e.target.value)}
-                    placeholder="Toshkent"
                     style={{
                       width: '100%',
                       padding: '14px',
@@ -391,11 +445,21 @@ const LoginPage = ({ onLogin }) => {
                       outline: 'none',
                       transition: 'all 0.2s',
                       boxSizing: 'border-box',
-                      fontWeight: '500'
+                      fontWeight: '500',
+                      backgroundColor: 'white',
+                      cursor: 'pointer'
                     }}
                     onFocus={(e) => e.target.style.borderColor = '#667eea'}
                     onBlur={(e) => e.target.style.borderColor = '#e5e7eb'}
-                  />
+                    required
+                  >
+                    <option value="">Viloyatni tanlang</option>
+                    {uzbekistanRegions.map((regionName, index) => (
+                      <option key={index} value={regionName}>
+                        {regionName}
+                      </option>
+                    ))}
+                  </select>
                 </div>
 
                 <div>
@@ -477,30 +541,66 @@ const LoginPage = ({ onLogin }) => {
           </button>
         </form>
 
-        {/* Toggle Mode */}
+        {/* Mode Toggle Link */}
         <div style={{
           marginTop: '20px',
           textAlign: 'center'
         }}>
-          <button
-            type="button"
-            onClick={() => {
-              setMode(mode === 'login' ? 'register' : 'login')
-              setError('')
-              setSuccess('')
-            }}
-            style={{
-              background: 'none',
-              border: 'none',
-              color: '#4f46e5',
+          {mode === 'login' ? (
+            <p style={{
+              color: '#6b7280',
               fontSize: '14px',
-              fontWeight: '600',
-              cursor: 'pointer',
-              textDecoration: 'underline'
-            }}
-          >
-            {mode === 'login' ? 'Ro\'yxatdan o\'tish' : 'Kirish'}
-          </button>
+              margin: 0
+            }}>
+              Hisobingiz yo'qmi?{' '}
+              <button
+                type="button"
+                onClick={() => {
+                  setMode('register')
+                  setError('')
+                  setSuccess('')
+                }}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  color: '#4f46e5',
+                  fontSize: '14px',
+                  fontWeight: '600',
+                  cursor: 'pointer',
+                  textDecoration: 'underline'
+                }}
+              >
+                Ro'yxatdan o'ting
+              </button>
+            </p>
+          ) : (
+            <p style={{
+              color: '#6b7280',
+              fontSize: '14px',
+              margin: 0
+            }}>
+              Hisobingiz bormi?{' '}
+              <button
+                type="button"
+                onClick={() => {
+                  setMode('login')
+                  setError('')
+                  setSuccess('')
+                }}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  color: '#4f46e5',
+                  fontSize: '14px',
+                  fontWeight: '600',
+                  cursor: 'pointer',
+                  textDecoration: 'underline'
+                }}
+              >
+                Kirish
+              </button>
+            </p>
+          )}
         </div>
 
         {/* Footer */}

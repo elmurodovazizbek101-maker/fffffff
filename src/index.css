@@ -411,65 +411,205 @@ a:hover {
 .font-bold { font-weight: 700; }
 .font-extrabold { font-weight: 800; }
 
-/* Responsive Design */
-@media (max-width: 1024px) {
-  .container {
-    padding: 0 var(--spacing-md);
-  }
-
-  .grid-cols-4 {
-    grid-template-columns: repeat(3, 1fr);
-  }
-}
-
-@media (max-width: 768px) {
-  :root {
-    --spacing-xl: 1.5rem;
-    --spacing-2xl: 2rem;
-  }
-
+/* Responsive Design - Mobile First Approach */
+/* Base styles for mobile (320px+) */
+@media (min-width: 320px) {
   .container {
     padding: 0 var(--spacing-sm);
   }
-
+  
   .btn {
-    padding: 0.625rem 1.25rem;
-    font-size: 0.8rem;
+    min-height: 44px; /* Touch target size */
+    padding: 0.75rem 1rem;
+    font-size: 0.875rem;
   }
-
+  
+  .input {
+    min-height: 44px; /* Touch target size */
+    font-size: 16px; /* Prevent zoom on iOS */
+  }
+  
   .card {
-    padding: var(--spacing-lg);
+    margin: var(--spacing-sm);
+    padding: var(--spacing-md);
   }
-
+  
   .modal {
-    padding: var(--spacing-lg);
-    margin: var(--spacing-md);
+    margin: var(--spacing-sm);
+    padding: var(--spacing-md);
+    width: calc(100% - 2 * var(--spacing-sm));
   }
-
-  .grid-cols-4,
-  .grid-cols-3 {
-    grid-template-columns: repeat(2, 1fr);
-  }
-
-  h1 { font-size: 2rem; }
-  h2 { font-size: 1.75rem; }
-  h3 { font-size: 1.5rem; }
 }
 
-@media (max-width: 480px) {
+/* Small devices (576px and up) */
+@media (min-width: 576px) {
+  .container {
+    padding: 0 var(--spacing-md);
+  }
+  
+  .card {
+    margin: var(--spacing-md);
+    padding: var(--spacing-lg);
+  }
+  
+  .modal {
+    margin: var(--spacing-md);
+    padding: var(--spacing-lg);
+    width: calc(100% - 2 * var(--spacing-md));
+    max-width: 540px;
+  }
+}
+
+/* Medium devices (768px and up) */
+@media (min-width: 768px) {
+  .container {
+    padding: 0 var(--spacing-lg);
+  }
+  
+  .btn {
+    width: auto; /* Reset full width on larger screens */
+  }
+  
+  .grid-cols-2-md { grid-template-columns: repeat(2, 1fr); }
+  .grid-cols-3-md { grid-template-columns: repeat(3, 1fr); }
+  
+  .modal {
+    width: 90%;
+    max-width: 600px;
+  }
+}
+
+/* Large devices (992px and up) */
+@media (min-width: 992px) {
+  .container {
+    max-width: 960px;
+  }
+  
+  .grid-cols-3-lg { grid-template-columns: repeat(3, 1fr); }
+  .grid-cols-4-lg { grid-template-columns: repeat(4, 1fr); }
+}
+
+/* Extra large devices (1200px and up) */
+@media (min-width: 1200px) {
+  .container {
+    max-width: 1140px;
+  }
+}
+
+/* Extra extra large devices (1400px and up) */
+@media (min-width: 1400px) {
+  .container {
+    max-width: 1320px;
+  }
+}
+
+/* Mobile specific styles */
+@media (max-width: 767px) {
+  /* Typography adjustments */
+  h1 { font-size: 1.75rem; }
+  h2 { font-size: 1.5rem; }
+  h3 { font-size: 1.25rem; }
+  h4 { font-size: 1.125rem; }
+  h5 { font-size: 1rem; }
+  h6 { font-size: 0.875rem; }
+  
+  /* Button adjustments */
+  .btn {
+    width: 100%;
+    margin-bottom: var(--spacing-sm);
+  }
+  
+  .btn-group .btn {
+    width: auto;
+    margin-bottom: 0;
+  }
+  
+  /* Grid adjustments */
   .grid-cols-4,
   .grid-cols-3,
   .grid-cols-2 {
     grid-template-columns: 1fr;
   }
-
-  .btn {
-    width: 100%;
+  
+  /* Card adjustments */
+  .card {
+    border-radius: var(--radius-lg);
   }
+  
+  /* Modal adjustments */
+  .modal {
+    border-radius: var(--radius-lg);
+    max-height: calc(100vh - 2rem);
+  }
+  
+  /* Table responsive */
+  .table-responsive {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  .table-responsive table {
+    min-width: 600px;
+  }
+}
 
-  h1 { font-size: 1.75rem; }
-  h2 { font-size: 1.5rem; }
-  h3 { font-size: 1.25rem; }
+/* Touch device optimizations */
+@media (hover: none) and (pointer: coarse) {
+  .btn:hover {
+    transform: none; /* Disable hover effects on touch devices */
+  }
+  
+  .card:hover {
+    transform: none;
+  }
+  
+  /* Larger touch targets */
+  .btn,
+  .input,
+  select,
+  textarea {
+    min-height: 48px;
+  }
+  
+  /* Remove hover states that don't work on touch */
+  a:hover {
+    color: inherit;
+  }
+}
+
+/* Landscape phone orientation */
+@media (max-width: 767px) and (orientation: landscape) {
+  .modal {
+    max-height: calc(100vh - 1rem);
+    margin: 0.5rem;
+  }
+  
+  h1 { font-size: 1.5rem; }
+  h2 { font-size: 1.25rem; }
+  h3 { font-size: 1.125rem; }
+}
+
+/* High DPI displays */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+  /* Optimize for retina displays */
+  .btn {
+    border-width: 0.5px;
+  }
+}
+
+/* Tablet specific styles */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .container {
+    padding: 0 var(--spacing-lg);
+  }
+  
+  .grid-cols-3 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .grid-cols-4 {
+    grid-template-columns: repeat(3, 1fr);
+  }
 }
 
 /* Dark Mode Support */
@@ -508,22 +648,316 @@ a:hover {
   }
 }
 
-/* Focus Styles */
+/* Accessibility Improvements */
+
+/* Focus Styles - Enhanced */
 .btn:focus-visible,
-.input:focus-visible {
-  outline: 2px solid var(--primary-color);
+.input:focus-visible,
+a:focus-visible,
+button:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: 3px solid var(--primary-color);
   outline-offset: 2px;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.3);
 }
 
-/* High Contrast Mode */
+/* Skip to main content link */
+.skip-link {
+  position: absolute;
+  top: -40px;
+  left: 6px;
+  background: var(--primary-color);
+  color: white;
+  padding: 8px;
+  text-decoration: none;
+  border-radius: 4px;
+  z-index: 10000;
+  font-weight: 600;
+}
+
+.skip-link:focus {
+  top: 6px;
+}
+
+/* Screen reader only content */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* High contrast mode support */
 @media (prefers-contrast: high) {
   .btn {
     border: 2px solid currentColor;
+    font-weight: 700;
   }
 
   .card {
     border: 2px solid var(--text-primary);
   }
+  
+  .input {
+    border: 2px solid var(--text-primary);
+  }
+  
+  a {
+    text-decoration: underline;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Color blind friendly indicators */
+.status-success::before {
+  content: "✓ ";
+  font-weight: bold;
+}
+
+.status-error::before {
+  content: "✗ ";
+  font-weight: bold;
+}
+
+.status-warning::before {
+  content: "⚠ ";
+  font-weight: bold;
+}
+
+/* Keyboard navigation improvements */
+.keyboard-nav {
+  outline: none;
+}
+
+.keyboard-nav:focus-visible {
+  outline: 3px solid var(--primary-color);
+  outline-offset: 2px;
+}
+
+/* Error message styling */
+.error-message {
+  color: var(--error-color);
+  font-size: 0.875rem;
+  margin-top: 0.25rem;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.error-message::before {
+  content: "⚠";
+  font-weight: bold;
+}
+
+/* Success message styling */
+.success-message {
+  color: var(--success-color);
+  font-size: 0.875rem;
+  margin-top: 0.25rem;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.success-message::before {
+  content: "✓";
+  font-weight: bold;
+}
+
+/* Loading state accessibility */
+.loading {
+  position: relative;
+}
+
+.loading::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+}
+
+/* Form field groups */
+.form-group {
+  margin-bottom: var(--spacing-lg);
+}
+
+.form-label {
+  display: block;
+  margin-bottom: var(--spacing-sm);
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.form-label.required::after {
+  content: " *";
+  color: var(--error-color);
+}
+
+/* Button groups for better keyboard navigation */
+.btn-group {
+  display: flex;
+  gap: var(--spacing-sm);
+  flex-wrap: wrap;
+}
+
+.btn-group .btn:focus {
+  z-index: 2;
+}
+
+/* Modal accessibility improvements */
+.modal[role="dialog"] {
+  position: relative;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--spacing-lg);
+  padding-bottom: var(--spacing-md);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.modal-close {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  padding: 0.25rem;
+  border-radius: 50%;
+  width: 2rem;
+  height: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-secondary);
+}
+
+.modal-close:hover,
+.modal-close:focus {
+  background: rgba(0, 0, 0, 0.1);
+  color: var(--text-primary);
+}
+
+/* Table accessibility */
+.table-responsive {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.table th,
+.table td {
+  padding: var(--spacing-sm) var(--spacing-md);
+  text-align: left;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.table th {
+  font-weight: 600;
+  background: rgba(0, 0, 0, 0.05);
+}
+
+.table tbody tr:hover {
+  background: rgba(0, 0, 0, 0.02);
+}
+
+/* Tooltip accessibility */
+.tooltip {
+  position: relative;
+  display: inline-block;
+}
+
+.tooltip-content {
+  visibility: hidden;
+  opacity: 0;
+  position: absolute;
+  bottom: 125%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--text-primary);
+  color: white;
+  padding: 0.5rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.875rem;
+  white-space: nowrap;
+  z-index: 1000;
+  transition: opacity 0.3s;
+}
+
+.tooltip:hover .tooltip-content,
+.tooltip:focus .tooltip-content {
+  visibility: visible;
+  opacity: 1;
+}
+
+/* Progress indicators */
+.progress {
+  width: 100%;
+  height: 0.5rem;
+  background: rgba(0, 0, 0, 0.1);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+}
+
+.progress-bar {
+  height: 100%;
+  background: var(--primary-gradient);
+  transition: width 0.3s ease;
+}
+
+/* Status indicators with text alternatives */
+.status-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.status-active {
+  background: rgba(16, 185, 129, 0.1);
+  color: #065f46;
+}
+
+.status-inactive {
+  background: rgba(107, 114, 128, 0.1);
+  color: #374151;
+}
+
+.status-error {
+  background: rgba(239, 68, 68, 0.1);
+  color: #991b1b;
 }
 
 /* Dark Mode Support */
@@ -582,4 +1016,43 @@ a:hover {
 /* Smooth transitions for theme changes */
 * {
   transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+/* Telegram Login Animations */
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+@keyframes bounce {
+  0%, 20%, 53%, 80%, 100% { transform: translate3d(0,0,0); }
+  40%, 43% { transform: translate3d(0, -30px, 0); }
+  70% { transform: translate3d(0, -15px, 0); }
+  90% { transform: translate3d(0, -4px, 0); }
+}
+
+/* Telegram Login Widget Styles */
+.telegram-login-widget {
+  animation: fadeIn 0.5s ease-out;
+}
+
+.telegram-user-info {
+  animation: slideIn 0.3s ease-out;
+}
+
+/* Responsive Telegram Login */
+@media (max-width: 768px) {
+  .telegram-login-widget {
+    width: 100% !important;
+  }
+}
+
+/* Loading spinner animation */
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Smooth transitions for theme changes */
+* {
+  transition: color 0.2s ease, background-color 0.2s ease, border-color 0.2s ease;
 }

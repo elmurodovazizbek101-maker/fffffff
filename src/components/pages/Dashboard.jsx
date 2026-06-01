@@ -1,9 +1,13 @@
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
 import { TrendingUp, DollarSign, Percent, CreditCard, Banknote, Smartphone, Users } from 'lucide-react'
 import { useLanguage } from '../../context/LanguageContext'
+import { useData } from '../../context/DataContext'
 
 const Dashboard = () => {
   const { t } = useLanguage()
+  const { getStats } = useData()
+  
+  // Real statistika olish
+  const stats = getStats()
 
   // Sample data
   const salesData = [
@@ -243,17 +247,26 @@ const Dashboard = () => {
           }}>
             Oylik sotuv statistikasi
           </h3>
-          <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={salesData}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="name" />
-              <YAxis />
-              <Tooltip
-                formatter={(value) => [`${(value / 1000000).toFixed(1)}M so'm`, 'Sotuv']}
-              />
-              <Bar dataKey="sales" fill="#4f46e5" radius={[4, 4, 0, 0]} />
-            </BarChart>
-          </ResponsiveContainer>
+          <div style={{ 
+            width: '100%', 
+            height: '300px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            backgroundColor: '#f8fafc',
+            borderRadius: '8px',
+            border: '2px dashed #e2e8f0'
+          }}>
+            <div style={{ textAlign: 'center', color: '#6b7280' }}>
+              <TrendingUp size={48} style={{ marginBottom: '12px' }} />
+              <p style={{ margin: 0, fontSize: '16px', fontWeight: '500' }}>
+                Grafik ko'rinishi
+              </p>
+              <p style={{ margin: '4px 0 0 0', fontSize: '14px' }}>
+                Recharts kutubxonasi kerak
+              </p>
+            </div>
+          </div>
         </div>
 
         {/* Debt Periods */}

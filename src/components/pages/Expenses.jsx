@@ -1,6 +1,5 @@
 import { useState } from 'react'
-import { Plus, Search, Calendar, Receipt, Home, Zap, Car, Wrench, Building, MoreHorizontal, BarChart3, Coins } from 'lucide-react'
-import { PieChart, Pie, Cell, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip } from 'recharts'
+import { Plus, Search, Calendar, Receipt, Home, Zap, Car, Wrench, Building, MoreHorizontal, BarChart3, Coins, TrendingUp } from 'lucide-react'
 import { useLanguage } from '../../context/LanguageContext'
 
 const Expenses = () => {
@@ -215,23 +214,26 @@ const Expenses = () => {
           }}>
             Kategoriya bo'yicha xarajatlar
           </h3>
-          <ResponsiveContainer width="100%" height={250}>
-            <PieChart>
-              <Pie
-                data={pieData}
-                cx="50%"
-                cy="50%"
-                outerRadius={80}
-                dataKey="value"
-                label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
-              >
-                {pieData.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={entry.color} />
-                ))}
-              </Pie>
-              <Tooltip formatter={(value) => `${(value / 1000000).toFixed(1)}M so'm`} />
-            </PieChart>
-          </ResponsiveContainer>
+          <div style={{ 
+            width: '100%', 
+            height: '250px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            backgroundColor: '#f8fafc',
+            borderRadius: '8px',
+            border: '2px dashed #e2e8f0'
+          }}>
+            <div style={{ textAlign: 'center', color: '#6b7280' }}>
+              <BarChart3 size={48} style={{ marginBottom: '12px' }} />
+              <p style={{ margin: 0, fontSize: '16px', fontWeight: '500' }}>
+                Donut grafik
+              </p>
+              <p style={{ margin: '4px 0 0 0', fontSize: '14px' }}>
+                Recharts kutubxonasi kerak
+              </p>
+            </div>
+          </div>
         </div>
 
         {/* Bar Chart */}
@@ -244,17 +246,26 @@ const Expenses = () => {
           }}>
             Oylik xarajatlar dinamikasi
           </h3>
-          <ResponsiveContainer width="100%" height={250}>
-            <BarChart data={monthlyData}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="month" />
-              <YAxis />
-              <Tooltip
-                formatter={(value) => [`${(value / 1000000).toFixed(1)}M so'm`, 'Xarajat']}
-              />
-              <Bar dataKey="amount" fill="#ef4444" radius={[4, 4, 0, 0]} />
-            </BarChart>
-          </ResponsiveContainer>
+          <div style={{ 
+            width: '100%', 
+            height: '250px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            backgroundColor: '#f8fafc',
+            borderRadius: '8px',
+            border: '2px dashed #e2e8f0'
+          }}>
+            <div style={{ textAlign: 'center', color: '#6b7280' }}>
+              <TrendingUp size={48} style={{ marginBottom: '12px' }} />
+              <p style={{ margin: 0, fontSize: '16px', fontWeight: '500' }}>
+                Ustunli grafik
+              </p>
+              <p style={{ margin: '4px 0 0 0', fontSize: '14px' }}>
+                Recharts kutubxonasi kerak
+              </p>
+            </div>
+          </div>
         </div>
       </div>
 

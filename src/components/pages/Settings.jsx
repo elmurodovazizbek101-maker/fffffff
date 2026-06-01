@@ -1,7 +1,8 @@
 import { useState } from 'react'
-import { Store, Phone, MapPin, Globe, Save, Lock, Key, Shield } from 'lucide-react'
+import { Store, Phone, MapPin, Globe, Save, Lock, Key, Shield, Eye, EyeOff, RotateCcw, MessageCircle, Send, CheckCircle, AlertCircle, Settings as SettingsIcon } from 'lucide-react'
 import { useLanguage } from '../../context/LanguageContext'
-import { getAdminCredentials, updateAdminCredentials } from '../../utils/auth'
+import { getAdminCredentials, updateAdminCredentials, resetAdminCredentials } from '../../utils/auth'
+import { telegramBot } from '../../utils/telegram'
 
 const Settings = () => {
   const { t, language, setLanguage } = useLanguage()
@@ -12,6 +13,39 @@ const Settings = () => {
     description: 'Mobil telefonlar va aksessuarlar do\'koni'
   })
 
+  // Telefon raqam formatlash funksiyasi
+  const handleShopPhoneChange = (value) => {
+    // +998 ni olib tashlash va qayta qo'shish
+    let cleanValue = value.replace(/[^\d]/g, '')
+    
+    // Agar 998 bilan boshlansa, uni olib tashlash
+    if (cleanValue.startsWith('998')) {
+      cleanValue = cleanValue.substring(3)
+    }
+    
+    // Maksimal 9 ta raqam (998 dan keyin)
+    if (cleanValue.length > 9) {
+      cleanValue = cleanValue.substring(0, 9)
+    }
+    
+    // Formatlash: +998 XX XXX XX XX
+    let formatted = '+998'
+    if (cleanValue.length > 0) {
+      formatted += ' ' + cleanValue.substring(0, 2)
+    }
+    if (cleanValue.length > 2) {
+      formatted += ' ' + cleanValue.substring(2, 5)
+    }
+    if (cleanValue.length > 5) {
+      formatted += ' ' + cleanValue.substring(5, 7)
+    }
+    if (cleanValue.length > 7) {
+      formatted += ' ' + cleanValue.substring(7, 9)
+    }
+    
+    setShopInfo({...shopInfo, phone: formatted})
+  }
+
   const [showSuccess, setShowSuccess] = useState(false)
 
   // Admin credentials state
@@ -20,6 +54,16 @@ const Settings = () => {
   const [newAdminPassword, setNewAdminPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
   const [adminUpdateMessage, setAdminUpdateMessage] = useState(null)
+  
+  // Password visibility states
+  const [showCurrentPassword, setShowCurrentPassword] = useState(false)
+  const [showNewPassword, setShowNewPassword] = useState(false)
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
+
+  // Telegram bot testing states
+  const [telegramTestResult, setTelegramTestResult] = useState(null)
+  const [telegramTesting, setTelegramTesting] = useState(false)
+  const [botInfo, setBotInfo] = useState(null)
 
   const languages = [
     { code: 'uz', name: 'O\'zbekcha', flag: 'UZ' },
@@ -66,6 +110,138 @@ const Settings = () => {
       }, 5000)
     } else {
       setAdminUpdateMessage({ type: 'error', text: result.message })
+    }
+  }
+
+  const handleResetAdminCredentials = () => {
+    if (window.confirm('Admin ma\'lumotlarini default qiymatga qaytarishni xohlaysizmi?\n\nLogin: superadmin\nParol: Admin@2024!Secure')) {
+      const defaultCreds = resetAdminCredentials()
+      setAdminCreds(defaultCreds)
+      setNewAdminLogin('')
+      setNewAdminPassword('')
+      setConfirmPassword('')
+      setAdminUpdateMessage({ 
+        type: 'success', 
+        text: 'Admin ma\'lumotlari default qiymatga qaytarildi! Login: superadmin, Parol: Admin@2024!Secure' 
+      })
+
+      setTimeout(() => {
+        setAdminUpdateMessage(null)
+      }, 8000)
+    }
+  }
+
+  // Telegram bot testing functions
+  const handleTestTelegramBot = async () => {
+    setTelegramTesting(true)
+    setTelegramTestResult(null)
+
+    try {
+      console.log('🤖 Telegram bot test boshlanmoqda...')
+      
+      // Get bot info first
+      const botInfoResult = await telegramBot.getBotInfo()
+      setBotInfo(botInfoResult)
+
+      if (botInfoResult.ok) {
+        console.log('✅ Bot ma\'lumotlari olindi:', botInfoResult.result.first_name)
+        
+        // Send test message
+        const testResult = await telegramBot.sendMessageToAdmin('🤖 <b>Test xabari saytingizdan!</b>\n\n✅ Telegram bot muvaffaqiyatli ishlayapti!\n📅 Sana: ' + new Date().toLocaleString('uz-UZ'))
+        
+        if (testResult.success) {
+          setTelegramTestResult({
+            type: 'success',
+            message: '🎉 Test xabari muvaffaqiyatli yuborildi! Telegram botingizni tekshiring.',
+            botName: botInfoResult.result?.first_name || 'Bot',
+            details: 'Endi buyurtmalar ham Telegram\'ga yuboriladi.'
+          })
+        } else {
+          setTelegramTestResult({
+            type: 'error',
+            message: `❌ Xabar yuborishda xatolik: ${testResult.error}`,
+            details: testResult.error.includes('chat not found') 
+              ? 'Chat ID noto\'g\'ri yoki botga /start yuborilmagan.' 
+              : 'Bot sozlamalarini tekshiring.'
+          })
+        }
+      } else {
+        setTelegramTestResult({
+          type: 'error',
+          message: `❌ Bot ma'lumotlarini olishda xatolik: ${botInfoResult.description}`,
+          details: 'Bot token noto\'g\'ri yoki bot faol emas.'
+        })
+      }
+    } catch (error) {
+      console.error('Telegram test xatoligi:', error)
+      setTelegramTestResult({
+        type: 'error',
+        message: `❌ Telegram bilan bog'lanishda xatolik: ${error.message}`,
+        details: 'Internet ulanishini tekshiring yoki keyinroq qaytadan urinib ko\'ring.'
+      })
+    }
+
+    setTelegramTesting(false)
+  }
+
+  const handleGetChatId = async () => {
+    try {
+      console.log('🔍 Chat ID qidirilmoqda...')
+      const updates = await telegramBot.getUpdates()
+      
+      if (updates.ok && updates.result.length > 0) {
+        const chatIds = [...new Set(updates.result.map(update => 
+          update.message?.chat?.id || update.callback_query?.message?.chat?.id
+        ).filter(Boolean))]
+        
+        if (chatIds.length > 0) {
+          const chatIdList = chatIds.map(id => `• ${id}`).join('\n')
+          
+          // Eng oxirgi Chat ID ni avtomatik o'rnatish
+          const latestChatId = chatIds[chatIds.length - 1].toString()
+          
+          if (window.confirm(`✅ Topilgan Chat ID lar:\n\n${chatIdList}\n\n🔧 Eng oxirgi Chat ID (${latestChatId}) ni avtomatik o'rnatishni xohlaysizmi?\n\n✅ "OK" - Avtomatik o'rnatish\n❌ "Cancel" - Qo'lda tanlash`)) {
+            // Avtomatik o'rnatish
+            telegramBot.setAdminChatId(latestChatId)
+            setTelegramTestResult({
+              type: 'success',
+              message: `✅ Chat ID muvaffaqiyatli o'rnatildi: ${latestChatId}`,
+              details: 'Endi "Bot Testini O\'tkazish" tugmasini bosib tekshiring.'
+            })
+          } else {
+            // Qo'lda tanlash
+            const selectedChatId = prompt(`📋 Chat ID ni kiriting:\n\nTopilgan Chat ID lar:\n${chatIdList}\n\nEng oxirgi Chat ID ni tavsiya qilamiz: ${latestChatId}`, latestChatId)
+            
+            if (selectedChatId && selectedChatId.trim()) {
+              telegramBot.setAdminChatId(selectedChatId.trim())
+              setTelegramTestResult({
+                type: 'success',
+                message: `✅ Chat ID muvaffaqiyatli o'rnatildi: ${selectedChatId.trim()}`,
+                details: 'Endi "Bot Testini O\'tkazish" tugmasini bosib tekshiring.'
+              })
+            }
+          }
+        } else {
+          setTelegramTestResult({
+            type: 'error',
+            message: '❌ Chat ID topilmadi',
+            details: 'Botga /start yuboring va qaytadan urinib ko\'ring.'
+          })
+        }
+      } else {
+        setTelegramTestResult({
+          type: 'error',
+          message: '❌ Bot yangilanishlari topilmadi',
+          details: 'Botga /start yuboring va qaytadan urinib ko\'ring.'
+        })
+      }
+    } catch (error) {
+      console.error('Chat ID olishda xatolik:', error)
+      setTelegramTestResult({
+        type: 'error',
+        message: `❌ Chat ID olishda xatolik: ${error.message}`,
+        details: 'Internet ulanishini tekshiring.'
+      })
     }
   }
 
@@ -143,7 +319,8 @@ const Settings = () => {
                 type="tel"
                 className="input"
                 value={shopInfo.phone}
-                onChange={(e) => setShopInfo({...shopInfo, phone: e.target.value})}
+                onChange={(e) => handleShopPhoneChange(e.target.value)}
+                placeholder="+998 90 123 45 67"
               />
             </div>
 
@@ -389,16 +566,41 @@ const Settings = () => {
                 Parol:
               </div>
               <div style={{
-                padding: '10px 12px',
-                backgroundColor: 'white',
-                border: '1px solid #fca5a5',
-                borderRadius: '8px',
-                fontSize: '14px',
-                fontWeight: '600',
-                color: '#991b1b',
-                fontFamily: 'monospace'
+                position: 'relative',
+                display: 'flex',
+                alignItems: 'center'
               }}>
-                {'•'.repeat(adminCreds.password.length)}
+                <div style={{
+                  padding: '10px 40px 10px 12px',
+                  backgroundColor: 'white',
+                  border: '1px solid #fca5a5',
+                  borderRadius: '8px',
+                  fontSize: '14px',
+                  fontWeight: '600',
+                  color: '#991b1b',
+                  fontFamily: 'monospace',
+                  flex: 1
+                }}>
+                  {showCurrentPassword ? adminCreds.password : '•'.repeat(adminCreds.password.length)}
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setShowCurrentPassword(!showCurrentPassword)}
+                  style={{
+                    position: 'absolute',
+                    right: '8px',
+                    background: 'none',
+                    border: 'none',
+                    cursor: 'pointer',
+                    padding: '4px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    color: '#991b1b'
+                  }}
+                >
+                  {showCurrentPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                </button>
               </div>
             </div>
 
@@ -461,14 +663,37 @@ const Settings = () => {
                 }}>
                   Yangi Parol
                 </label>
-                <input
-                  type="password"
-                  className="input"
-                  value={newAdminPassword}
-                  onChange={(e) => setNewAdminPassword(e.target.value)}
-                  placeholder="Kamida 6 ta belgi"
-                  minLength="6"
-                />
+                <div style={{ position: 'relative' }}>
+                  <input
+                    type={showNewPassword ? "text" : "password"}
+                    className="input"
+                    value={newAdminPassword}
+                    onChange={(e) => setNewAdminPassword(e.target.value)}
+                    placeholder="Kamida 6 ta belgi"
+                    minLength="6"
+                    style={{ paddingRight: '40px' }}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowNewPassword(!showNewPassword)}
+                    style={{
+                      position: 'absolute',
+                      right: '8px',
+                      top: '50%',
+                      transform: 'translateY(-50%)',
+                      background: 'none',
+                      border: 'none',
+                      cursor: 'pointer',
+                      padding: '4px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      color: '#6b7280'
+                    }}
+                  >
+                    {showNewPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                  </button>
+                </div>
               </div>
 
               <div style={{ marginBottom: '20px' }}>
@@ -481,13 +706,36 @@ const Settings = () => {
                 }}>
                   Parolni Tasdiqlash
                 </label>
-                <input
-                  type="password"
-                  className="input"
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                  placeholder="Parolni qayta kiriting"
-                />
+                <div style={{ position: 'relative' }}>
+                  <input
+                    type={showConfirmPassword ? "text" : "password"}
+                    className="input"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    placeholder="Parolni qayta kiriting"
+                    style={{ paddingRight: '40px' }}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                    style={{
+                      position: 'absolute',
+                      right: '8px',
+                      top: '50%',
+                      transform: 'translateY(-50%)',
+                      background: 'none',
+                      border: 'none',
+                      cursor: 'pointer',
+                      padding: '4px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      color: '#6b7280'
+                    }}
+                  >
+                    {showConfirmPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                  </button>
+                </div>
               </div>
 
               <button
@@ -501,11 +749,31 @@ const Settings = () => {
                   justifyContent: 'center',
                   background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
                   color: 'white',
-                  fontWeight: '600'
+                  fontWeight: '600',
+                  marginBottom: '12px'
                 }}
               >
                 <Shield size={16} />
                 Login va Parolni O'zgartirish
+              </button>
+
+              <button
+                type="button"
+                onClick={handleResetAdminCredentials}
+                className="btn"
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  width: '100%',
+                  justifyContent: 'center',
+                  background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
+                  color: 'white',
+                  fontWeight: '600'
+                }}
+              >
+                <RotateCcw size={16} />
+                Default Qiymatga Qaytarish
               </button>
             </form>
 
@@ -523,6 +791,275 @@ const Settings = () => {
                 {adminUpdateMessage.text}
               </div>
             )}
+          </div>
+        </div>
+      </div>
+
+      {/* Telegram Bot Testing Section */}
+      <div className="card" style={{ marginTop: '24px' }}>
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '12px',
+          marginBottom: '20px'
+        }}>
+          <MessageCircle size={24} color="#0088cc" />
+          <h2 style={{
+            fontSize: '20px',
+            fontWeight: '600',
+            margin: 0,
+            color: '#1f2937'
+          }}>
+            Telegram Bot Sozlamalari
+          </h2>
+        </div>
+
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: '1fr 1fr',
+          gap: '24px'
+        }}>
+          {/* Bot Information */}
+          <div style={{
+            padding: '20px',
+            backgroundColor: '#f0f9ff',
+            border: '2px solid #bae6fd',
+            borderRadius: '12px'
+          }}>
+            <h3 style={{
+              fontSize: '16px',
+              fontWeight: '600',
+              marginBottom: '16px',
+              color: '#0c4a6e',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px'
+            }}>
+              <MessageCircle size={18} />
+              Bot Ma'lumotlari
+            </h3>
+
+            <div style={{ marginBottom: '12px' }}>
+              <div style={{
+                fontSize: '12px',
+                color: '#0c4a6e',
+                marginBottom: '4px',
+                fontWeight: '500'
+              }}>
+                Chat ID:
+              </div>
+              <div style={{
+                padding: '10px 12px',
+                backgroundColor: 'white',
+                border: '1px solid #7dd3fc',
+                borderRadius: '8px',
+                fontSize: '14px',
+                fontWeight: '600',
+                color: telegramBot.getAdminChatId() === '123456789' ? '#dc2626' : '#0c4a6e',
+                fontFamily: 'monospace',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px'
+              }}>
+                {telegramBot.getAdminChatId()}
+                {telegramBot.getAdminChatId() === '123456789' ? (
+                  <span style={{
+                    fontSize: '10px',
+                    backgroundColor: '#fee2e2',
+                    color: '#dc2626',
+                    padding: '2px 6px',
+                    borderRadius: '4px',
+                    fontWeight: '500'
+                  }}>
+                    SOZLANMAGAN
+                  </span>
+                ) : (
+                  <span style={{
+                    fontSize: '10px',
+                    backgroundColor: '#dcfce7',
+                    color: '#16a34a',
+                    padding: '2px 6px',
+                    borderRadius: '4px',
+                    fontWeight: '500'
+                  }}>
+                    SOZLANGAN
+                  </span>
+                )}
+              </div>
+            </div>
+
+            <div style={{ marginBottom: '12px' }}>
+              <div style={{
+                fontSize: '12px',
+                color: '#0c4a6e',
+                marginBottom: '4px',
+                fontWeight: '500'
+              }}>
+                Bot Token:
+              </div>
+              <div style={{
+                padding: '10px 12px',
+                backgroundColor: 'white',
+                border: '1px solid #7dd3fc',
+                borderRadius: '8px',
+                fontSize: '12px',
+                fontWeight: '600',
+                color: '#0c4a6e',
+                fontFamily: 'monospace',
+                wordBreak: 'break-all'
+              }}>
+                8861308673:AAG1V83_d33jueqRvsxuyos4opTaJVyCCmE
+              </div>
+            </div>
+
+            {botInfo && botInfo.ok && (
+              <div style={{ marginBottom: '12px' }}>
+                <div style={{
+                  fontSize: '12px',
+                  color: '#0c4a6e',
+                  marginBottom: '4px',
+                  fontWeight: '500'
+                }}>
+                  Bot Nomi:
+                </div>
+                <div style={{
+                  padding: '10px 12px',
+                  backgroundColor: 'white',
+                  border: '1px solid #7dd3fc',
+                  borderRadius: '8px',
+                  fontSize: '14px',
+                  fontWeight: '600',
+                  color: '#0c4a6e'
+                }}>
+                  @{botInfo.result.username} ({botInfo.result.first_name})
+                </div>
+              </div>
+            )}
+
+            <div style={{
+              marginTop: '16px',
+              padding: '12px',
+              backgroundColor: '#e0f2fe',
+              borderRadius: '8px',
+              fontSize: '12px',
+              color: '#0c4a6e',
+              lineHeight: '1.5'
+            }}>
+              <strong>📋 Qadamlar:</strong><br />
+              1. Telegram'da botingizga /start yuboring<br />
+              2. "Chat ID olish" tugmasini bosing<br />
+              3. Chat ID ni telegram.js faylida o'rnating<br />
+              4. "Bot testini o'tkazish" tugmasini bosing
+            </div>
+          </div>
+
+          {/* Testing Controls */}
+          <div>
+            <h3 style={{
+              fontSize: '16px',
+              fontWeight: '600',
+              marginBottom: '16px',
+              color: '#1f2937',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px'
+            }}>
+              <Send size={18} />
+              Bot Testlari
+            </h3>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              <button
+                onClick={handleGetChatId}
+                className="btn"
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  justifyContent: 'center',
+                  background: 'linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%)',
+                  color: 'white',
+                  fontWeight: '600'
+                }}
+              >
+                <MessageCircle size={16} />
+                Chat ID Olish
+              </button>
+
+              <button
+                onClick={handleTestTelegramBot}
+                disabled={telegramTesting}
+                className="btn"
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  justifyContent: 'center',
+                  background: telegramTesting 
+                    ? 'linear-gradient(135deg, #94a3b8 0%, #64748b 100%)' 
+                    : 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+                  color: 'white',
+                  fontWeight: '600',
+                  cursor: telegramTesting ? 'not-allowed' : 'pointer'
+                }}
+              >
+                <Send size={16} />
+                {telegramTesting ? 'Test o\'tkazilmoqda...' : 'Bot Testini O\'tkazish'}
+              </button>
+            </div>
+
+            {telegramTestResult && (
+              <div style={{
+                marginTop: '16px',
+                padding: '16px',
+                backgroundColor: telegramTestResult.type === 'success' ? '#dcfce7' : '#fee2e2',
+                border: `2px solid ${telegramTestResult.type === 'success' ? '#bbf7d0' : '#fecaca'}`,
+                borderRadius: '12px',
+                color: telegramTestResult.type === 'success' ? '#166534' : '#991b1b'
+              }}>
+                <div style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  marginBottom: '8px'
+                }}>
+                  {telegramTestResult.type === 'success' ? (
+                    <CheckCircle size={20} color="#16a34a" />
+                  ) : (
+                    <AlertCircle size={20} color="#dc2626" />
+                  )}
+                  <strong>
+                    {telegramTestResult.type === 'success' ? 'Muvaffaqiyat!' : 'Xatolik!'}
+                  </strong>
+                </div>
+                <div style={{ fontSize: '14px', marginBottom: '8px' }}>
+                  {telegramTestResult.message}
+                </div>
+                {telegramTestResult.details && (
+                  <div style={{ fontSize: '12px', opacity: 0.8 }}>
+                    {telegramTestResult.details}
+                  </div>
+                )}
+                {telegramTestResult.botName && (
+                  <div style={{ fontSize: '12px', marginTop: '8px', fontWeight: '600' }}>
+                    Bot: {telegramTestResult.botName}
+                  </div>
+                )}
+              </div>
+            )}
+
+            <div style={{
+              marginTop: '16px',
+              padding: '12px',
+              backgroundColor: '#fef3c7',
+              border: '1px solid #fcd34d',
+              borderRadius: '8px',
+              fontSize: '12px',
+              color: '#92400e',
+              lineHeight: '1.5'
+            }}>
+              <strong>⚠️ Eslatma:</strong> Agar xabar kelmasa, Chat ID ni to'g'ri sozlaganingizni va botga /start yuborgan ekanligingizni tekshiring.
+            </div>
           </div>
         </div>
       </div>

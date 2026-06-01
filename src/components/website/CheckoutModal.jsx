@@ -1,473 +1,659 @@
 import { useState, useEffect } from 'react'
-import { X, CheckCircle } from 'lucide-react'
+import { X, User, Phone, MapPin, CreditCard, Banknote, Smartphone, Calendar, CheckCircle, AlertCircle, Loader, Clock } from 'lucide-react'
 import { useCart } from './context/CartContext'
 import { OrderService } from '../../utils/orderService'
+import paymentService, { paymentMethods, installmentPlans } from '../../utils/paymentService'
 
 const CheckoutModal = ({ isOpen, onClose }) => {
   const { cartItems, getTotalPrice, clearCart } = useCart()
   const [currentUser, setCurrentUser] = useState(null)
 
+  // Form states
+  const [customerInfo, setCustomerInfo] = useState({
+    name: '',
+    phone: '+998 ',
+    email: '',
+    address: '',
+    notes: ''
+  })
+
+  // Payment states
+  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState('cash')
+  const [selectedInstallmentPlan, setSelectedInstallmentPlan] = useState(null)
+  const [paymentProcessing, setPaymentProcessing] = useState(false)
+  const [paymentResult, setPaymentResult] = useState(null)
+
+  // UI states
   const [loading, setLoading] = useState(false)
   const [orderSuccess, setOrderSuccess] = useState(false)
+  const [currentStep, setCurrentStep] = useState(1) // 1: Info, 2: Payment, 3: Confirmation
+  const [errors, setErrors] = useState({})
 
   // Get current user from localStorage
   useEffect(() => {
     const user = localStorage.getItem('alisher_mobile_customer')
     if (user) {
       try {
-        setCurrentUser(JSON.parse(user))
+        const userData = JSON.parse(user)
+        setCurrentUser(userData)
+        setCustomerInfo({
+          name: userData.name || '',
+          phone: userData.phone || '+998 ',
+          email: userData.email || '',
+          address: userData.address || '',
+          notes: ''
+        })
       } catch (e) {
         setCurrentUser(null)
       }
     }
   }, [])
 
-  const [formData, setFormData] = useState({
-    name: '',
-    phone: '',
-    email: '',
-    address: '',
-    city: 'Toshkent',
-    notes: '',
-    paymentMethod: 'cash'
-  })
-
-  // Update form data when user is loaded
+  // Reset modal state when closed
   useEffect(() => {
-    if (currentUser) {
-      setFormData(prev => ({
-        ...prev,
-        name: currentUser.name || '',
-        phone: currentUser.phone || '',
-        email: currentUser.email || ''
-      }))
+    if (!isOpen) {
+      setCurrentStep(1)
+      setOrderSuccess(false)
+      setPaymentResult(null)
+      setErrors({})
+      setSelectedPaymentMethod('cash')
+      setSelectedInstallmentPlan(null)
     }
-  }, [currentUser])
+  }, [isOpen])
 
-  if (!isOpen) return null
+  // Phone number formatting
+  const handlePhoneChange = (value) => {
+    let cleanValue = value.replace(/[^\d]/g, '')
+    
+    if (cleanValue.startsWith('998')) {
+      cleanValue = cleanValue.substring(3)
+    }
+    
+    if (cleanValue.length > 9) {
+      cleanValue = cleanValue.substring(0, 9)
+    }
+    
+    let formatted = '+998'
+    if (cleanValue.length > 0) {
+      formatted += ' ' + cleanValue.substring(0, 2)
+    }
+    if (cleanValue.length > 2) {
+      formatted += ' ' + cleanValue.substring(2, 5)
+    }
+    if (cleanValue.length > 5) {
+      formatted += ' ' + cleanValue.substring(5, 7)
+    }
+    if (cleanValue.length > 7) {
+      formatted += ' ' + cleanValue.substring(7, 9)
+    }
+    
+    setCustomerInfo(prev => ({ ...prev, phone: formatted }))
+  }
 
-  const totalAmount = getTotalPrice()
+  // Form validation
+  const validateForm = () => {
+    const newErrors = {}
 
-  const handleSubmit = async (e) => {
-    e.preventDefault()
-    setLoading(true)
+    if (!customerInfo.name.trim()) {
+      newErrors.name = 'Ism kiritish majburiy'
+    }
 
-    try {
-      const isNewCustomer = !currentUser
+    if (!customerInfo.phone || customerInfo.phone.length < 17) {
+      newErrors.phone = 'To\'g\'ri telefon raqam kiriting'
+    }
 
-      if (isNewCustomer) {
-        await OrderService.registerCustomer({
-          name: formData.name,
-          phone: formData.phone,
-          email: formData.email
-        })
+    if (!customerInfo.address.trim()) {
+      newErrors.address = 'Manzil kiritish majburiy'
+    }
+
+    // Payment method validation
+    if (selectedPaymentMethod === 'installment' && !selectedInstallmentPlan) {
+      newErrors.installment = 'Muddatli to\'lov rejasini tanlang'
+    }
+
+    setErrors(newErrors)
+    return Object.keys(newErrors).length === 0
+  }
+
+  // Calculate total with payment method fee
+  const calculateTotal = () => {
+    const baseTotal = getTotalPrice()
+    return paymentService.calculateTotalAmount(baseTotal, selectedPaymentMethod)
+  }
+
+  // Handle step navigation
+  const handleNextStep = () => {
+    if (currentStep === 1) {
+      if (validateForm()) {
+        setCurrentStep(2)
       }
-
-      const orderData = {
-        customer: {
-          name: formData.name,
-          phone: formData.phone,
-          email: formData.email,
-          id: currentUser?.id || `TEMP_${Date.now()}`
-        },
-        items: cartItems.map(item => ({
-          id: item.id,
-          name: item.name,
-          price: item.price || 0,
-          quantity: item.quantity,
-          brand: item.brand || 'Unknown'
-        })),
-        totalAmount,
-        deliveryInfo: {
-          address: formData.address,
-          city: formData.city,
-          notes: formData.notes
-        },
-        paymentMethod: formData.paymentMethod,
-        isNewCustomer
-      }
-
-      const result = await OrderService.createOrder(orderData)
-
-      if (result.success) {
-        setOrderSuccess(true)
-        clearCart()
-
-        setTimeout(() => {
-          onClose()
-          setOrderSuccess(false)
-          setFormData({
-            name: '',
-            phone: '',
-            email: '',
-            address: '',
-            city: 'Toshkent',
-            notes: '',
-            paymentMethod: 'cash'
-          })
-        }, 3000)
-      } else {
-        alert('Xatolik yuz berdi: ' + result.error)
-      }
-    } catch (error) {
-      console.error('Order error:', error)
-      alert('Buyurtmani yuborishda xatolik yuz berdi')
-    } finally {
-      setLoading(false)
+    } else if (currentStep === 2) {
+      handlePayment()
     }
   }
 
-  return (
-    <div style={{
-      position: 'fixed',
-      top: 0,
-      left: 0,
-      right: 0,
-      bottom: 0,
-      backgroundColor: 'rgba(0, 0, 0, 0.5)',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      zIndex: 2000,
-      padding: '20px'
-    }}>
-      <div style={{
-        backgroundColor: 'white',
-        borderRadius: '12px',
-        maxWidth: '500px',
-        width: '100%',
-        maxHeight: '90vh',
-        overflowY: 'auto'
-      }}>
-        <div style={{ padding: '24px' }}>
-          {/* Header */}
-          <div style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            marginBottom: '24px'
-          }}>
-            <h2 style={{
-              fontSize: '20px',
-              fontWeight: '700',
-              color: '#1f2937',
-              margin: 0
-            }}>
-              {orderSuccess ? 'Buyurtma tasdiqlandi' : 'Buyurtma berish'}
-            </h2>
-            <button
-              onClick={onClose}
-              disabled={loading}
-              style={{
-                background: 'none',
-                border: 'none',
-                cursor: loading ? 'not-allowed' : 'pointer',
-                padding: '4px',
-                color: '#6b7280'
-              }}
-            >
-              <X size={24} />
-            </button>
-          </div>
+  const handlePrevStep = () => {
+    if (currentStep > 1) {
+      setCurrentStep(currentStep - 1)
+    }
+  }
 
-          {orderSuccess ? (
-            <div style={{ textAlign: 'center', padding: '40px 20px' }}>
-              <CheckCircle size={64} color="#10b981" style={{ margin: '0 auto 16px' }} />
-              <h3 style={{
-                fontSize: '18px',
-                fontWeight: '600',
-                color: '#10b981',
-                marginBottom: '8px'
-              }}>
-                Buyurtma muvaffaqiyatli yuborildi!
-              </h3>
-              <p style={{
-                fontSize: '14px',
-                color: '#6b7280',
-                marginBottom: '16px'
-              }}>
-                Tez orada siz bilan bog'lanamiz
-              </p>
-              <p style={{
-                fontSize: '12px',
-                color: '#9ca3af'
-              }}>
-                Bu oyna 3 soniyadan keyin yopiladi...
-              </p>
-            </div>
-          ) : (
-            <form onSubmit={handleSubmit} style={{
+  // Handle payment processing
+  const handlePayment = async () => {
+    if (!validateForm()) return
+
+    setPaymentProcessing(true)
+    setPaymentResult(null)
+
+    try {
+      // Prepare order data
+      const orderData = {
+        customer: customerInfo,
+        items: cartItems,
+        totalAmount: calculateTotal(),
+        deliveryInfo: {
+          address: customerInfo.address,
+          notes: customerInfo.notes
+        },
+        paymentMethod: selectedPaymentMethod,
+        isNewCustomer: !currentUser
+      }
+
+      // Process payment
+      let paymentResponse
+      if (selectedPaymentMethod === 'installment') {
+        paymentResponse = await paymentService.processPayment(orderData, selectedPaymentMethod, {
+          installmentPlan: selectedInstallmentPlan
+        })
+      } else {
+        paymentResponse = await paymentService.processPayment(orderData, selectedPaymentMethod)
+      }
+
+      if (paymentResponse.success) {
+        // Create order
+        const orderResponse = await OrderService.createOrder({
+          ...orderData,
+          paymentId: paymentResponse.paymentId,
+          paymentStatus: selectedPaymentMethod === 'cash' ? 'pending' : 'processing'
+        })
+
+        if (orderResponse.success) {
+          setPaymentResult({
+            success: true,
+            message: paymentResponse.message,
+            orderId: orderResponse.orderId,
+            paymentId: paymentResponse.paymentId,
+            redirectUrl: paymentResponse.redirectUrl
+          })
+
+          // Clear cart after successful order
+          clearCart()
+          setCurrentStep(3)
+          setOrderSuccess(true)
+
+          // Redirect to payment gateway if needed
+          if (paymentResponse.redirectUrl && selectedPaymentMethod !== 'cash' && selectedPaymentMethod !== 'installment') {
+            setTimeout(() => {
+              window.open(paymentResponse.redirectUrl, '_blank')
+            }, 2000)
+          }
+        } else {
+          throw new Error(orderResponse.error)
+        }
+      } else {
+        throw new Error(paymentResponse.error)
+      }
+    } catch (error) {
+      console.error('Payment error:', error)
+      setPaymentResult({
+        success: false,
+        message: error.message || 'To\'lov jarayonida xatolik yuz berdi'
+      })
+    } finally {
+      setPaymentProcessing(false)
+    }
+  }
+
+  // Get payment method icon
+  const getPaymentIcon = (methodId) => {
+    switch (methodId) {
+      case 'cash': return Banknote
+      case 'click': case 'payme': return Smartphone
+      case 'uzcard': case 'humo': return CreditCard
+      case 'installment': return Calendar
+      default: return CreditCard
+    }
+  }
+
+  if (!isOpen) return null
+
+  return (
+    <div className="modal-overlay" onClick={onClose}>
+      <div className="modal-content" onClick={e => e.stopPropagation()} style={{ maxWidth: '600px', maxHeight: '90vh', overflowY: 'auto' }}>
+        {/* Header */}
+        <div style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          marginBottom: '24px',
+          paddingBottom: '16px',
+          borderBottom: '1px solid #e5e7eb'
+        }}>
+          <h2 style={{ fontSize: '24px', fontWeight: 'bold', margin: 0 }}>
+            {currentStep === 1 && 'Buyurtma ma\'lumotlari'}
+            {currentStep === 2 && 'To\'lov usuli'}
+            {currentStep === 3 && 'Buyurtma tasdiqlandi'}
+          </h2>
+          <button onClick={onClose} className="modal-close">
+            <X size={24} />
+          </button>
+        </div>
+
+        {/* Progress Steps */}
+        <div style={{
+          display: 'flex',
+          justifyContent: 'center',
+          marginBottom: '32px'
+        }}>
+          {[1, 2, 3].map(step => (
+            <div key={step} style={{
               display: 'flex',
-              flexDirection: 'column',
-              gap: '16px'
+              alignItems: 'center'
             }}>
-              {/* Order Summary */}
               <div style={{
-                backgroundColor: '#f9fafb',
-                padding: '16px',
-                borderRadius: '8px',
-                marginBottom: '8px'
+                width: '32px',
+                height: '32px',
+                borderRadius: '50%',
+                backgroundColor: currentStep >= step ? '#4f46e5' : '#e5e7eb',
+                color: currentStep >= step ? 'white' : '#9ca3af',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: '14px',
+                fontWeight: 'bold'
               }}>
-                <h4 style={{
-                  fontSize: '14px',
-                  fontWeight: '600',
-                  marginBottom: '12px',
-                  color: '#374151'
-                }}>
-                  Buyurtma tafsilotlari:
-                </h4>
-                {cartItems.map(item => (
-                  <div key={item.id} style={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    fontSize: '13px',
-                    marginBottom: '6px',
-                    color: '#6b7280'
-                  }}>
-                    <span>{item.name} x{item.quantity}</span>
-                    <span>{((item.price || 0) * item.quantity).toLocaleString()} so'm</span>
-                  </div>
-                ))}
+                {step}
+              </div>
+              {step < 3 && (
                 <div style={{
-                  borderTop: '1px solid #e5e7eb',
-                  paddingTop: '8px',
-                  marginTop: '8px',
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  fontSize: '16px',
-                  fontWeight: '700',
-                  color: '#1f2937'
-                }}>
-                  <span>Jami:</span>
-                  <span style={{ color: '#10b981' }}>{totalAmount.toLocaleString()} so'm</span>
+                  width: '60px',
+                  height: '2px',
+                  backgroundColor: currentStep > step ? '#4f46e5' : '#e5e7eb',
+                  margin: '0 8px'
+                }} />
+              )}
+            </div>
+          ))}
+        </div>
+
+        {/* Step 1: Customer Information */}
+        {currentStep === 1 && (
+          <div>
+            <div style={{ marginBottom: '24px' }}>
+              <h3 style={{ fontSize: '18px', fontWeight: '600', marginBottom: '16px' }}>
+                Mijoz ma'lumotlari
+              </h3>
+              
+              <div style={{ display: 'grid', gap: '16px' }}>
+                <div>
+                  <label style={{ display: 'block', marginBottom: '6px', fontWeight: '500' }}>
+                    <User size={16} style={{ display: 'inline', marginRight: '6px' }} />
+                    To'liq ism *
+                  </label>
+                  <input
+                    type="text"
+                    className="input"
+                    value={customerInfo.name}
+                    onChange={(e) => setCustomerInfo(prev => ({ ...prev, name: e.target.value }))}
+                    placeholder="Ismingizni kiriting"
+                    style={{ borderColor: errors.name ? '#ef4444' : undefined }}
+                  />
+                  {errors.name && <div style={{ color: '#ef4444', fontSize: '12px', marginTop: '4px' }}>{errors.name}</div>}
+                </div>
+
+                <div>
+                  <label style={{ display: 'block', marginBottom: '6px', fontWeight: '500' }}>
+                    <Phone size={16} style={{ display: 'inline', marginRight: '6px' }} />
+                    Telefon raqam *
+                  </label>
+                  <input
+                    type="tel"
+                    className="input"
+                    value={customerInfo.phone}
+                    onChange={(e) => handlePhoneChange(e.target.value)}
+                    placeholder="+998 90 123 45 67"
+                    style={{ borderColor: errors.phone ? '#ef4444' : undefined }}
+                  />
+                  {errors.phone && <div style={{ color: '#ef4444', fontSize: '12px', marginTop: '4px' }}>{errors.phone}</div>}
+                </div>
+
+                <div>
+                  <label style={{ display: 'block', marginBottom: '6px', fontWeight: '500' }}>
+                    Email
+                  </label>
+                  <input
+                    type="email"
+                    className="input"
+                    value={customerInfo.email}
+                    onChange={(e) => setCustomerInfo(prev => ({ ...prev, email: e.target.value }))}
+                    placeholder="email@example.com"
+                  />
+                </div>
+
+                <div>
+                  <label style={{ display: 'block', marginBottom: '6px', fontWeight: '500' }}>
+                    <MapPin size={16} style={{ display: 'inline', marginRight: '6px' }} />
+                    Yetkazib berish manzili *
+                  </label>
+                  <textarea
+                    className="input"
+                    rows="3"
+                    value={customerInfo.address}
+                    onChange={(e) => setCustomerInfo(prev => ({ ...prev, address: e.target.value }))}
+                    placeholder="To'liq manzilni kiriting"
+                    style={{ borderColor: errors.address ? '#ef4444' : undefined }}
+                  />
+                  {errors.address && <div style={{ color: '#ef4444', fontSize: '12px', marginTop: '4px' }}>{errors.address}</div>}
+                </div>
+
+                <div>
+                  <label style={{ display: 'block', marginBottom: '6px', fontWeight: '500' }}>
+                    Qo'shimcha izoh
+                  </label>
+                  <textarea
+                    className="input"
+                    rows="2"
+                    value={customerInfo.notes}
+                    onChange={(e) => setCustomerInfo(prev => ({ ...prev, notes: e.target.value }))}
+                    placeholder="Maxsus talablar yoki izohlar"
+                  />
                 </div>
               </div>
+            </div>
 
-              {/* Customer Info */}
-              <div>
-                <label style={{
-                  display: 'block',
-                  fontSize: '14px',
-                  fontWeight: '500',
-                  marginBottom: '6px',
-                  color: '#374151'
+            {/* Order Summary */}
+            <div style={{
+              backgroundColor: '#f9fafb',
+              padding: '16px',
+              borderRadius: '8px',
+              marginBottom: '24px'
+            }}>
+              <h4 style={{ fontSize: '16px', fontWeight: '600', marginBottom: '12px' }}>
+                Buyurtma xulosasi
+              </h4>
+              {cartItems.map(item => (
+                <div key={item.id} style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  marginBottom: '8px'
                 }}>
-                  Ism familiya *
-                </label>
-                <input
-                  type="text"
-                  value={formData.name}
-                  onChange={(e) => setFormData({...formData, name: e.target.value})}
-                  required
-                  style={{
-                    width: '100%',
-                    padding: '10px 12px',
-                    border: '1px solid #d1d5db',
-                    borderRadius: '8px',
-                    fontSize: '14px',
-                    outline: 'none',
-                    boxSizing: 'border-box'
-                  }}
-                  placeholder="Ismingizni kiriting"
-                />
+                  <span style={{ fontSize: '14px' }}>
+                    {item.name} × {item.quantity}
+                  </span>
+                  <span style={{ fontSize: '14px', fontWeight: '500' }}>
+                    {(item.price * item.quantity).toLocaleString()} so'm
+                  </span>
+                </div>
+              ))}
+              <div style={{
+                borderTop: '1px solid #e5e7eb',
+                paddingTop: '8px',
+                marginTop: '8px',
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center'
+              }}>
+                <span style={{ fontSize: '16px', fontWeight: '600' }}>Jami:</span>
+                <span style={{ fontSize: '16px', fontWeight: '600', color: '#4f46e5' }}>
+                  {getTotalPrice().toLocaleString()} so'm
+                </span>
               </div>
+            </div>
+          </div>
+        )}
 
+        {/* Step 2: Payment Method */}
+        {currentStep === 2 && (
+          <div>
+            <h3 style={{ fontSize: '18px', fontWeight: '600', marginBottom: '16px' }}>
+              To'lov usulini tanlang
+            </h3>
+
+            <div style={{ display: 'grid', gap: '12px', marginBottom: '24px' }}>
+              {paymentMethods.filter(method => method.available).map(method => {
+                const Icon = getPaymentIcon(method.id)
+                const isSelected = selectedPaymentMethod === method.id
+                const totalWithFee = paymentService.calculateTotalAmount(getTotalPrice(), method.id)
+                const fee = totalWithFee - getTotalPrice()
+
+                return (
+                  <div
+                    key={method.id}
+                    onClick={() => setSelectedPaymentMethod(method.id)}
+                    style={{
+                      padding: '16px',
+                      border: `2px solid ${isSelected ? method.color : '#e5e7eb'}`,
+                      borderRadius: '8px',
+                      cursor: 'pointer',
+                      backgroundColor: isSelected ? `${method.color}10` : 'white',
+                      transition: 'all 0.2s'
+                    }}
+                  >
+                    <div style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between'
+                    }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                        <Icon size={24} color={method.color} />
+                        <div>
+                          <div style={{ fontSize: '16px', fontWeight: '600' }}>
+                            {method.name}
+                          </div>
+                          <div style={{ fontSize: '12px', color: '#6b7280' }}>
+                            {method.description}
+                          </div>
+                          <div style={{ fontSize: '12px', color: '#6b7280', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                            <Clock size={12} />
+                            {method.processingTime}
+                          </div>
+                        </div>
+                      </div>
+                      <div style={{ textAlign: 'right' }}>
+                        {fee > 0 && (
+                          <div style={{ fontSize: '12px', color: '#ef4444' }}>
+                            +{fee.toLocaleString()} so'm
+                          </div>
+                        )}
+                        <div style={{ fontSize: '14px', fontWeight: '600' }}>
+                          {totalWithFee.toLocaleString()} so'm
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+
+            {/* Installment Plans */}
+            {selectedPaymentMethod === 'installment' && (
+              <div style={{ marginBottom: '24px' }}>
+                <h4 style={{ fontSize: '16px', fontWeight: '600', marginBottom: '12px' }}>
+                  Muddatli to'lov rejasini tanlang
+                </h4>
+                <div style={{ display: 'grid', gap: '8px' }}>
+                  {installmentPlans
+                    .filter(plan => getTotalPrice() >= plan.minAmount)
+                    .map(plan => {
+                      const totalWithInterest = getTotalPrice() * (1 + plan.interestRate / 100)
+                      const monthlyPayment = Math.round(totalWithInterest / plan.months)
+                      const isSelected = selectedInstallmentPlan?.id === plan.id
+
+                      return (
+                        <div
+                          key={plan.id}
+                          onClick={() => setSelectedInstallmentPlan(plan)}
+                          style={{
+                            padding: '12px',
+                            border: `1px solid ${isSelected ? '#4f46e5' : '#e5e7eb'}`,
+                            borderRadius: '6px',
+                            cursor: 'pointer',
+                            backgroundColor: isSelected ? '#f0f9ff' : 'white'
+                          }}
+                        >
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <div>
+                              <div style={{ fontSize: '14px', fontWeight: '600' }}>
+                                {plan.name} - {monthlyPayment.toLocaleString()} so'm/oy
+                              </div>
+                              <div style={{ fontSize: '12px', color: '#6b7280' }}>
+                                {plan.description} {plan.interestRate > 0 && `(${plan.interestRate}% foiz)`}
+                              </div>
+                            </div>
+                            <div style={{ fontSize: '12px', color: '#6b7280' }}>
+                              Jami: {totalWithInterest.toLocaleString()} so'm
+                            </div>
+                          </div>
+                        </div>
+                      )
+                    })}
+                </div>
+                {errors.installment && (
+                  <div style={{ color: '#ef4444', fontSize: '12px', marginTop: '8px' }}>
+                    {errors.installment}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Payment Summary */}
+            <div style={{
+              backgroundColor: '#f9fafb',
+              padding: '16px',
+              borderRadius: '8px',
+              marginBottom: '24px'
+            }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
+                <span>Mahsulotlar:</span>
+                <span>{getTotalPrice().toLocaleString()} so'm</span>
+              </div>
+              {paymentService.calculateTotalAmount(getTotalPrice(), selectedPaymentMethod) > getTotalPrice() && (
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
+                  <span>Komissiya:</span>
+                  <span>+{(paymentService.calculateTotalAmount(getTotalPrice(), selectedPaymentMethod) - getTotalPrice()).toLocaleString()} so'm</span>
+                </div>
+              )}
+              <div style={{
+                borderTop: '1px solid #e5e7eb',
+                paddingTop: '8px',
+                display: 'flex',
+                justifyContent: 'space-between',
+                fontSize: '16px',
+                fontWeight: '600'
+              }}>
+                <span>Jami to'lov:</span>
+                <span style={{ color: '#4f46e5' }}>
+                  {calculateTotal().toLocaleString()} so'm
+                </span>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Step 3: Confirmation */}
+        {currentStep === 3 && (
+          <div style={{ textAlign: 'center' }}>
+            {paymentResult?.success ? (
               <div>
-                <label style={{
-                  display: 'block',
-                  fontSize: '14px',
-                  fontWeight: '500',
-                  marginBottom: '6px',
-                  color: '#374151'
-                }}>
-                  Telefon *
-                </label>
-                <input
-                  type="tel"
-                  value={formData.phone}
-                  onChange={(e) => setFormData({...formData, phone: e.target.value})}
-                  required
-                  style={{
-                    width: '100%',
-                    padding: '10px 12px',
-                    border: '1px solid #d1d5db',
-                    borderRadius: '8px',
-                    fontSize: '14px',
-                    outline: 'none',
-                    boxSizing: 'border-box'
-                  }}
-                  placeholder="+998 90 123 45 67"
-                />
-              </div>
-
-              <div>
-                <label style={{
-                  display: 'block',
-                  fontSize: '14px',
-                  fontWeight: '500',
-                  marginBottom: '6px',
-                  color: '#374151'
-                }}>
-                  Email
-                </label>
-                <input
-                  type="email"
-                  value={formData.email}
-                  onChange={(e) => setFormData({...formData, email: e.target.value})}
-                  style={{
-                    width: '100%',
-                    padding: '10px 12px',
-                    border: '1px solid #d1d5db',
-                    borderRadius: '8px',
-                    fontSize: '14px',
-                    outline: 'none',
-                    boxSizing: 'border-box'
-                  }}
-                  placeholder="email@example.com"
-                />
-              </div>
-
-              <div>
-                <label style={{
-                  display: 'block',
-                  fontSize: '14px',
-                  fontWeight: '500',
-                  marginBottom: '6px',
-                  color: '#374151'
-                }}>
-                  Manzil *
-                </label>
-                <textarea
-                  value={formData.address}
-                  onChange={(e) => setFormData({...formData, address: e.target.value})}
-                  required
-                  rows="2"
-                  style={{
-                    width: '100%',
-                    padding: '10px 12px',
-                    border: '1px solid #d1d5db',
-                    borderRadius: '8px',
-                    fontSize: '14px',
-                    outline: 'none',
-                    boxSizing: 'border-box',
-                    resize: 'vertical'
-                  }}
-                  placeholder="To'liq manzilni kiriting"
-                />
-              </div>
-
-              <div>
-                <label style={{
-                  display: 'block',
-                  fontSize: '14px',
-                  fontWeight: '500',
-                  marginBottom: '6px',
-                  color: '#374151'
-                }}>
-                  Shahar *
-                </label>
-                <select
-                  value={formData.city}
-                  onChange={(e) => setFormData({...formData, city: e.target.value})}
-                  required
-                  style={{
-                    width: '100%',
-                    padding: '10px 12px',
-                    border: '1px solid #d1d5db',
-                    borderRadius: '8px',
-                    fontSize: '14px',
-                    outline: 'none',
-                    boxSizing: 'border-box'
-                  }}
-                >
-                  <option value="Toshkent">Toshkent</option>
-                  <option value="Samarqand">Samarqand</option>
-                  <option value="Buxoro">Buxoro</option>
-                  <option value="Andijon">Andijon</option>
-                  <option value="Namangan">Namangan</option>
-                  <option value="Farg'ona">Farg'ona</option>
-                </select>
-              </div>
-
-              <div>
-                <label style={{
-                  display: 'block',
-                  fontSize: '14px',
-                  fontWeight: '500',
-                  marginBottom: '6px',
-                  color: '#374151'
-                }}>
-                  To'lov usuli *
-                </label>
-                <select
-                  value={formData.paymentMethod}
-                  onChange={(e) => setFormData({...formData, paymentMethod: e.target.value})}
-                  required
-                  style={{
-                    width: '100%',
-                    padding: '10px 12px',
-                    border: '1px solid #d1d5db',
-                    borderRadius: '8px',
-                    fontSize: '14px',
-                    outline: 'none',
-                    boxSizing: 'border-box'
-                  }}
-                >
-                  <option value="cash">Naqd pul</option>
-                  <option value="card">Bank kartasi</option>
-                  <option value="click">Click</option>
-                  <option value="payme">Payme</option>
-                  <option value="installment">Muddatli to'lov</option>
-                </select>
-              </div>
-
-              <div>
-                <label style={{
-                  display: 'block',
-                  fontSize: '14px',
-                  fontWeight: '500',
-                  marginBottom: '6px',
-                  color: '#374151'
-                }}>
-                  Qo'shimcha izoh
-                </label>
-                <textarea
-                  value={formData.notes}
-                  onChange={(e) => setFormData({...formData, notes: e.target.value})}
-                  rows="2"
-                  style={{
-                    width: '100%',
-                    padding: '10px 12px',
-                    border: '1px solid #d1d5db',
-                    borderRadius: '8px',
-                    fontSize: '14px',
-                    outline: 'none',
-                    boxSizing: 'border-box',
-                    resize: 'vertical'
-                  }}
-                  placeholder="Qo'shimcha ma'lumotlar"
-                />
-              </div>
-
-              <button
-                type="submit"
-                disabled={loading}
-                style={{
-                  width: '100%',
-                  backgroundColor: loading ? '#9ca3af' : '#10b981',
-                  color: 'white',
-                  padding: '14px',
+                <CheckCircle size={64} color="#10b981" style={{ margin: '0 auto 16px' }} />
+                <h3 style={{ fontSize: '20px', fontWeight: '600', color: '#10b981', marginBottom: '8px' }}>
+                  Buyurtma muvaffaqiyatli qabul qilindi!
+                </h3>
+                <p style={{ color: '#6b7280', marginBottom: '16px' }}>
+                  {paymentResult.message}
+                </p>
+                <div style={{
+                  backgroundColor: '#f0f9ff',
+                  padding: '16px',
                   borderRadius: '8px',
-                  border: 'none',
-                  fontSize: '16px',
-                  fontWeight: '600',
-                  cursor: loading ? 'not-allowed' : 'pointer',
-                  marginTop: '8px'
+                  marginBottom: '24px'
+                }}>
+                  <div style={{ fontSize: '14px', marginBottom: '8px' }}>
+                    <strong>Buyurtma ID:</strong> {paymentResult.orderId}
+                  </div>
+                  {paymentResult.paymentId && (
+                    <div style={{ fontSize: '14px', marginBottom: '8px' }}>
+                      <strong>To'lov ID:</strong> {paymentResult.paymentId}
+                    </div>
+                  )}
+                  <div style={{ fontSize: '14px' }}>
+                    <strong>Jami summa:</strong> {calculateTotal().toLocaleString()} so'm
+                  </div>
+                </div>
+                {paymentResult.redirectUrl && selectedPaymentMethod !== 'cash' && selectedPaymentMethod !== 'installment' && (
+                  <p style={{ fontSize: '14px', color: '#6b7280', marginBottom: '16px' }}>
+                    To'lov sahifasiga yo'naltirilmoqda...
+                  </p>
+                )}
+              </div>
+            ) : (
+              <div>
+                <AlertCircle size={64} color="#ef4444" style={{ margin: '0 auto 16px' }} />
+                <h3 style={{ fontSize: '20px', fontWeight: '600', color: '#ef4444', marginBottom: '8px' }}>
+                  Xatolik yuz berdi
+                </h3>
+                <p style={{ color: '#6b7280', marginBottom: '16px' }}>
+                  {paymentResult?.message || 'Buyurtmani yuborishda xatolik yuz berdi'}
+                </p>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Action Buttons */}
+        <div style={{
+          display: 'flex',
+          gap: '12px',
+          justifyContent: 'space-between',
+          marginTop: '24px'
+        }}>
+          {currentStep === 1 && (
+            <>
+              <button onClick={onClose} className="btn btn-secondary">
+                Bekor qilish
+              </button>
+              <button onClick={handleNextStep} className="btn btn-primary">
+                Davom etish
+              </button>
+            </>
+          )}
+
+          {currentStep === 2 && (
+            <>
+              <button onClick={handlePrevStep} className="btn btn-secondary">
+                Orqaga
+              </button>
+              <button 
+                onClick={handleNextStep} 
+                className="btn btn-primary"
+                disabled={paymentProcessing}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px'
                 }}
               >
-                {loading ? 'Yuborilmoqda...' : 'Buyurtma berish'}
+                {paymentProcessing && <Loader size={16} className="animate-spin" />}
+                {paymentProcessing ? 'Jarayon...' : 'To\'lovni amalga oshirish'}
               </button>
-            </form>
+            </>
+          )}
+
+          {currentStep === 3 && (
+            <button onClick={onClose} className="btn btn-primary" style={{ width: '100%' }}>
+              Yopish
+            </button>
           )}
         </div>
       </div>

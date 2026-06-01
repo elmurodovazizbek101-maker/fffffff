@@ -1,16 +1,21 @@
 import { useState } from 'react'
 import { Megaphone, Plus, Edit, Trash2, Upload, Save, X } from 'lucide-react'
-import { useData } from '../../context/DataContext'
 
 const Promotions = () => {
-  const { getFeaturedSlider, addFeaturedSlide, updateFeaturedSlide, deleteFeaturedSlide } = useData()
-  const [slides, setSlides] = useState(getFeaturedSlider())
+  
+  // Local state for promotions
+  const [promotions, setPromotions] = useState(() => {
+    const saved = localStorage.getItem('alisher_mobile_promotions')
+    return saved ? JSON.parse(saved) : []
+  })
+  
   const [showModal, setShowModal] = useState(false)
-  const [editingSlide, setEditingSlide] = useState(null)
+  const [editingPromotion, setEditingPromotion] = useState(null)
   const [formData, setFormData] = useState({
     name: '',
     description: '',
-    price: '',
+    priceUZS: '',
+    priceUSD: '',
     image: '',
     category: '',
     rating: 4.5,
@@ -19,23 +24,55 @@ const Promotions = () => {
     specs: []
   })
 
+  // USD/UZS konvertatsiya kursi (1 USD = 12600 UZS)
+  const USD_TO_UZS_RATE = 12600
+
+  // Narx konvertatsiya funksiyasi
+  const handlePriceChange = (field, value) => {
+    const numValue = parseFloat(value) || 0
+    
+    if (field === 'priceUZS') {
+      const usdValue = numValue / USD_TO_UZS_RATE
+      setFormData({
+        ...formData,
+        priceUZS: value,
+        priceUSD: usdValue > 0 ? usdValue.toFixed(2) : ''
+      })
+    } else if (field === 'priceUSD') {
+      const uzsValue = numValue * USD_TO_UZS_RATE
+      setFormData({
+        ...formData,
+        priceUSD: value,
+        priceUZS: uzsValue > 0 ? Math.round(uzsValue).toString() : ''
+      })
+    }
+  }
+
+  // Save to localStorage
+  const savePromotions = (newPromotions) => {
+    localStorage.setItem('alisher_mobile_promotions', JSON.stringify(newPromotions))
+    setPromotions(newPromotions)
+  }
+
   const handleSubmit = (e) => {
     e.preventDefault()
 
-    const slideData = {
+    const promotionData = {
       ...formData,
-      price: parseInt(formData.price),
-      specs: formData.specs.filter(spec => spec.trim() !== '')
+      id: editingPromotion ? editingPromotion.id : Date.now(),
+      priceUZS: parseInt(formData.priceUZS) || 0,
+      priceUSD: parseFloat(formData.priceUSD) || 0,
+      specs: formData.specs.filter(spec => spec.trim() !== ''),
+      createdAt: editingPromotion ? editingPromotion.createdAt : new Date().toISOString()
     }
 
-    if (editingSlide) {
-      updateFeaturedSlide(editingSlide.id, slideData)
-      setSlides(slides.map(slide =>
-        slide.id === editingSlide.id ? { ...slide, ...slideData } : slide
-      ))
+    if (editingPromotion) {
+      const updatedPromotions = promotions.map(promo =>
+        promo.id === editingPromotion.id ? promotionData : promo
+      )
+      savePromotions(updatedPromotions)
     } else {
-      const newSlide = addFeaturedSlide(slideData)
-      setSlides([...slides, newSlide])
+      savePromotions([...promotions, promotionData])
     }
 
     resetForm()
@@ -45,7 +82,8 @@ const Promotions = () => {
     setFormData({
       name: '',
       description: '',
-      price: '',
+      priceUZS: '',
+      priceUSD: '',
       image: '',
       category: '',
       rating: 4.5,
@@ -53,30 +91,31 @@ const Promotions = () => {
       color: '',
       specs: []
     })
-    setEditingSlide(null)
+    setEditingPromotion(null)
     setShowModal(false)
   }
 
-  const handleEdit = (slide) => {
-    setEditingSlide(slide)
+  const handleEdit = (promotion) => {
+    setEditingPromotion(promotion)
     setFormData({
-      name: slide.name || '',
-      description: slide.description || '',
-      price: slide.price?.toString() || '',
-      image: slide.image || '',
-      category: slide.category || '',
-      rating: slide.rating || 4.5,
-      storage: slide.storage || '',
-      color: slide.color || '',
-      specs: slide.specs || []
+      name: promotion.name || '',
+      description: promotion.description || '',
+      priceUZS: promotion.priceUZS?.toString() || promotion.price?.toString() || '',
+      priceUSD: promotion.priceUSD?.toString() || '',
+      image: promotion.image || '',
+      category: promotion.category || '',
+      rating: promotion.rating || 4.5,
+      storage: promotion.storage || '',
+      color: promotion.color || '',
+      specs: promotion.specs || []
     })
     setShowModal(true)
   }
 
   const handleDelete = (id) => {
     if (window.confirm('Bu reklamani o\'chirishni xohlaysizmi?')) {
-      deleteFeaturedSlide(id)
-      setSlides(slides.filter(slide => slide.id !== id))
+      const updatedPromotions = promotions.filter(promo => promo.id !== id)
+      savePromotions(updatedPromotions)
     }
   }
 
@@ -149,16 +188,15 @@ const Promotions = () => {
         </button>
       </div>
 
-      {/* Slides Grid */}
       {/* Promotions Grid - 2 ustun (katta kartochkalar) */}
       <div style={{
         display: 'grid',
         gridTemplateColumns: 'repeat(2, 1fr)',
         gap: '1.5rem'
       }}>
-        {slides.map(slide => (
+        {promotions.map(promotion => (
           <div
-            key={slide.id}
+            key={promotion.id}
             style={{
               background: 'white',
               borderRadius: '12px',
@@ -170,7 +208,7 @@ const Promotions = () => {
             <div style={{
               width: '100%',
               height: '200px',
-              background: slide.image ? `url(${slide.image})` : 'linear-gradient(135deg, #f0f4ff 0%, #e8eeff 100%)',
+              background: promotion.image ? `url(${promotion.image})` : 'linear-gradient(135deg, #f0f4ff 0%, #e8eeff 100%)',
               backgroundSize: 'cover',
               backgroundPosition: 'center',
               borderRadius: '8px',
@@ -179,7 +217,7 @@ const Promotions = () => {
               alignItems: 'center',
               justifyContent: 'center'
             }}>
-              {!slide.image && (
+              {!promotion.image && (
                 <Upload size={48} color="#9ca3af" />
               )}
             </div>
@@ -190,7 +228,7 @@ const Promotions = () => {
               color: '#1f2937',
               marginBottom: '0.5rem'
             }}>
-              {slide.name || 'Noma\'lum mahsulot'}
+              {promotion.name || 'Noma\'lum mahsulot'}
             </h3>
 
             <p style={{
@@ -198,7 +236,7 @@ const Promotions = () => {
               marginBottom: '0.5rem',
               fontSize: '0.9rem'
             }}>
-              {slide.description || 'Tavsif kiritilmagan'}
+              {promotion.description || 'Tavsif kiritilmagan'}
             </p>
 
             <div style={{
@@ -212,7 +250,7 @@ const Promotions = () => {
                 fontWeight: '900',
                 color: '#10b981'
               }}>
-                {slide.price?.toLocaleString() || '0'} so'm
+                {(promotion.priceUZS || promotion.price || 0).toLocaleString()} so'm
               </span>
               <span style={{
                 background: '#f3f4f6',
@@ -222,7 +260,7 @@ const Promotions = () => {
                 fontSize: '0.8rem',
                 fontWeight: '600'
               }}>
-                {slide.category || 'Kategoriya'}
+                {promotion.category || 'Kategoriya'}
               </span>
             </div>
 
@@ -231,7 +269,7 @@ const Promotions = () => {
               gap: '0.5rem'
             }}>
               <button
-                onClick={() => handleEdit(slide)}
+                onClick={() => handleEdit(promotion)}
                 style={{
                   flex: 1,
                   background: '#3b82f6',
@@ -252,7 +290,7 @@ const Promotions = () => {
                 Tahrirlash
               </button>
               <button
-                onClick={() => handleDelete(slide.id)}
+                onClick={() => handleDelete(promotion.id)}
                 style={{
                   flex: 1,
                   background: '#ef4444',
@@ -276,7 +314,7 @@ const Promotions = () => {
           </div>
         ))}
 
-        {slides.length === 0 && (
+        {promotions.length === 0 && (
           <div style={{
             gridColumn: '1 / -1',
             textAlign: 'center',
@@ -325,7 +363,7 @@ const Promotions = () => {
                 color: '#1f2937',
                 margin: 0
               }}>
-                {editingSlide ? 'Reklamani tahrirlash' : 'Yangi reklama qo\'shish'}
+                {editingPromotion ? 'Reklamani tahrirlash' : 'Yangi reklama qo\'shish'}
               </h2>
               <button
                 onClick={resetForm}
@@ -349,7 +387,8 @@ const Promotions = () => {
                     display: 'block',
                     marginBottom: '0.5rem',
                     fontWeight: '600',
-                    color: '#374151'
+                    color: '#374151',
+                    fontSize: '0.9rem'
                   }}>
                     Mahsulot nomi *
                   </label>
@@ -373,7 +412,8 @@ const Promotions = () => {
                     display: 'block',
                     marginBottom: '0.5rem',
                     fontWeight: '600',
-                    color: '#374151'
+                    color: '#374151',
+                    fontSize: '0.9rem'
                   }}>
                     Tavsif *
                   </label>
@@ -399,14 +439,16 @@ const Promotions = () => {
                       display: 'block',
                       marginBottom: '0.5rem',
                       fontWeight: '600',
-                      color: '#374151'
+                      color: '#374151',
+                      fontSize: '0.9rem'
                     }}>
-                      Narx (so'm) *
+                      Narx (UZS so'm) *
                     </label>
                     <input
                       type="number"
-                      value={formData.price}
-                      onChange={(e) => setFormData({...formData, price: e.target.value})}
+                      value={formData.priceUZS}
+                      onChange={(e) => handlePriceChange('priceUZS', e.target.value)}
+                      placeholder="12600000"
                       style={{
                         width: '100%',
                         padding: '0.75rem',
@@ -423,13 +465,17 @@ const Promotions = () => {
                       display: 'block',
                       marginBottom: '0.5rem',
                       fontWeight: '600',
-                      color: '#374151'
+                      color: '#374151',
+                      fontSize: '0.9rem'
                     }}>
-                      Kategoriya *
+                      Narx (USD dollar)
                     </label>
-                    <select
-                      value={formData.category}
-                      onChange={(e) => setFormData({...formData, category: e.target.value})}
+                    <input
+                      type="number"
+                      step="0.01"
+                      value={formData.priceUSD}
+                      onChange={(e) => handlePriceChange('priceUSD', e.target.value)}
+                      placeholder="1000.00"
                       style={{
                         width: '100%',
                         padding: '0.75rem',
@@ -437,21 +483,22 @@ const Promotions = () => {
                         borderRadius: '8px',
                         fontSize: '1rem'
                       }}
-                      required
-                    >
-                      <option value="">Kategoriya tanlang</option>
-                      <option value="Apple">Apple</option>
-                      <option value="Samsung">Samsung</option>
-                      <option value="Honor">Honor</option>
-                      <option value="Vivo">Vivo</option>
-                      <option value="Nokia">Nokia</option>
-                      <option value="ROG">ROG</option>
-                      <option value="Redmi">Redmi</option>
-                      <option value="OnePlus">OnePlus</option>
-                      <option value="Oppo">Oppo</option>
-                      <option value="Realme">Realme</option>
-                    </select>
+                    />
                   </div>
+                </div>
+
+                {/* Konvertatsiya ma'lumoti */}
+                <div style={{
+                  background: '#f0f9ff',
+                  border: '1px solid #0ea5e9',
+                  borderRadius: '8px',
+                  padding: '0.75rem',
+                  fontSize: '0.85rem',
+                  color: '#0369a1'
+                }}>
+                  💡 <strong>Avtomatik konvertatsiya:</strong> 1 USD = {USD_TO_UZS_RATE.toLocaleString()} UZS
+                  <br />
+                  Bitta maydonni to'ldirsangiz, ikkinchisi avtomatik hisoblanadi.
                 </div>
 
                 <div>
@@ -459,7 +506,44 @@ const Promotions = () => {
                     display: 'block',
                     marginBottom: '0.5rem',
                     fontWeight: '600',
-                    color: '#374151'
+                    color: '#374151',
+                    fontSize: '0.9rem'
+                  }}>
+                    Kategoriya *
+                  </label>
+                  <select
+                    value={formData.category}
+                    onChange={(e) => setFormData({...formData, category: e.target.value})}
+                    style={{
+                      width: '100%',
+                      padding: '0.75rem',
+                      border: '2px solid #e5e7eb',
+                      borderRadius: '8px',
+                      fontSize: '1rem'
+                    }}
+                    required
+                  >
+                    <option value="">Kategoriya tanlang</option>
+                    <option value="Apple">Apple</option>
+                    <option value="Samsung">Samsung</option>
+                    <option value="Honor">Honor</option>
+                    <option value="Vivo">Vivo</option>
+                    <option value="Nokia">Nokia</option>
+                    <option value="ROG">ROG</option>
+                    <option value="Redmi">Redmi</option>
+                    <option value="OnePlus">OnePlus</option>
+                    <option value="Oppo">Oppo</option>
+                    <option value="Realme">Realme</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label style={{
+                    display: 'block',
+                    marginBottom: '0.5rem',
+                    fontWeight: '600',
+                    color: '#374151',
+                    fontSize: '0.9rem'
                   }}>
                     Rasm URL
                   </label>
@@ -484,7 +568,8 @@ const Promotions = () => {
                       display: 'block',
                       marginBottom: '0.5rem',
                       fontWeight: '600',
-                      color: '#374151'
+                      color: '#374151',
+                      fontSize: '0.9rem'
                     }}>
                       Xotira
                     </label>
@@ -508,7 +593,8 @@ const Promotions = () => {
                       display: 'block',
                       marginBottom: '0.5rem',
                       fontWeight: '600',
-                      color: '#374151'
+                      color: '#374151',
+                      fontSize: '0.9rem'
                     }}>
                       Rang
                     </label>
@@ -533,7 +619,8 @@ const Promotions = () => {
                     display: 'block',
                     marginBottom: '0.5rem',
                     fontWeight: '600',
-                    color: '#374151'
+                    color: '#374151',
+                    fontSize: '0.9rem'
                   }}>
                     Xususiyatlar
                   </label>
@@ -614,7 +701,7 @@ const Promotions = () => {
                   }}
                 >
                   <Save size={20} />
-                  {editingSlide ? 'Saqlash' : 'Qo\'shish'}
+                  {editingPromotion ? 'Saqlash' : 'Qo\'shish'}
                 </button>
                 <button
                   type="button"

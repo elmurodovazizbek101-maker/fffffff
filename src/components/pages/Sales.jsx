@@ -1,66 +1,18 @@
 import { useState } from 'react'
 import { ShoppingCart, Plus, Minus, Trash2, Heart, Search, Smartphone } from 'lucide-react'
 import { useLanguage } from '../../context/LanguageContext'
+import { useData } from '../../context/DataContext'
 
 const Sales = () => {
   const { t } = useLanguage()
+  const { products, categories } = useData()
   const [selectedCategory, setSelectedCategory] = useState('Barchasi')
   const [cart, setCart] = useState([])
   const [favorites, setFavorites] = useState([])
   const [searchQuery, setSearchQuery] = useState('')
 
-  const categories = ['Barchasi', 'Apple', 'Samsung', 'Xiaomi', 'Huawei', 'Oppo', 'Vivo']
-
-  const products = [
-    {
-      id: 1,
-      name: 'iPhone 15 Pro Max',
-      category: 'Apple',
-      price: 14400000,
-      image: '/phone1.jpg',
-      stock: 15
-    },
-    {
-      id: 2,
-      name: 'Samsung Galaxy S24 Ultra',
-      category: 'Samsung',
-      price: 13200000,
-      image: '/phone2.jpg',
-      stock: 8
-    },
-    {
-      id: 3,
-      name: 'Xiaomi 14 Pro',
-      category: 'Xiaomi',
-      price: 9600000,
-      image: '/phone3.jpg',
-      stock: 12
-    },
-    {
-      id: 4,
-      name: 'iPhone 15',
-      category: 'Apple',
-      price: 11200000,
-      image: '/phone4.jpg',
-      stock: 20
-    },
-    {
-      id: 5,
-      name: 'Samsung Galaxy S24',
-      category: 'Samsung',
-      price: 10800000,
-      image: '/phone5.jpg',
-      stock: 18
-    },
-    {
-      id: 6,
-      name: 'Xiaomi 14',
-      category: 'Xiaomi',
-      price: 7200000,
-      image: '/phone6.jpg',
-      stock: 25
-    }
-  ]
+  // Kategoriyalar ro'yxati
+  const categoryNames = ['Barchasi', ...categories.map(cat => cat.name)]
 
   const filteredProducts = products.filter(product => {
     const matchesCategory = selectedCategory === 'Barchasi' || product.category === selectedCategory
@@ -69,9 +21,10 @@ const Sales = () => {
   })
 
   const addToCart = (product) => {
+    const stock = product.stock || product.quantity || 0
     const existingItem = cart.find(item => item.id === product.id)
     if (existingItem) {
-      if (existingItem.quantity < product.stock) {
+      if (existingItem.quantity < stock) {
         setCart(cart.map(item =>
           item.id === product.id
             ? { ...item, quantity: item.quantity + 1 }
@@ -109,7 +62,7 @@ const Sales = () => {
   }
 
   const getTotalPrice = () => {
-    return cart.reduce((total, item) => total + (item.price * item.quantity), 0)
+    return cart.reduce((total, item) => total + (((item.priceUZS || item.price) || 0) * item.quantity), 0)
   }
 
   const getTotalItems = () => {
@@ -169,7 +122,7 @@ const Sales = () => {
           overflowX: 'auto',
           paddingBottom: '8px'
         }}>
-          {categories.map(category => (
+          {categoryNames.map(category => (
             <button
               key={category}
               onClick={() => setSelectedCategory(category)}
@@ -260,7 +213,7 @@ const Sales = () => {
                   fontSize: '12px',
                   color: '#6b7280'
                 }}>
-                  {product.stock} ta mavjud
+                  {product.stock || product.quantity || 0} ta mavjud
                 </span>
               </div>
 
@@ -270,7 +223,7 @@ const Sales = () => {
                 color: '#10b981',
                 marginBottom: '12px'
               }}>
-                {product.price.toLocaleString()} so'm
+                {((product.priceUZS || product.price) || 0).toLocaleString()} so'm
               </div>
 
               <button
@@ -283,7 +236,7 @@ const Sales = () => {
                   justifyContent: 'center',
                   gap: '8px'
                 }}
-                disabled={product.stock === 0}
+                disabled={!product.stock && !product.quantity}
               >
                 <Plus size={16} />
                 Savatga qo'shish
@@ -351,7 +304,7 @@ const Sales = () => {
                         color: '#6b7280',
                         margin: 0
                       }}>
-                        {item.price.toLocaleString()} so'm
+                        {((item.priceUZS || item.price) || 0).toLocaleString()} so'm
                       </p>
                     </div>
 
@@ -399,7 +352,7 @@ const Sales = () => {
                           alignItems: 'center',
                           justifyContent: 'center'
                         }}
-                        disabled={item.quantity >= item.stock}
+                        disabled={item.quantity >= (item.stock || item.quantity || 0)}
                       >
                         <Plus size={12} />
                       </button>

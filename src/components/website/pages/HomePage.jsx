@@ -1,10 +1,11 @@
 import { useState, useEffect, useMemo } from 'react'
-import { Smartphone, ShoppingCart, Star, ChevronLeft, ChevronRight, Eye, User } from 'lucide-react'
+import { Smartphone, ShoppingCart, Star, ChevronLeft, ChevronRight, Eye, User, Heart } from 'lucide-react'
 import { useData } from '../../../context/DataContext'
 import { useCart } from '../context/CartContext'
+import WishlistButton from '../../WishlistButton'
 
 const HomePage = () => {
-  const { featuredProducts } = useData()
+  const { featuredProducts, loading } = useData()
   const { addToCart } = useCart()
   const [currentSlide, setCurrentSlide] = useState(0)
   const [showProductModal, setShowProductModal] = useState(false)
@@ -14,6 +15,38 @@ const HomePage = () => {
     const saved = localStorage.getItem('alisher_mobile_theme')
     return saved === 'dark'
   })
+
+  // Loading holatini ko'rsatish
+  if (loading) {
+    return (
+      <div style={{
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        minHeight: '100vh',
+        background: darkMode ? '#1f2937' : '#f8fafc'
+      }}>
+        <div style={{
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          gap: '16px'
+        }}>
+          <div style={{
+            width: '40px',
+            height: '40px',
+            border: '4px solid #e5e7eb',
+            borderTop: '4px solid #4f46e5',
+            borderRadius: '50%',
+            animation: 'spin 1s linear infinite'
+          }} />
+          <p style={{ color: darkMode ? '#9ca3af' : '#6b7280' }}>
+            Ma'lumotlar yuklanmoqda...
+          </p>
+        </div>
+      </div>
+    )
+  }
 
   const formatPrice = (value) =>
     new Intl.NumberFormat('uz-UZ', {
@@ -305,7 +338,7 @@ const HomePage = () => {
 
         <div style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+          gridTemplateColumns: 'repeat(4, 1fr)',
           gap: '30px'
         }}>
           {featuredProducts.slice(0, 6).map(product => (
@@ -359,6 +392,17 @@ const HomePage = () => {
                   <Eye size={14} />
                   Ko'rish
                 </div>
+                <div style={{
+                  position: 'absolute',
+                  top: '12px',
+                  left: '12px'
+                }}>
+                  <WishlistButton 
+                    product={product} 
+                    size="small" 
+                    darkMode={darkMode}
+                  />
+                </div>
               </div>
 
               <h3 style={{
@@ -370,13 +414,33 @@ const HomePage = () => {
                 {product.name}
               </h3>
 
-              <p style={{
-                color: darkMode ? '#9ca3af' : '#6b7280',
-                fontSize: '0.9rem',
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
                 marginBottom: '16px'
               }}>
-                {product.brand} • {product.quantity} dona mavjud
-              </p>
+                <span style={{
+                  backgroundColor: '#4f46e5',
+                  color: 'white',
+                  padding: '4px 8px',
+                  borderRadius: '12px',
+                  fontSize: '0.75rem',
+                  fontWeight: '600'
+                }}>
+                  {product.brand}
+                </span>
+                <span style={{
+                  backgroundColor: darkMode ? '#4b5563' : '#f3f4f6',
+                  color: darkMode ? '#d1d5db' : '#6b7280',
+                  padding: '4px 8px',
+                  borderRadius: '12px',
+                  fontSize: '0.75rem',
+                  fontWeight: '500'
+                }}>
+                  {product.quantity} dona mavjud
+                </span>
+              </div>
 
               <div style={{
                 display: 'flex',

@@ -1,4 +1,6 @@
-import React, { createContext, useContext, useState, useEffect, useMemo, useCallback } from 'react'
+import React, { createContext, useContext, useState, useEffect } from 'react'
+import { realProducts, categories, filterProducts, getProductById, getRecommendedProducts } from '../data/products.js'
+import databaseService from '../services/databaseService'
 
 const DataContext = createContext()
 
@@ -10,410 +12,620 @@ export const useData = () => {
   return context
 }
 
-// IndexedDB for better performance
-const DB_NAME = 'AlisherMobileDB'
-const DB_VERSION = 1
-
-class DatabaseManager {
-  constructor() {
-    this.db = null
-    this.initPromise = this.init()
-  }
-
-  async init() {
-    return new Promise((resolve, reject) => {
-      try {
-        const request = indexedDB.open(DB_NAME, DB_VERSION)
-
-        request.onerror = () => {
-          console.error('IndexedDB open error:', request.error)
-          reject(request.error)
-        }
-        request.onsuccess = () => {
-          this.db = request.result
-          resolve(this.db)
-        }
-
-        request.onupgradeneeded = (event) => {
-          const db = event.target.result
-
-          // Create object stores
-          if (!db.objectStoreNames.contains('products')) {
-            db.createObjectStore('products', { keyPath: 'id' })
-          }
-          if (!db.objectStoreNames.contains('categories')) {
-            db.createObjectStore('categories', { keyPath: 'id' })
-          }
-          if (!db.objectStoreNames.contains('customers')) {
-            db.createObjectStore('customers', { keyPath: 'id' })
-          }
-          if (!db.objectStoreNames.contains('orders')) {
-            db.createObjectStore('orders', { keyPath: 'id' })
-          }
-          if (!db.objectStoreNames.contains('settings')) {
-            db.createObjectStore('settings', { keyPath: 'key' })
-          }
-        }
-      } catch (error) {
-        console.error('IndexedDB init error:', error)
-        reject(error)
-      }
-    })
-  }
-
-  async get(storeName, key = null) {
-    if (!this.db) {
-      try {
-        await this.initPromise
-      } catch (error) {
-        console.error('Failed to initialize database:', error)
-        return key ? undefined : []
-      }
-    }
-
-    return new Promise((resolve, reject) => {
-      try {
-        if (!this.db || !this.db.objectStoreNames.contains(storeName)) {
-          resolve(key ? undefined : [])
-          return
-        }
-
-        const transaction = this.db.transaction([storeName], 'readonly')
-        const store = transaction.objectStore(storeName)
-
-        const request = key ? store.get(key) : store.getAll()
-
-        request.onerror = () => reject(request.error)
-        request.onsuccess = () => resolve(request.result)
-      } catch (error) {
-        console.error(`Failed to get from ${storeName}:`, error)
-        resolve(key ? undefined : [])
-      }
-    })
-  }
-
-  async set(storeName, data) {
-    if (!this.db) {
-      try {
-        await this.initPromise
-      } catch (error) {
-        console.error('Failed to initialize database:', error)
-        return false
-      }
-    }
-
-    return new Promise((resolve, reject) => {
-      try {
-        if (!this.db || !this.db.objectStoreNames.contains(storeName)) {
-          resolve(false)
-          return
-        }
-
-        const transaction = this.db.transaction([storeName], 'readwrite')
-        const store = transaction.objectStore(storeName)
-
-        transaction.onerror = () => reject(transaction.error)
-        transaction.oncomplete = () => resolve(true)
-
-        if (Array.isArray(data)) {
-          data.forEach(item => store.put(item))
-        } else {
-          store.put(data)
-        }
-      } catch (error) {
-        console.error(`Failed to set in ${storeName}:`, error)
-        resolve(false)
-      }
-    })
-  }
-
-  async delete(storeName, key) {
-    if (!this.db) {
-      try {
-        await this.initPromise
-      } catch (error) {
-        console.error('Failed to initialize database:', error)
-        return false
-      }
-    }
-
-    return new Promise((resolve, reject) => {
-      try {
-        if (!this.db) {
-          resolve(false)
-          return
-        }
-
-        const transaction = this.db.transaction([storeName], 'readwrite')
-        const store = transaction.objectStore(storeName)
-
-        const request = store.delete(key)
-
-        request.onerror = () => reject(request.error)
-        request.onsuccess = () => resolve(true)
-      } catch (error) {
-        console.error(`Failed to delete from ${storeName}:`, error)
-        resolve(false)
-      }
-    })
-  }
-}
-
-const dbManager = new DatabaseManager()
-
-// Initial data - optimized
-const INITIAL_DATA = {
-  products: [
-    { id: 1, name: 'iPhone 15 Pro Max', brand: 'Apple', price: 14400000, quantity: 15, image: null, featured: true, status: 'active' },
-    { id: 2, name: 'Samsung Galaxy S24 Ultra', brand: 'Samsung', price: 13200000, quantity: 8, image: null, featured: true, status: 'active' },
-    { id: 3, name: 'Honor Magic 6 Pro', brand: 'Honor', price: 9600000, quantity: 12, image: null, featured: true, status: 'active' },
-    { id: 4, name: 'Vivo X100 Pro', brand: 'Vivo', price: 9000000, quantity: 10, image: null, featured: false, status: 'active' },
-    { id: 5, name: 'Nokia G60 5G', brand: 'Nokia', price: 3600000, quantity: 20, image: null, featured: false, status: 'active' },
-    { id: 6, name: 'ROG Phone 8 Pro', brand: 'ROG', price: 12000000, quantity: 5, image: null, featured: true, status: 'active' },
-    { id: 7, name: 'Redmi Note 13 Pro', brand: 'Redmi', price: 4800000, quantity: 25, image: null, featured: false, status: 'active' },
-    { id: 8, name: 'OnePlus 12', brand: 'OnePlus', price: 10800000, quantity: 8, image: null, featured: true, status: 'active' },
-    { id: 9, name: 'Oppo Find X7 Pro', brand: 'Oppo', price: 10200000, quantity: 7, image: null, featured: false, status: 'active' },
-    { id: 10, name: 'Realme GT 5 Pro', brand: 'Realme', price: 7200000, quantity: 15, image: null, featured: false, status: 'active' }
-  ],
-  categories: [
-    { id: 1, name: 'Apple', count: 1, color: '#3b82f6' },
-    { id: 2, name: 'Samsung', count: 1, color: '#10b981' },
-    { id: 3, name: 'Honor', count: 1, color: '#f59e0b' },
-    { id: 4, name: 'Vivo', count: 1, color: '#8b5cf6' },
-    { id: 5, name: 'Nokia', count: 1, color: '#ef4444' },
-    { id: 6, name: 'ROG', count: 1, color: '#06b6d4' },
-    { id: 7, name: 'Redmi', count: 1, color: '#84cc16' },
-    { id: 8, name: 'OnePlus', count: 1, color: '#f97316' },
-    { id: 9, name: 'Oppo', count: 1, color: '#ec4899' },
-    { id: 10, name: 'Realme', count: 1, color: '#6366f1' }
-  ]
-}
-
-export const DataProvider = React.memo(({ children }) => {
-  // State with lazy initialization
-  const [products, setProducts] = useState(() => INITIAL_DATA.products)
-  const [categories, setCategories] = useState(() => INITIAL_DATA.categories)
-  const [customers, setCustomers] = useState([])
-  const [orders, setOrders] = useState([])
+export const DataProvider = ({ children }) => {
+  // Database ulanish holati
+  const [isOnline, setIsOnline] = useState(false)
   const [loading, setLoading] = useState(true)
 
-  // Load data from IndexedDB on mount
+  // Mahsulotlar holati
+  const [products, setProducts] = useState([])
+  const [filteredProducts, setFilteredProducts] = useState([])
+  const [productFilters, setProductFilters] = useState({
+    category: 'all',
+    priceRange: null,
+    search: '',
+    inStock: false,
+    isNew: false,
+    sortBy: 'featured'
+  })
+
+  // Kategoriyalar holati
+  const [categories, setCategories] = useState(() => {
+    try {
+      const savedCategories = localStorage.getItem('alisher_mobile_categories')
+      return savedCategories ? JSON.parse(savedCategories) : [
+        { id: 1, name: 'Apple', color: '#007AFF', productCount: 0 },
+        { id: 2, name: 'Samsung', color: '#1428A0', productCount: 0 },
+        { id: 3, name: 'Xiaomi', color: '#FF6900', productCount: 0 },
+        { id: 4, name: 'Oppo', color: '#1BA345', productCount: 0 },
+        { id: 5, name: 'Vivo', color: '#4285F4', productCount: 0 },
+        { id: 6, name: 'Huawei', color: '#FF0000', productCount: 0 }
+      ]
+    } catch (error) {
+      console.error('Kategoriyalarni yuklash xatoligi:', error)
+      return [
+        { id: 1, name: 'Apple', color: '#007AFF', productCount: 0 },
+        { id: 2, name: 'Samsung', color: '#1428A0', productCount: 0 },
+        { id: 3, name: 'Xiaomi', color: '#FF6900', productCount: 0 },
+        { id: 4, name: 'Oppo', color: '#1BA345', productCount: 0 },
+        { id: 5, name: 'Vivo', color: '#4285F4', productCount: 0 },
+        { id: 6, name: 'Huawei', color: '#FF0000', productCount: 0 }
+      ]
+    }
+  })
+
+  // Savatcha holati
+  const [cart, setCart] = useState(() => {
+    try {
+      const savedCart = localStorage.getItem('alisher_mobile_cart')
+      return savedCart ? JSON.parse(savedCart) : []
+    } catch (error) {
+      console.error('Savatcha ma\'lumotlarini yuklash xatoligi:', error)
+      return []
+    }
+  })
+
+  // Sevimlilar holati
+  const [wishlist, setWishlist] = useState(() => {
+    try {
+      const savedWishlist = localStorage.getItem('alisher_mobile_wishlist')
+      return savedWishlist ? JSON.parse(savedWishlist) : []
+    } catch (error) {
+      console.error('Sevimlilar ma\'lumotlarini yuklash xatoligi:', error)
+      return []
+    }
+  })
+
+  // Buyurtmalar holati
+  const [orders, setOrders] = useState(() => {
+    try {
+      const savedOrders = localStorage.getItem('alisher_mobile_orders')
+      return savedOrders ? JSON.parse(savedOrders) : []
+    } catch (error) {
+      console.error('Buyurtmalar ma\'lumotlarini yuklash xatoligi:', error)
+      return []
+    }
+  })
+
+  // Mijozlar holati
+  const [customers, setCustomers] = useState(() => {
+    try {
+      const savedCustomers = localStorage.getItem('alisher_mobile_customers')
+      return savedCustomers ? JSON.parse(savedCustomers) : [
+        {
+          id: 1,
+          name: 'Akmal Karimov',
+          phone: '+998901234567',
+          region: 'Toshkent',
+          district: 'Chilonzor',
+          joinDate: '2024-01-15',
+          totalPurchases: 15,
+          totalAmount: 45000000,
+          notes: 'Doimiy mijoz, iPhone foydalanuvchisi'
+        },
+        {
+          id: 2,
+          name: 'Dilshod Toshev',
+          phone: '+998907654321',
+          region: 'Samarqand',
+          district: 'Markaz',
+          joinDate: '2024-02-20',
+          totalPurchases: 8,
+          totalAmount: 24000000,
+          notes: 'Samsung mahsulotlarini afzal ko\'radi'
+        },
+        {
+          id: 3,
+          name: 'Nodira Saidova',
+          phone: '+998909876543',
+          region: 'Andijon',
+          district: 'Xo\'jaobod',
+          joinDate: '2024-03-10',
+          totalPurchases: 12,
+          totalAmount: 32000000,
+          notes: 'Xiaomi va Oppo brendlarini tanlaydi'
+        }
+      ]
+    } catch (error) {
+      console.error('Mijozlar ma\'lumotlarini yuklash xatoligi:', error)
+      return []
+    }
+  })
+
+  // Database dan ma'lumotlarni yuklash
   useEffect(() => {
     const loadData = async () => {
+      setLoading(true)
       try {
-        // Set a timeout to prevent infinite loading
-        const timeoutId = setTimeout(() => {
-          console.warn('Loading timeout - using default data')
-          setLoading(false)
-        }, 3000)
-
-        try {
-          const [dbProducts, dbCategories, dbCustomers, dbOrders] = await Promise.all([
-            dbManager.get('products').catch(() => []),
-            dbManager.get('categories').catch(() => []),
-            dbManager.get('customers').catch(() => []),
-            dbManager.get('orders').catch(() => [])
-          ])
-
-          clearTimeout(timeoutId)
-
-          if (dbProducts?.length) setProducts(dbProducts)
-          if (dbCategories?.length) setCategories(dbCategories)
-          if (dbCustomers?.length) setCustomers(dbCustomers)
-          if (dbOrders?.length) setOrders(dbOrders)
-        } catch (dbError) {
-          console.warn('IndexedDB load failed, using localStorage fallback', dbError)
-          clearTimeout(timeoutId)
-
-          // Fallback to localStorage
-          try {
-            const savedProducts = localStorage.getItem('products')
-            const savedCategories = localStorage.getItem('categories')
-            const savedCustomers = localStorage.getItem('customers')
-            const savedOrders = localStorage.getItem('orders')
-
-            if (savedProducts) setProducts(JSON.parse(savedProducts))
-            if (savedCategories) setCategories(JSON.parse(savedCategories))
-            if (savedCustomers) setCustomers(JSON.parse(savedCustomers))
-            if (savedOrders) setOrders(JSON.parse(savedOrders))
-          } catch (lsError) {
-            console.warn('localStorage fallback failed, using initial data', lsError)
-          }
-        }
+        // Database ulanishini tekshirish
+        setIsOnline(databaseService.isConnected)
+        
+        // Mahsulotlarni yuklash
+        const productsData = await databaseService.getProducts(productFilters)
+        setProducts(productsData)
+        setFilteredProducts(productsData)
+        
+        console.log(`📊 ${productsData.length} ta mahsulot yuklandi (${databaseService.isConnected ? 'Database' : 'LocalStorage'})`)
       } catch (error) {
-        console.error('Data loading failed completely, using initial data', error)
+        console.error('Ma\'lumotlarni yuklashda xatolik:', error)
+        // Fallback: realProducts dan yuklash
+        setProducts(realProducts)
+        setFilteredProducts(realProducts)
+        setIsOnline(false)
       } finally {
         setLoading(false)
       }
     }
 
-    loadData()
+    // Database service tayyor bo'lguncha kutish
+    const initTimeout = setTimeout(loadData, 100)
+    return () => clearTimeout(initTimeout)
   }, [])
 
+  // Mahsulotlarni filtrlash (database yoki localStorage)
   useEffect(() => {
-    if (loading) return
-
-    const persistData = async () => {
+    const loadFilteredProducts = async () => {
       try {
-        await Promise.all([
-          dbManager.set('products', products),
-          dbManager.set('categories', categories),
-          dbManager.set('customers', customers),
-          dbManager.set('orders', orders)
-        ])
+        const filtered = await databaseService.getProducts(productFilters)
+        setFilteredProducts(filtered)
       } catch (error) {
-        console.error('Failed to persist data to IndexedDB:', error)
-      }
-
-      try {
-        localStorage.setItem('products', JSON.stringify(products))
-        localStorage.setItem('categories', JSON.stringify(categories))
-        localStorage.setItem('customers', JSON.stringify(customers))
-        localStorage.setItem('orders', JSON.stringify(orders))
-      } catch (error) {
-        console.warn('Failed to persist data to localStorage:', error)
+        console.error('Filtrlashda xatolik:', error)
+        // Fallback: lokal filtrlash
+        const filtered = filterProducts(products, productFilters)
+        setFilteredProducts(filtered)
       }
     }
 
-    persistData()
-  }, [products, categories, customers, orders, loading])
+    loadFilteredProducts()
+  }, [productFilters])
 
-  // Memoized computed values
-  const activeProducts = useMemo(() =>
-    products.filter(p => p.status === 'active' && p.quantity > 0),
-    [products]
-  )
+  // Savatcha o'zgarishlarini localStorage ga saqlash
+  useEffect(() => {
+    try {
+      localStorage.setItem('alisher_mobile_cart', JSON.stringify(cart))
+    } catch (error) {
+      console.error('Savatcha ma\'lumotlarini saqlash xatoligi:', error)
+    }
+  }, [cart])
 
-  const featuredProducts = useMemo(() =>
-    activeProducts.filter(p => p.featured).slice(0, 6),
-    [activeProducts]
-  )
+  // Sevimlilar o'zgarishlarini localStorage ga saqlash
+  useEffect(() => {
+    try {
+      localStorage.setItem('alisher_mobile_wishlist', JSON.stringify(wishlist))
+    } catch (error) {
+      console.error('Sevimlilar ma\'lumotlarini saqlash xatoligi:', error)
+    }
+  }, [wishlist])
 
-  const productsByBrand = useMemo(() => {
-    const grouped = {}
-    activeProducts.forEach(product => {
-      if (!grouped[product.brand]) grouped[product.brand] = []
-      grouped[product.brand].push(product)
-    })
-    return grouped
-  }, [activeProducts])
-
-  // Optimized functions with useCallback
-  const addProduct = useCallback(async (product) => {
-    const newProduct = { ...product, id: Date.now(), status: 'active' }
-
-    setProducts(prev => [...prev, newProduct])
+  // Kategoriya funksiyalari
+  const addCategory = (category) => {
+    const newCategory = {
+      ...category,
+      id: `category_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    }
     setCategories(prev => {
-      const existingCategory = prev.find(cat => cat.name === product.brand)
-      if (existingCategory) {
-        return prev.map(cat =>
-          cat.name === product.brand
-            ? { ...cat, count: cat.count + 1 }
-            : cat
-        )
+      const updated = [...prev, newCategory]
+      // localStorage ga saqlash
+      try {
+        localStorage.setItem('alisher_mobile_categories', JSON.stringify(updated))
+      } catch (error) {
+        console.error('Kategoriyani saqlash xatoligi:', error)
       }
-      return [
-        ...prev,
-        {
-          id: Date.now() + 1,
-          name: product.brand,
-          count: 1,
-          color: '#7c3aed'
-        }
-      ]
+      return updated
     })
-  }, [])
+    return newCategory
+  }
 
-  const updateProduct = useCallback(async (id, updates) => {
-    setProducts(prev => prev.map(p => p.id === id ? { ...p, ...updates } : p))
-  }, [])
+  const updateCategory = (id, updates) => {
+    setCategories(prev => {
+      const updated = prev.map(category => 
+        category.id === id 
+          ? { ...category, ...updates, updatedAt: new Date().toISOString() }
+          : category
+      )
+      // localStorage ga saqlash
+      try {
+        localStorage.setItem('alisher_mobile_categories', JSON.stringify(updated))
+      } catch (error) {
+        console.error('Kategoriyani yangilash xatoligi:', error)
+      }
+      return updated
+    })
+  }
 
-  const deleteProduct = useCallback(async (id) => {
-    setProducts(prev => prev.filter(p => p.id !== id))
-  }, [])
+  const deleteCategory = (id) => {
+    setCategories(prev => {
+      const updated = prev.filter(category => category.id !== id)
+      // localStorage ga saqlash
+      try {
+        localStorage.setItem('alisher_mobile_categories', JSON.stringify(updated))
+      } catch (error) {
+        console.error('Kategoriyani o\'chirish xatoligi:', error)
+      }
+      return updated
+    })
+  }
 
-  const addCustomer = useCallback(async (customer) => {
-    const newCustomer = {
-      ...customer,
-      id: Date.now(),
-      joinDate: new Date().toISOString(),
-      totalOrders: 0,
-      totalSpent: 0
+  // Mahsulot funksiyalari (Database bilan)
+  const addProduct = async (product) => {
+    try {
+      const result = await databaseService.addProduct({
+        ...product,
+        id: `product_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+      })
+      
+      if (result.success) {
+        setProducts(prev => [...prev, result.data])
+        return result.data
+      } else {
+        throw new Error(result.error)
+      }
+    } catch (error) {
+      console.error('Mahsulot qo\'shishda xatolik:', error)
+      // Fallback: localStorage
+      const newProduct = {
+        ...product,
+        id: `product_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      }
+      setProducts(prev => [...prev, newProduct])
+      return newProduct
     }
+  }
 
-    setCustomers(prev => [...prev, newCustomer])
-    return newCustomer
-  }, [])
-
-  const addOrder = useCallback(async (order) => {
-    const newOrder = {
-      ...order,
-      id: Date.now(),
-      date: new Date().toISOString(),
-      status: 'pending'
-    }
-
-    setOrders(prev => [...prev, newOrder])
-
-    if (order.customerId) {
-      setCustomers(prev => prev.map(c =>
-        c.id === order.customerId
-          ? { ...c, totalOrders: c.totalOrders + 1, totalSpent: c.totalSpent + order.total }
-          : c
+  const updateProduct = async (id, updates) => {
+    try {
+      const result = await databaseService.updateProduct(id, updates)
+      
+      if (result.success) {
+        setProducts(prev => prev.map(product => 
+          product.id === id ? result.data : product
+        ))
+        return result.data
+      } else {
+        throw new Error(result.error)
+      }
+    } catch (error) {
+      console.error('Mahsulotni yangilashda xatolik:', error)
+      // Fallback: localStorage
+      setProducts(prev => prev.map(product => 
+        product.id === id 
+          ? { ...product, ...updates, updatedAt: new Date().toISOString() }
+          : product
       ))
     }
+  }
 
-    setProducts(prev => prev.map(p => {
-      const item = order.items?.find(item => item.id === p.id)
-      if (!item) return p
-      return { ...p, quantity: Math.max(0, p.quantity - item.quantity) }
-    }))
+  const deleteProduct = async (id) => {
+    try {
+      const result = await databaseService.deleteProduct(id)
+      
+      if (result.success) {
+        setProducts(prev => prev.filter(product => product.id !== id))
+        setCart(prev => prev.filter(item => item.id !== id))
+        setWishlist(prev => prev.filter(item => item.id !== id))
+      } else {
+        throw new Error(result.error)
+      }
+    } catch (error) {
+      console.error('Mahsulotni o\'chirishda xatolik:', error)
+      // Fallback: localStorage
+      setProducts(prev => prev.filter(product => product.id !== id))
+      setCart(prev => prev.filter(item => item.id !== id))
+      setWishlist(prev => prev.filter(item => item.id !== id))
+    }
+  }
 
-    return newOrder
-  }, [])
+  const getProduct = async (id) => {
+    try {
+      const product = await databaseService.getProductById(id)
+      return product
+    } catch (error) {
+      console.error('Mahsulotni olishda xatolik:', error)
+      // Fallback: localStorage
+      return getProductById(id) || products.find(p => p.id === id)
+    }
+  }
 
-  const getProductById = useCallback((id) =>
-    products.find(p => p.id === id), [products]
-  )
+  const getRecommended = (productId, limit = 4) => {
+    return getRecommendedProducts(productId, limit)
+  }
 
-  const getProductsByBrand = useCallback((brand) =>
-    activeProducts.filter(p => p.brand === brand), [activeProducts]
-  )
+  // Savatcha funksiyalari
+  const addToCart = (product, quantity = 1) => {
+    setCart(prev => {
+      const existingItem = prev.find(item => item.id === product.id)
+      
+      if (existingItem) {
+        return prev.map(item =>
+          item.id === product.id
+            ? { ...item, quantity: item.quantity + quantity }
+            : item
+        )
+      } else {
+        return [...prev, { ...product, quantity }]
+      }
+    })
+  }
 
-  // Memoized context value
-  const contextValue = useMemo(() => ({
-    // Data
+  const removeFromCart = (productId) => {
+    setCart(prev => prev.filter(item => item.id !== productId))
+  }
+
+  const updateCartQuantity = (productId, quantity) => {
+    if (quantity <= 0) {
+      removeFromCart(productId)
+      return
+    }
+    
+    setCart(prev => prev.map(item =>
+      item.id === productId
+        ? { ...item, quantity }
+        : item
+    ))
+  }
+
+  const clearCart = () => {
+    setCart([])
+  }
+
+  const getCartTotal = () => {
+    return cart.reduce((total, item) => total + (item.price * item.quantity), 0)
+  }
+
+  const getCartItemsCount = () => {
+    return cart.reduce((total, item) => total + item.quantity, 0)
+  }
+
+  // Sevimlilar funksiyalari
+  const addToWishlist = (product) => {
+    setWishlist(prev => {
+      const exists = prev.find(item => item.id === product.id)
+      if (!exists) {
+        return [...prev, product]
+      }
+      return prev
+    })
+  }
+
+  const removeFromWishlist = (productId) => {
+    setWishlist(prev => prev.filter(item => item.id !== productId))
+  }
+
+  const isInWishlist = (productId) => {
+    return wishlist.some(item => item.id === productId)
+  }
+
+  // Buyurtma funksiyalari (Database bilan)
+  const addOrder = async (order) => {
+    try {
+      const result = await databaseService.createOrder({
+        ...order,
+        id: order.orderId || `order_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+      })
+      
+      if (result.success) {
+        const newOrder = result.data
+        setOrders(prev => [newOrder, ...prev])
+        
+        // localStorage ga ham saqlash (backup)
+        try {
+          const existingOrders = JSON.parse(localStorage.getItem('alisher_mobile_orders') || '[]')
+          existingOrders.unshift(newOrder)
+          localStorage.setItem('alisher_mobile_orders', JSON.stringify(existingOrders))
+        } catch (error) {
+          console.error('localStorage ga saqlashda xatolik:', error)
+        }
+        
+        return newOrder
+      } else {
+        throw new Error(result.error)
+      }
+    } catch (error) {
+      console.error('Buyurtma yaratishda xatolik:', error)
+      // Fallback: localStorage
+      const newOrder = {
+        ...order,
+        id: order.orderId || `order_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      }
+      setOrders(prev => [newOrder, ...prev])
+      
+      try {
+        const existingOrders = JSON.parse(localStorage.getItem('alisher_mobile_orders') || '[]')
+        existingOrders.unshift(newOrder)
+        localStorage.setItem('alisher_mobile_orders', JSON.stringify(existingOrders))
+      } catch (error) {
+        console.error('localStorage ga saqlashda xatolik:', error)
+      }
+      
+      return newOrder
+    }
+  }
+
+  const updateOrderStatus = (orderId, status) => {
+    setOrders(prev => prev.map(order =>
+      order.id === orderId || order.orderId === orderId
+        ? { ...order, status, updatedAt: new Date().toISOString() }
+        : order
+    ))
+    
+    // localStorage ni yangilash
+    try {
+      const existingOrders = JSON.parse(localStorage.getItem('alisher_mobile_orders') || '[]')
+      const updatedOrders = existingOrders.map(order =>
+        order.id === orderId || order.orderId === orderId
+          ? { ...order, status, updatedAt: new Date().toISOString() }
+          : order
+      )
+      localStorage.setItem('alisher_mobile_orders', JSON.stringify(updatedOrders))
+    } catch (error) {
+      console.error('Buyurtma holatini yangilash xatoligi:', error)
+    }
+  }
+
+  // Mijoz funksiyalari
+  const addCustomer = (customer) => {
+    const newCustomer = {
+      ...customer,
+      id: customer.id || `customer_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    }
+    setCustomers(prev => [newCustomer, ...prev])
+    
+    // localStorage ga saqlash
+    try {
+      const existingCustomers = JSON.parse(localStorage.getItem('alisher_mobile_customers') || '[]')
+      existingCustomers.unshift(newCustomer)
+      localStorage.setItem('alisher_mobile_customers', JSON.stringify(existingCustomers))
+    } catch (error) {
+      console.error('Mijozni saqlash xatoligi:', error)
+    }
+    
+    return newCustomer
+  }
+
+  const updateCustomer = (id, updates) => {
+    setCustomers(prev => prev.map(customer => 
+      customer.id === id 
+        ? { ...customer, ...updates, updatedAt: new Date().toISOString() }
+        : customer
+    ))
+    
+    // localStorage ni yangilash
+    try {
+      const existingCustomers = JSON.parse(localStorage.getItem('alisher_mobile_customers') || '[]')
+      const updatedCustomers = existingCustomers.map(customer =>
+        customer.id === id 
+          ? { ...customer, ...updates, updatedAt: new Date().toISOString() }
+          : customer
+      )
+      localStorage.setItem('alisher_mobile_customers', JSON.stringify(updatedCustomers))
+    } catch (error) {
+      console.error('Mijozni yangilash xatoligi:', error)
+    }
+  }
+
+  const deleteCustomer = (id) => {
+    setCustomers(prev => prev.filter(customer => customer.id !== id))
+    
+    // localStorage dan o'chirish
+    try {
+      const existingCustomers = JSON.parse(localStorage.getItem('alisher_mobile_customers') || '[]')
+      const filteredCustomers = existingCustomers.filter(customer => customer.id !== id)
+      localStorage.setItem('alisher_mobile_customers', JSON.stringify(filteredCustomers))
+    } catch (error) {
+      console.error('Mijozni o\'chirish xatoligi:', error)
+    }
+  }
+
+  // Filtr funksiyalari
+  const updateFilters = (newFilters) => {
+    setProductFilters(prev => ({ ...prev, ...newFilters }))
+  }
+
+  const resetFilters = () => {
+    setProductFilters({
+      category: 'all',
+      priceRange: null,
+      search: '',
+      inStock: false,
+      isNew: false,
+      sortBy: 'featured'
+    })
+  }
+
+  // Statistika funksiyalari
+  const getStats = () => {
+    const totalProducts = products.length
+    const inStockProducts = products.filter(p => p.inStock && p.stock > 0).length
+    const totalOrders = orders.length
+    const totalCustomers = customers.length
+    const totalRevenue = orders
+      .filter(order => order.status === 'completed')
+      .reduce((total, order) => total + (order.totalAmount || 0), 0)
+
+    return {
+      totalProducts,
+      inStockProducts,
+      outOfStockProducts: totalProducts - inStockProducts,
+      totalOrders,
+      pendingOrders: orders.filter(o => o.status === 'pending').length,
+      completedOrders: orders.filter(o => o.status === 'completed').length,
+      totalCustomers,
+      totalRevenue,
+      cartItemsCount: getCartItemsCount(),
+      wishlistItemsCount: wishlist.length
+    }
+  }
+
+  const value = {
+    // Ma'lumotlar
     products,
+    filteredProducts,
+    activeProducts: products.filter(p => p.inStock && p.stock > 0),
+    featuredProducts: products.filter(p => p.isFeatured),
     categories,
-    customers,
+    cart,
+    wishlist,
     orders,
+    customers,
+    productFilters,
+
+    // Database holati
+    isOnline,
     loading,
 
-    // Computed values
-    activeProducts,
-    featuredProducts,
-    productsByBrand,
+    // Kategoriya funksiyalari
+    addCategory,
+    updateCategory,
+    deleteCategory,
 
-    // Functions
+    // Mahsulot funksiyalari
     addProduct,
     updateProduct,
     deleteProduct,
-    getProductById,
-    getProductsByBrand,
+    getProduct,
+    getRecommended,
+
+    // Savatcha funksiyalari
+    addToCart,
+    removeFromCart,
+    updateCartQuantity,
+    clearCart,
+    getCartTotal,
+    getCartItemsCount,
+
+    // Sevimlilar funksiyalari
+    addToWishlist,
+    removeFromWishlist,
+    isInWishlist,
+
+    // Buyurtma funksiyalari
+    addOrder,
+    updateOrderStatus,
+
+    // Mijoz funksiyalari
     addCustomer,
-    addOrder
-  }), [
-    products, categories, customers, orders, loading,
-    activeProducts, featuredProducts, productsByBrand,
-    addProduct, updateProduct, deleteProduct, getProductById, getProductsByBrand,
-    addCustomer, addOrder
-  ])
+    updateCustomer,
+    deleteCustomer,
+
+    // Filtr funksiyalari
+    updateFilters,
+    resetFilters,
+
+    // Statistika
+    getStats
+  }
 
   return (
-    <DataContext.Provider value={contextValue}>
+    <DataContext.Provider value={value}>
       {children}
     </DataContext.Provider>
   )
-})
-
-DataProvider.displayName = 'DataProvider'
+}

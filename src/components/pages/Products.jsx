@@ -67,8 +67,9 @@ const Products = () => {
   }
 
   const getStockStatus = (quantity) => {
-    if (quantity === 0) return { text: 'Tugagan', color: '#ef4444', icon: XCircle }
-    if (quantity <= 5) return { text: 'Kam qolgan', color: '#f59e0b', icon: AlertTriangle }
+    const stock = quantity || 0
+    if (stock === 0) return { text: 'Tugagan', color: '#ef4444', icon: XCircle }
+    if (stock <= 5) return { text: 'Kam qolgan', color: '#f59e0b', icon: AlertTriangle }
     return { text: 'Mavjud', color: '#10b981', icon: Package }
   }
 
@@ -222,7 +223,7 @@ const Products = () => {
         gap: '20px'
       }}>
         {filteredProducts.map(product => {
-          const status = getStockStatus(product.quantity)
+          const status = getStockStatus(product.quantity || product.stock)
           const StatusIcon = status.icon
 
           return (
@@ -300,7 +301,7 @@ const Products = () => {
                   </span>
                 </div>
                 <div style={{ fontSize: '16px', fontWeight: 'bold', color: '#10b981' }}>
-                  {(product.priceUZS || 0).toLocaleString()} so'm
+                  {((product.priceUZS || product.price) || 0).toLocaleString()} so'm
                 </div>
               </div>
 

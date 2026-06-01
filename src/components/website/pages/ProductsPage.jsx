@@ -3,12 +3,19 @@ import { Search, Star, ShoppingCart, Smartphone, User } from 'lucide-react'
 import { useCart } from '../context/CartContext'
 import { useData } from '../../../context/DataContext'
 import { useLocation } from 'react-router-dom'
+import ProductFilter from '../../ProductFilter'
+import WishlistButton from '../../WishlistButton'
 
 const ProductsPage = () => {
   const location = useLocation()
-  const [searchQuery, setSearchQuery] = useState('')
-  const [selectedCategory, setSelectedCategory] = useState('all')
-  const [sortBy, setSortBy] = useState('name')
+  const [filters, setFilters] = useState({
+    category: 'all',
+    priceRange: null,
+    search: '',
+    inStock: false,
+    isNew: false,
+    sortBy: 'featured'
+  })
   const [showAuthRequired, setShowAuthRequired] = useState(false)
   const [darkMode, setDarkMode] = useState(() => {
     const saved = localStorage.getItem('alisher_mobile_theme')
@@ -16,10 +23,9 @@ const ProductsPage = () => {
   })
 
   const { addToCart } = useCart()
-  const { activeProducts } = useData()
+  const { filteredProducts, updateFilters } = useData()
 
   const handleAddToCart = (product) => {
-    // Cart functionality works without authentication
     addToCart(product, 1)
   }
 
@@ -36,168 +42,30 @@ const ProductsPage = () => {
     return () => observer.disconnect()
   }, [])
 
-  // Check for brand filter from URL - updates when location changes
+  // Check for brand filter from URL
   useEffect(() => {
     const urlParams = new URLSearchParams(location.search)
     const brandFilter = urlParams.get('brand') || urlParams.get('category')
 
-    console.log('URL changed:', location.search)
-    console.log('Brand filter:', brandFilter)
-
     if (brandFilter) {
-      // Capitalize first letter to match brand names
       const formattedBrand = brandFilter.charAt(0).toUpperCase() + brandFilter.slice(1).toLowerCase()
-      console.log('Setting category to:', formattedBrand)
-      setSelectedCategory(formattedBrand)
-    } else {
-      setSelectedCategory('all')
+      setFilters(prev => ({ ...prev, category: formattedBrand }))
     }
   }, [location.search])
 
-  const categories = ['all', 'Apple', 'Samsung', 'Honor', 'Vivo', 'Nokia', 'ROG', 'Redmi', 'OnePlus', 'Oppo', 'Realme']
+  // Update filters in DataContext
+  useEffect(() => {
+    updateFilters(filters)
+  }, [filters, updateFilters])
 
-  const products = [
-    {
-      id: 1,
-      name: 'iPhone 15 Pro Max',
-      category: 'Apple',
-      price: 14400000,
-      priceUZS: 14400000,
-      rating: 4.9,
-      reviews: 128,
-      inStock: true,
-      image: '/api/placeholder/300/300'
-    },
-    {
-      id: 2,
-      name: 'Samsung Galaxy S24 Ultra',
-      category: 'Samsung',
-      price: 13200000,
-      priceUZS: 13200000,
-      rating: 4.8,
-      reviews: 95,
-      inStock: true,
-      image: '/api/placeholder/300/300'
-    },
-    {
-      id: 3,
-      name: 'Honor Magic 6 Pro',
-      category: 'Honor',
-      price: 9600000,
-      priceUZS: 9600000,
-      rating: 4.7,
-      reviews: 76,
-      inStock: true,
-      image: '/api/placeholder/300/300'
-    },
-    {
-      id: 4,
-      name: 'iPhone 15',
-      category: 'Apple',
-      price: 11200000,
-      priceUZS: 11200000,
-      rating: 4.8,
-      reviews: 203,
-      inStock: true,
-      image: '/api/placeholder/300/300'
-    },
-    {
-      id: 5,
-      name: 'Vivo X100 Pro',
-      category: 'Vivo',
-      price: 9000000,
-      priceUZS: 9000000,
-      rating: 4.6,
-      reviews: 87,
-      inStock: false,
-      image: '/api/placeholder/300/300'
-    },
-    {
-      id: 6,
-      name: 'Nokia G60 5G',
-      category: 'Nokia',
-      price: 3600000,
-      priceUZS: 3600000,
-      rating: 4.5,
-      reviews: 54,
-      inStock: true,
-      image: '/api/placeholder/300/300'
-    },
-    {
-      id: 7,
-      name: 'ROG Phone 8 Pro',
-      category: 'ROG',
-      price: 12000000,
-      priceUZS: 12000000,
-      rating: 4.9,
-      reviews: 42,
-      inStock: true,
-      image: '/api/placeholder/300/300'
-    },
-    {
-      id: 8,
-      name: 'Redmi Note 13 Pro',
-      category: 'Redmi',
-      price: 4800000,
-      priceUZS: 4800000,
-      rating: 4.4,
-      reviews: 156,
-      inStock: true,
-      image: '/api/placeholder/300/300'
-    },
-    {
-      id: 9,
-      name: 'OnePlus 12',
-      category: 'OnePlus',
-      price: 10800000,
-      priceUZS: 10800000,
-      rating: 4.7,
-      reviews: 89,
-      inStock: true,
-      image: '/api/placeholder/300/300'
-    },
-    {
-      id: 10,
-      name: 'Oppo Find X7 Pro',
-      category: 'Oppo',
-      price: 10200000,
-      priceUZS: 10200000,
-      rating: 4.6,
-      reviews: 67,
-      inStock: true,
-      image: '/api/placeholder/300/300'
-    },
-    {
-      id: 11,
-      name: 'Realme GT 5 Pro',
-      category: 'Realme',
-      price: 7200000,
-      priceUZS: 7200000,
-      rating: 4.5,
-      reviews: 93,
-      inStock: true,
-      image: '/api/placeholder/300/300'
-    }
-  ]
+  // Handle filter changes
+  const handleFiltersChange = (newFilters) => {
+    setFilters(newFilters)
+  }
 
-  const filteredProducts = activeProducts
-    .filter(product => {
-      const matchesSearch = product.name.toLowerCase().includes(searchQuery.toLowerCase())
-      const matchesCategory = selectedCategory === 'all' || product.brand === selectedCategory
-      return matchesSearch && matchesCategory
-    })
-    .sort((a, b) => {
-      switch (sortBy) {
-        case 'price-low':
-          return a.price - b.price
-        case 'price-high':
-          return b.price - a.price
-        case 'rating':
-          return (b.rating || 4.5) - (a.rating || 4.5)
-        default:
-          return a.name.localeCompare(b.name)
-      }
-    })
+  const handleSearch = (searchQuery) => {
+    setFilters(prev => ({ ...prev, search: searchQuery }))
+  }
 
   const formatPrice = (price) => {
     return new Intl.NumberFormat('uz-UZ').format(price) + ' so\'m'
@@ -227,94 +95,19 @@ const ProductsPage = () => {
       </div>
 
       {/* Filters */}
-      <div style={{
-        display: 'flex',
-        gap: '20px',
-        marginBottom: '40px',
-        flexWrap: 'wrap',
-        alignItems: 'center'
-      }}>
-        {/* Search */}
-        <div style={{ position: 'relative', flex: '1', minWidth: '250px' }}>
-          <Search size={20} style={{
-            position: 'absolute',
-            left: '12px',
-            top: '50%',
-            transform: 'translateY(-50%)',
-            color: '#9ca3af'
-          }} />
-          <input
-            type="text"
-            placeholder="Mahsulot qidirish..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            style={{
-              width: '100%',
-              paddingLeft: '44px',
-              paddingRight: '16px',
-              paddingTop: '12px',
-              paddingBottom: '12px',
-              border: `1px solid ${darkMode ? '#4b5563' : '#d1d5db'}`,
-              borderRadius: '8px',
-              fontSize: '16px',
-              background: darkMode ? '#374151' : 'white',
-              color: darkMode ? 'white' : 'black'
-            }}
-          />
-        </div>
-
-        {/* Category Filter */}
-        <select
-          value={selectedCategory}
-          onChange={(e) => setSelectedCategory(e.target.value)}
-          style={{
-            padding: '12px 16px',
-            border: `1px solid ${darkMode ? '#4b5563' : '#d1d5db'}`,
-            borderRadius: '8px',
-            fontSize: '16px',
-            minWidth: '150px',
-            background: darkMode ? '#374151' : 'white',
-            color: darkMode ? 'white' : 'black'
-          }}
-        >
-          <option value="all">Barcha kategoriyalar</option>
-          {categories.slice(1).map(category => (
-            <option key={category} value={category}>{category}</option>
-          ))}
-        </select>
-
-        {/* Sort */}
-        <select
-          value={sortBy}
-          onChange={(e) => setSortBy(e.target.value)}
-          style={{
-            padding: '12px 16px',
-            border: `1px solid ${darkMode ? '#4b5563' : '#d1d5db'}`,
-            borderRadius: '8px',
-            fontSize: '16px',
-            minWidth: '150px',
-            background: darkMode ? '#374151' : 'white',
-            color: darkMode ? 'white' : 'black'
-          }}
-        >
-          <option value="name">Nomi bo'yicha</option>
-          <option value="price-low">Arzon narx</option>
-          <option value="price-high">Qimmat narx</option>
-          <option value="rating">Reyting bo'yicha</option>
-        </select>
-      </div>
-
-      {/* Results Count */}
-      <div style={{ marginBottom: '30px' }}>
-        <p style={{ fontSize: '16px', color: darkMode ? '#9ca3af' : '#6b7280' }}>
-          {filteredProducts.length} ta mahsulot topildi
-        </p>
-      </div>
+      <ProductFilter
+        filters={filters}
+        onFiltersChange={handleFiltersChange}
+        onSearch={handleSearch}
+        searchQuery={filters.search}
+        totalResults={filteredProducts.length}
+        darkMode={darkMode}
+      />
 
       {/* Products Grid */}
       <div style={{
         display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
+        gridTemplateColumns: 'repeat(4, 1fr)',
         gap: '30px'
       }}>
         {filteredProducts.map(product => (
@@ -338,7 +131,7 @@ const ProductsPage = () => {
               position: 'relative'
             }}>
               <Smartphone size={80} color={darkMode ? '#6b7280' : '#9ca3af'} />
-              {product.quantity === 0 && (
+              {product.stock === 0 && (
                 <div style={{
                   position: 'absolute',
                   top: '12px',
@@ -353,6 +146,17 @@ const ProductsPage = () => {
                   Tugagan
                 </div>
               )}
+              <div style={{
+                position: 'absolute',
+                top: '12px',
+                left: '12px'
+              }}>
+                <WishlistButton 
+                  product={product} 
+                  size="small" 
+                  darkMode={darkMode}
+                />
+              </div>
             </div>
 
             {/* Product Info */}
@@ -374,13 +178,33 @@ const ProductsPage = () => {
                 </h3>
               </div>
 
-              <p style={{
-                fontSize: '14px',
-                color: darkMode ? '#9ca3af' : '#6b7280',
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
                 marginBottom: '12px'
               }}>
-                {product.brand} • {product.quantity} dona mavjud
-              </p>
+                <span style={{
+                  backgroundColor: '#10b981',
+                  color: 'white',
+                  padding: '4px 8px',
+                  borderRadius: '12px',
+                  fontSize: '0.75rem',
+                  fontWeight: '600'
+                }}>
+                  {product.brand}
+                </span>
+                <span style={{
+                  backgroundColor: product.stock > 5 ? '#dcfce7' : product.stock > 0 ? '#fef3c7' : '#fee2e2',
+                  color: product.stock > 5 ? '#166534' : product.stock > 0 ? '#92400e' : '#dc2626',
+                  padding: '4px 8px',
+                  borderRadius: '12px',
+                  fontSize: '0.75rem',
+                  fontWeight: '500'
+                }}>
+                  {product.stock} dona mavjud
+                </span>
+              </div>
 
               {/* Rating */}
               <div style={{
@@ -418,24 +242,24 @@ const ProductsPage = () => {
 
                 <button
                   onClick={() => handleAddToCart(product)}
-                  disabled={product.quantity === 0}
+                  disabled={product.stock === 0}
                   style={{
                     display: 'flex',
                     alignItems: 'center',
                     gap: '8px',
-                    backgroundColor: product.quantity > 0 ? '#4f46e5' : '#9ca3af',
+                    backgroundColor: product.stock > 0 ? '#4f46e5' : '#9ca3af',
                     color: 'white',
                     border: 'none',
                     borderRadius: '8px',
                     padding: '10px 16px',
-                    cursor: product.quantity > 0 ? 'pointer' : 'not-allowed',
+                    cursor: product.stock > 0 ? 'pointer' : 'not-allowed',
                     fontSize: '14px',
                     fontWeight: '500',
                     transition: 'background-color 0.2s'
                   }}
                 >
                   <ShoppingCart size={16} />
-                  {product.quantity > 0 ? 'Savatga' : 'Tugagan'}
+                  {product.stock > 0 ? 'Savatga' : 'Tugagan'}
                 </button>
               </div>
             </div>
