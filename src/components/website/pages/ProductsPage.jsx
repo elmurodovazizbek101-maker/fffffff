@@ -220,7 +220,7 @@ const ProductsPage = () => {
                   </span>
                 </div>
                 <span style={{ fontSize: '14px', color: darkMode ? '#9ca3af' : '#6b7280' }}>
-                  ({Math.floor(Math.random() * 200) + 50} ta sharh)
+                  ({product.reviews || 0} ta sharh)
                 </span>
               </div>
 

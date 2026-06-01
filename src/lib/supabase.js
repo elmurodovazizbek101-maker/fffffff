@@ -2,18 +2,23 @@ import { createClient } from '@supabase/supabase-js'
 
 // Supabase konfiguratsiyasi
 // Vite da import.meta.env ishlatiladi, process.env emas
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://demo.supabase.co'
-const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY || 'demo-key'
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || ''
+const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY || ''
+
+// Demo rejim tekshiruvi
+const isDemoMode = !supabaseUrl || !supabaseKey || supabaseUrl === 'https://demo.supabase.co'
 
 // Demo rejim uchun - haqiqiy loyihada .env faylidan oling
 console.log('🔧 Supabase konfiguratsiyasi:', {
-  url: supabaseUrl,
+  url: supabaseUrl || 'Demo mode',
   hasKey: !!supabaseKey,
-  isDemoMode: supabaseUrl === 'https://demo.supabase.co'
+  isDemoMode
 })
 
-// Supabase client yaratish
-export const supabase = createClient(supabaseUrl, supabaseKey)
+// Supabase client yaratish (faqat haqiqiy credentials bo'lsa)
+export const supabase = isDemoMode 
+  ? null 
+  : createClient(supabaseUrl, supabaseKey)
 
 // Database jadvallar nomlari
 export const TABLES = {
@@ -52,7 +57,7 @@ export const handleSupabaseError = (error) => {
 export const checkConnection = async () => {
   try {
     // Demo rejimda false qaytarish
-    if (supabaseUrl === 'https://demo.supabase.co') {
+    if (isDemoMode || !supabase) {
       console.log('📝 Demo rejim: localStorage ishlatiladi')
       return false
     }

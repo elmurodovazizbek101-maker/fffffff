@@ -36,6 +36,11 @@ class DatabaseService {
   // Boshlang'ich ma'lumotlarni yuklash
   async seedInitialData() {
     try {
+      // Agar supabase yo'q bo'lsa, o'tkazib yuborish
+      if (!supabase) {
+        return
+      }
+
       // Mahsulotlar mavjudligini tekshirish
       const { data: existingProducts } = await supabase
         .from(TABLES.PRODUCTS)
