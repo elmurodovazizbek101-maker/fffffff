@@ -11,27 +11,30 @@ export default defineConfig({
   build: {
     outDir: 'dist',
     sourcemap: false,
-    minify: 'terser',
     rollupOptions: {
       output: {
-        manualChunks: {
+        manualChunks(id) {
           // Vendor chunks for better caching
-          vendor: ['react', 'react-dom'],
-          router: ['react-router-dom'],
-          icons: ['lucide-react'],
-          charts: ['recharts']
+          if (id.includes('node_modules')) {
+            if (id.includes('react') || id.includes('react-dom')) {
+              return 'vendor'
+            }
+            if (id.includes('react-router-dom')) {
+              return 'router'
+            }
+            if (id.includes('lucide-react')) {
+              return 'icons'
+            }
+            if (id.includes('recharts')) {
+              return 'charts'
+            }
+            return 'vendor'
+          }
         }
       }
     },
     // Optimize chunk size
-    chunkSizeWarningLimit: 1000,
-    // Enable compression
-    terserOptions: {
-      compress: {
-        drop_console: true,
-        drop_debugger: true
-      }
-    }
+    chunkSizeWarningLimit: 1000
   },
   // Optimize dependencies
   optimizeDeps: {
@@ -40,10 +43,5 @@ export default defineConfig({
   // Enable CSS code splitting
   css: {
     devSourcemap: false
-  },
-  // Performance optimizations
-  esbuild: {
-    // Remove console logs in production
-    drop: ['console', 'debugger']
   }
 })
