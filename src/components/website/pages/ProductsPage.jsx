@@ -107,8 +107,9 @@ const ProductsPage = () => {
       {/* Products Grid */}
       <div style={{
         display: 'grid',
-        gridTemplateColumns: 'repeat(4, 1fr)',
-        gap: '30px'
+        gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
+        gap: '30px',
+        justifyContent: 'center'
       }}>
         {filteredProducts.map(product => (
           <div key={product.id} style={{
