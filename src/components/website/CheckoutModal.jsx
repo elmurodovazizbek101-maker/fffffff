@@ -8,6 +8,20 @@ const CheckoutModal = ({ isOpen, onClose }) => {
   const { cartItems, getTotalPrice, clearCart } = useCart()
   const [currentUser, setCurrentUser] = useState(null)
 
+  // Debug: Check if cart is working
+  useEffect(() => {
+    console.log('🛒 CheckoutModal - Cart Items:', cartItems)
+    console.log('💰 CheckoutModal - Total Price:', getTotalPrice())
+  }, [cartItems, getTotalPrice])
+
+  // Safety check: Close modal if cart is empty
+  useEffect(() => {
+    if (isOpen && (!cartItems || cartItems.length === 0)) {
+      console.warn('⚠️ Savatcha bo\'sh, modal yopilmoqda')
+      onClose()
+    }
+  }, [isOpen, cartItems, onClose])
+
   // Form states
   const [customerInfo, setCustomerInfo] = useState({
     name: '',
@@ -117,8 +131,18 @@ const CheckoutModal = ({ isOpen, onClose }) => {
 
   // Calculate total with payment method fee
   const calculateTotal = () => {
-    const baseTotal = getTotalPrice()
-    return paymentService.calculateTotalAmount(baseTotal, selectedPaymentMethod)
+    try {
+      const baseTotal = getTotalPrice()
+      if (typeof baseTotal !== 'number' || isNaN(baseTotal)) {
+        console.error('❌ getTotalPrice() noto\'g\'ri qiymat qaytardi:', baseTotal)
+        return 0
+      }
+      const total = paymentService.calculateTotalAmount(baseTotal, selectedPaymentMethod)
+      return typeof total === 'number' && !isNaN(total) ? total : baseTotal
+    } catch (error) {
+      console.error('❌ calculateTotal xatolik:', error)
+      return 0
+    }
   }
 
   // Handle step navigation
@@ -141,6 +165,15 @@ const CheckoutModal = ({ isOpen, onClose }) => {
   // Handle payment processing
   const handlePayment = async () => {
     if (!validateForm()) return
+
+    // Check if cart is empty
+    if (!cartItems || cartItems.length === 0) {
+      setPaymentResult({
+        success: false,
+        message: 'Savatcha bo\'sh. Iltimos, mahsulot qo\'shing.'
+      })
+      return
+    }
 
     setPaymentProcessing(true)
     setPaymentResult(null)
@@ -403,34 +436,42 @@ const CheckoutModal = ({ isOpen, onClose }) => {
               <h4 style={{ fontSize: '16px', fontWeight: '600', marginBottom: '12px' }}>
                 Buyurtma xulosasi
               </h4>
-              {cartItems.map(item => (
-                <div key={item.id} style={{
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                  marginBottom: '8px'
-                }}>
-                  <span style={{ fontSize: '14px' }}>
-                    {item.name} × {item.quantity}
-                  </span>
-                  <span style={{ fontSize: '14px', fontWeight: '500' }}>
-                    {(item.price * item.quantity).toLocaleString()} so'm
-                  </span>
+              {cartItems && cartItems.length > 0 ? (
+                <>
+                  {cartItems.map(item => (
+                    <div key={item.id} style={{
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                      marginBottom: '8px'
+                    }}>
+                      <span style={{ fontSize: '14px' }}>
+                        {item.name} × {item.quantity}
+                      </span>
+                      <span style={{ fontSize: '14px', fontWeight: '500' }}>
+                        {((item.price || 0) * (item.quantity || 0)).toLocaleString()} so'm
+                      </span>
+                    </div>
+                  ))}
+                  <div style={{
+                    borderTop: '1px solid #e5e7eb',
+                    paddingTop: '8px',
+                    marginTop: '8px',
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center'
+                  }}>
+                    <span style={{ fontSize: '16px', fontWeight: '600' }}>Jami:</span>
+                    <span style={{ fontSize: '16px', fontWeight: '600', color: '#4f46e5' }}>
+                      {getTotalPrice().toLocaleString()} so'm
+                    </span>
+                  </div>
+                </>
+              ) : (
+                <div style={{ textAlign: 'center', padding: '20px', color: '#6b7280' }}>
+                  Savatcha bo'sh
                 </div>
-              ))}
-              <div style={{
-                borderTop: '1px solid #e5e7eb',
-                paddingTop: '8px',
-                marginTop: '8px',
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center'
-              }}>
-                <span style={{ fontSize: '16px', fontWeight: '600' }}>Jami:</span>
-                <span style={{ fontSize: '16px', fontWeight: '600', color: '#4f46e5' }}>
-                  {getTotalPrice().toLocaleString()} so'm
-                </span>
-              </div>
+              )}
             </div>
           </div>
         )}
@@ -558,12 +599,12 @@ const CheckoutModal = ({ isOpen, onClose }) => {
             }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
                 <span>Mahsulotlar:</span>
-                <span>{getTotalPrice().toLocaleString()} so'm</span>
+                <span>{(getTotalPrice() || 0).toLocaleString()} so'm</span>
               </div>
-              {paymentService.calculateTotalAmount(getTotalPrice(), selectedPaymentMethod) > getTotalPrice() && (
+              {paymentService.calculateTotalAmount(getTotalPrice() || 0, selectedPaymentMethod) > (getTotalPrice() || 0) && (
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
                   <span>Komissiya:</span>
-                  <span>+{(paymentService.calculateTotalAmount(getTotalPrice(), selectedPaymentMethod) - getTotalPrice()).toLocaleString()} so'm</span>
+                  <span>+{(paymentService.calculateTotalAmount(getTotalPrice() || 0, selectedPaymentMethod) - (getTotalPrice() || 0)).toLocaleString()} so'm</span>
                 </div>
               )}
               <div style={{
@@ -576,7 +617,7 @@ const CheckoutModal = ({ isOpen, onClose }) => {
               }}>
                 <span>Jami to'lov:</span>
                 <span style={{ color: '#4f46e5' }}>
-                  {calculateTotal().toLocaleString()} so'm
+                  {(calculateTotal() || 0).toLocaleString()} so'm
                 </span>
               </div>
             </div>
