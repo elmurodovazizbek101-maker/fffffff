@@ -1,274 +1,188 @@
-# 🛒 Alisher Mobile - E-commerce Platform
+# 🛒 Alisher Mobile - Professional E-commerce Platform
 
-Modern va professional mobil telefon do'koni uchun to'liq e-commerce platformasi.
+Modern va professional mobil telefon do'koni uchun yaratilgan to'liq e-commerce platformasi.
 
-[![Deploy to Netlify](https://www.netlify.com/img/deploy/button.svg)](https://app.netlify.com/start/deploy?repository=https://github.com/alisherelmurodov88-cmd/alishermobile)
+## 🚀 Live Demo
 
----
+**Sayt manzili:** [Netlify/Vercel orqali deploy qilinadi]
 
-## 🌟 Xususiyatlar
+## 📱 Xususiyatlar
+
+### 🛍️ Customer Website
+- ✅ Modern va responsive dizayn
+- ✅ 4-ustunli mahsulot grid layout
+- ✅ Savatcha va checkout tizimi
+- ✅ Mahsulot filtrlash va qidiruv
+- ✅ Wishlist funksiyasi
+- ✅ PWA support (Progressive Web App)
+- ✅ Mobile-first dizayn
 
 ### 👨‍💼 Admin Panel
-- 📊 Dashboard (statistika, grafiklar, hisobotlar)
-- 📦 Mahsulotlar boshqaruvi (qo'shish, o'zgartirish, o'chirish)
-- 💰 Sotuvlar va hisobotlar
-- 💸 Xarajatlar nazorati
-- 📋 Qarzdorlar ro'yxati
-- 👥 Xodimlar va yetkazib beruvchilar
-- 🎁 Aksiyalar va chegirmalar
-- ⚙️ Sozlamalar (admin login/parol o'zgartirish)
-- 🔍 Barcode scanner
-- 📱 Responsive dizayn
+- ✅ To'liq CRUD operatsiyalar
+- ✅ Mahsulotlar boshqaruvi
+- ✅ Buyurtmalar nazorati
+- ✅ Mijozlar boshqaruvi
+- ✅ Kategoriyalar va sotuvlar
+- ✅ Telegram bot integratsiyasi
+- ✅ Sozlamalar paneli
 
-### 🛍️ E-commerce Website
-- 🏠 Bosh sahifa (ommabop mahsulotlar)
-- 📱 Kataloglar (barcha brendlar)
-- 🔍 Mahsulotlar (filter, qidiruv, saralash)
-- 🛒 Savatcha va buyurtma berish
-- 🌙 Dark/Light mode
-- 📱 Mobil uchun optimallashtirilgan
-- 🤖 Telegram orqali buyurtma
-- ⚡ PWA support (offline ishlash)
-
-### 🤖 Telegram Bot
-- 📲 Buyurtmalarni qabul qilish
-- 📧 Admin'ga xabar yuborish
-- 🔔 Real-time bildirishnomalar
-
----
-
-## 🚀 Tezkor Boshlash
-
-### 1️⃣ O'rnatish
-
-```bash
-# Repository'ni clone qiling
-git clone https://github.com/alisherelmurodov88-cmd/alishermobile.git
-cd alishermobile
-
-# Dependencies o'rnating
-npm install
-
-# Development server'ni ishga tushiring
-npm run dev
-```
-
-Sayt ochiladi: `http://localhost:3000`
-
-### 2️⃣ Telegram Bot
-
-```bash
-# Bot papkasiga o'ting
-cd bot
-
-# Dependencies o'rnating
-npm install
-
-# .env faylini yarating
-cp .env.example .env
-
-# Bot token va URL ni qo'shing
-# BOT_TOKEN=your_telegram_bot_token
-# WEBAPP_URL=http://localhost:3000
-
-# Bot'ni ishga tushiring
-npm start
-```
-
-Bot ishga tushadi: `http://localhost:3004`
-
----
-
-## 📦 Deploy Qilish
-
-### Netlify (Tavsiya Etiladi)
-
-1. **GitHub'ga yuklang:**
-   - GitHub Desktop ishlatib loyihani publish qiling
-   - Yoki: `git push origin main`
-
-2. **Netlify'ga deploy qiling:**
-   - https://app.netlify.com/ ga kiring
-   - "Import from Git" tugmasini bosing
-   - Repository'ni tanlang
-   - Deploy qiling
-
-**Batafsil:** [BOSHLASH.md](BOSHLASH.md) faylini o'qing
-
-### Boshqa Platformalar
-
-- **Vercel:** [DEPLOY_QILISH_QOLLANMA.md](DEPLOY_QILISH_QOLLANMA.md)
-- **GitHub Pages:** [DEPLOY_QILISH_QOLLANMA.md](DEPLOY_QILISH_QOLLANMA.md)
-- **Render:** [DEPLOY_QILISH_QOLLANMA.md](DEPLOY_QILISH_QOLLANMA.md)
-
----
-
-## 🔐 Admin Kirish
-
-**Default kredensiallar:**
-- **Login:** `superadmin`
-- **Parol:** `Admin@2024!Secure`
-
-**O'zgartirish:**
-- Admin panel → Sozlamalar → Admin Ma'lumotlari
-
----
+### 🤖 Telegram Integration
+- ✅ Avtomatik buyurtma bildirishnomalar
+- ✅ Mijoz ro'yxatdan o'tish xabarlari
+- ✅ Admin panel orqali Chat ID sozlash
+- ✅ Bot test funksiyasi
 
 ## 🛠️ Texnologiyalar
 
-### Frontend
-- ⚛️ **React 18.3.1** - UI library
-- 🎨 **Tailwind CSS** - Styling
-- 🚀 **Vite** - Build tool
-- 🔀 **React Router** - Routing
-- 📊 **Recharts** - Grafiklar
-- 🎭 **Lucide React** - Ikonlar
+- **Frontend:** React 18, Vite 8
+- **Routing:** React Router DOM
+- **Icons:** Lucide React
+- **Database:** Supabase (PostgreSQL)
+- **Styling:** Custom CSS
+- **Deployment:** Netlify/Vercel ready
 
-### Backend
-- 🤖 **Node.js** - Runtime
-- 📱 **Telegram Bot API** - Bot integratsiyasi
-- 💾 **LocalStorage** - Ma'lumotlar bazasi
+## 📦 O'rnatish va Ishga Tushirish
 
-### DevOps
-- 🔧 **ESLint** - Code linting
-- 💅 **Prettier** - Code formatting
-- 🚀 **Netlify** - Hosting
-- 🔄 **GitHub Actions** - CI/CD
+### 1. Repository ni klonlash
+```bash
+git clone https://github.com/alisherelmurodov88-cmd/alishermobile.git
+cd alishermobile
+```
 
----
+### 2. Dependencies o'rnatish
+```bash
+npm install
+```
+
+### 3. Environment variables sozlash
+```bash
+cp .env.example .env
+# .env faylida kerakli o'zgaruvchilarni to'ldiring
+```
+
+### 4. Development server ishga tushirish
+```bash
+npm run dev
+```
+
+Sayt `http://localhost:3000` da ochiladi.
+
+### 5. Production build yaratish
+```bash
+npm run build
+```
+
+## 🚀 Deploy Qilish
+
+### Netlify orqali (Tavsiya etiladi)
+
+1. **Manual Deploy:**
+   - `npm run build` buyrug'ini bajaring
+   - `dist` papkasini ZIP ga siqing
+   - [Netlify](https://netlify.com) ga kiring
+   - "Sites" > "Add new site" > "Deploy manually"
+   - ZIP faylni drag & drop qiling
+
+2. **GitHub orqali (Avtomatik):**
+   - GitHub repository yarating
+   - Kodlarni push qiling
+   - Netlify da "New site from Git" tanlang
+   - Repository ni ulang
+   - Build settings: `npm run build`, Publish directory: `dist`
+
+### Vercel orqali
+
+1. **GitHub orqali:**
+   - [Vercel](https://vercel.com) ga kiring
+   - "New Project" > GitHub repository tanlang
+   - Avtomatik deploy qilinadi
+
+2. **Manual:**
+   - Vercel CLI o'rnating: `npm i -g vercel`
+   - `vercel --prod` buyrug'ini bajaring
+
+## 🔧 Sozlamalar
+
+### Admin Login
+- **Login:** `superadmin`
+- **Parol:** `Admin@2024!Secure`
+
+### Telegram Bot Sozlash
+1. Admin panelga kiring
+2. Settings > Telegram Bot bo'limiga o'ting
+3. "Chat ID Olish" tugmasini bosing
+4. Telegram botingizga `/start` yuboring
+5. "Bot Testini O'tkazish" tugmasini bosing
+
+### Database Sozlash
+1. [Supabase](https://supabase.com) da yangi loyiha yarating
+2. `database/schema.sql` faylini import qiling
+3. `.env` faylida Supabase URL va API key ni to'ldiring
 
 ## 📁 Loyiha Strukturasi
 
 ```
-alishermobile/
-├── src/
-│   ├── components/          # React komponentlar
-│   │   ├── pages/          # Admin sahifalar
-│   │   └── website/        # Website sahifalar
-│   ├── context/            # Context providers
-│   ├── utils/              # Utility funksiyalar
-│   ├── App.jsx             # Asosiy App komponenti
-│   └── main.jsx            # Entry point
-├── bot/                    # Telegram bot
-│   ├── index.js           # Bot server
-│   └── package.json       # Bot dependencies
+alisher-mobile/
 ├── public/                 # Static fayllar
-├── .github/               # GitHub Actions
-├── netlify.toml           # Netlify konfiguratsiya
-├── vite.config.js         # Vite konfiguratsiya
-└── package.json           # Dependencies
+├── src/
+│   ├── components/         # React komponentlar
+│   │   ├── pages/         # Admin panel sahifalari
+│   │   └── website/       # Customer website
+│   ├── context/           # React Context providers
+│   ├── data/              # Static ma'lumotlar
+│   ├── lib/               # Kutubxonalar (Supabase)
+│   ├── services/          # API xizmatlari
+│   └── utils/             # Yordamchi funksiyalar
+├── database/              # Database schema
+├── dist/                  # Production build
+└── docs/                  # Hujjatlar
 ```
 
----
+## 🔒 Xavfsizlik
 
-## 📚 Hujjatlar
+- ✅ Password hashing
+- ✅ Input validation
+- ✅ XSS protection
+- ✅ CSRF protection
+- ✅ Secure headers
+- ✅ Environment variables
 
-- 📖 [BOSHLASH.md](BOSHLASH.md) - Tezkor boshlash qo'llanmasi
-- 🚀 [DEPLOY_TEZKOR.md](DEPLOY_TEZKOR.md) - 5 daqiqada deploy qilish
-- 📘 [DEPLOY_QILISH_QOLLANMA.md](DEPLOY_QILISH_QOLLANMA.md) - To'liq deploy qo'llanmasi
-- 🤖 [TELEGRAM_SETUP.md](TELEGRAM_SETUP.md) - Telegram bot sozlash
-- 🔧 [API.md](API.md) - API hujjatlari
-- 🧪 [TESTING.md](TESTING.md) - Test qilish
-- 📊 [PROJECT_SUMMARY.md](PROJECT_SUMMARY.md) - Loyiha xulosasi
-- ❓ [FAQ.md](FAQ.md) - Ko'p so'raladigan savollar
+## 📊 Performance
 
----
+- ✅ Code splitting
+- ✅ Lazy loading
+- ✅ Image optimization
+- ✅ Bundle optimization
+- ✅ Caching strategies
+- ✅ PWA caching
 
-## 🎯 Xususiyatlar Ro'yxati
+## 🐛 Muammolarni Hal Qilish
 
-### ✅ Tayyor
-- [x] Admin panel (Dashboard, Products, Sales, etc.)
-- [x] E-commerce website (Home, Products, Categories, Cart)
-- [x] Telegram bot integratsiyasi
-- [x] Dark/Light mode
-- [x] PWA support
-- [x] Responsive dizayn
-- [x] LocalStorage database
-- [x] Admin login system
-- [x] Barcode scanner
-- [x] Katalog filterlari
-- [x] Savatcha funksiyasi
-- [x] Buyurtma berish
+### Build Xatoliklari
+```bash
+# Dependencies ni qayta o'rnatish
+rm -rf node_modules package-lock.json
+npm install
 
-### 🔄 Rejada
-- [ ] Backend API (Node.js + MongoDB)
-- [ ] Real database integratsiyasi
-- [ ] Payment gateway
-- [ ] Email notifications
-- [ ] SMS notifications
-- [ ] Multi-language support
-- [ ] Advanced analytics
+# Cache tozalash
+npm run build -- --force
+```
 
----
+### Telegram Bot Ishlamaydi
+1. Bot token to'g'riligini tekshiring
+2. Chat ID ni to'g'ri sozlang
+3. Botga `/start` yuborgan ekanligingizni tekshiring
 
-## 🤝 Hissa Qo'shish
+## 📞 Yordam
 
-Hissa qo'shmoqchimisiz? Ajoyib!
-
-1. Fork qiling
-2. Feature branch yarating (`git checkout -b feature/AmazingFeature`)
-3. Commit qiling (`git commit -m 'Add some AmazingFeature'`)
-4. Push qiling (`git push origin feature/AmazingFeature`)
-5. Pull Request oching
-
-Batafsil: [CONTRIBUTING.md](CONTRIBUTING.md)
-
----
+Muammolar yoki savollar bo'lsa:
+- GitHub Issues orqali muammo yarating
+- Telegram: [@alisherelmurodov88]
 
 ## 📄 Litsenziya
 
-Bu loyiha MIT litsenziyasi ostida. Batafsil: [LICENSE](LICENSE)
+MIT License - batafsil ma'lumot uchun `LICENSE` faylini ko'ring.
 
 ---
 
-## 👨‍💻 Muallif
-
-**Alisher Elmurodov**
-- GitHub: [@alisherelmurodov88-cmd](https://github.com/alisherelmurodov88-cmd)
-
----
-
-## 🙏 Minnatdorchilik
-
-- React jamoasiga
-- Tailwind CSS jamoasiga
-- Vite jamoasiga
-- Barcha open-source contributorlar
-
----
-
-## 📞 Aloqa
-
-Savollar yoki takliflar bo'lsa:
-- GitHub Issues: [Issues](https://github.com/alisherelmurodov88-cmd/alishermobile/issues)
-- Email: alisherelmurodov88@gmail.com
-
----
-
-## 🌟 Loyihani Yoqtirdingizmi?
-
-Agar loyiha foydali bo'lsa, ⭐ star bering!
-
----
-
-## 📊 Statistika
-
-- **Kod qatorlari:** 5,000+
-- **Komponentlar:** 30+
-- **Sahifalar:** 16 (12 admin + 4 website)
-- **Fayllar:** 83
-- **Dependencies:** 20+
-
----
-
-## 🎉 Demo
-
-**Live Demo:** [https://alisher-mobile.netlify.app](https://alisher-mobile.netlify.app)
-
-**Admin Panel:** [https://alisher-mobile.netlify.app/#/admin](https://alisher-mobile.netlify.app/#/admin)
-- Login: `superadmin`
-- Parol: `Admin@2024!Secure`
-
----
-
-**Loyihani ishlatganingiz uchun rahmat!** 🚀
+**© 2024 Alisher Mobile - Professional E-commerce Platform**
