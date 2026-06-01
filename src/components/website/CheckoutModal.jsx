@@ -161,26 +161,37 @@ const CheckoutModal = ({ isOpen, onClose }) => {
 
       // Process payment
       let paymentResponse
-      if (selectedPaymentMethod === 'installment') {
-        paymentResponse = await paymentService.processPayment(orderData, selectedPaymentMethod, {
-          installmentPlan: selectedInstallmentPlan
-        })
-      } else {
-        paymentResponse = await paymentService.processPayment(orderData, selectedPaymentMethod)
+      try {
+        if (selectedPaymentMethod === 'installment') {
+          paymentResponse = await paymentService.processPayment(orderData, selectedPaymentMethod, {
+            installmentPlan: selectedInstallmentPlan
+          })
+        } else {
+          paymentResponse = await paymentService.processPayment(orderData, selectedPaymentMethod)
+        }
+      } catch (paymentError) {
+        console.error('Payment processing error:', paymentError)
+        throw new Error('To\'lov jarayonida xatolik: ' + (paymentError.message || 'Noma\'lum xatolik'))
       }
 
-      if (paymentResponse.success) {
+      if (paymentResponse && paymentResponse.success) {
         // Create order
-        const orderResponse = await OrderService.createOrder({
-          ...orderData,
-          paymentId: paymentResponse.paymentId,
-          paymentStatus: selectedPaymentMethod === 'cash' ? 'pending' : 'processing'
-        })
+        let orderResponse
+        try {
+          orderResponse = await OrderService.createOrder({
+            ...orderData,
+            paymentId: paymentResponse.paymentId,
+            paymentStatus: selectedPaymentMethod === 'cash' ? 'pending' : 'processing'
+          })
+        } catch (orderError) {
+          console.error('Order creation error:', orderError)
+          throw new Error('Buyurtmani yaratishda xatolik: ' + (orderError.message || 'Noma\'lum xatolik'))
+        }
 
-        if (orderResponse.success) {
+        if (orderResponse && orderResponse.success) {
           setPaymentResult({
             success: true,
-            message: paymentResponse.message,
+            message: paymentResponse.message || 'Buyurtma muvaffaqiyatli qabul qilindi!',
             orderId: orderResponse.orderId,
             paymentId: paymentResponse.paymentId,
             redirectUrl: paymentResponse.redirectUrl
@@ -198,17 +209,18 @@ const CheckoutModal = ({ isOpen, onClose }) => {
             }, 2000)
           }
         } else {
-          throw new Error(orderResponse.error)
+          throw new Error(orderResponse?.error || 'Buyurtmani yaratishda xatolik yuz berdi')
         }
       } else {
-        throw new Error(paymentResponse.error)
+        throw new Error(paymentResponse?.error || 'To\'lov jarayonida xatolik yuz berdi')
       }
     } catch (error) {
-      console.error('Payment error:', error)
+      console.error('Checkout error:', error)
       setPaymentResult({
         success: false,
-        message: error.message || 'To\'lov jarayonida xatolik yuz berdi'
+        message: error.message || 'Buyurtmani yuborishda xatolik yuz berdi. Iltimos, qayta urinib ko\'ring.'
       })
+      // Don't move to step 3 on error, stay on step 2
     } finally {
       setPaymentProcessing(false)
     }
@@ -568,6 +580,30 @@ const CheckoutModal = ({ isOpen, onClose }) => {
                 </span>
               </div>
             </div>
+
+            {/* Error Display */}
+            {paymentResult && !paymentResult.success && (
+              <div style={{
+                backgroundColor: '#fee2e2',
+                border: '1px solid #fecaca',
+                borderRadius: '8px',
+                padding: '16px',
+                marginBottom: '24px',
+                display: 'flex',
+                alignItems: 'start',
+                gap: '12px'
+              }}>
+                <AlertCircle size={20} color="#ef4444" style={{ flexShrink: 0, marginTop: '2px' }} />
+                <div>
+                  <div style={{ fontSize: '14px', fontWeight: '600', color: '#991b1b', marginBottom: '4px' }}>
+                    Xatolik yuz berdi
+                  </div>
+                  <div style={{ fontSize: '14px', color: '#7f1d1d' }}>
+                    {paymentResult.message}
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         )}
 
