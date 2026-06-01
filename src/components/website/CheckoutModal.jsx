@@ -5,7 +5,23 @@ import { OrderService } from '../../utils/orderService'
 import paymentService, { paymentMethods, installmentPlans } from '../../utils/paymentService'
 
 const CheckoutModal = ({ isOpen, onClose }) => {
-  const { cartItems, getTotalPrice, clearCart } = useCart()
+  // Wrap useCart in try-catch to handle context errors
+  let cartItems, getTotalPrice, clearCart
+  try {
+    const cart = useCart()
+    cartItems = cart.cartItems
+    getTotalPrice = cart.getTotalPrice
+    clearCart = cart.clearCart
+  } catch (error) {
+    console.error('❌ CartContext xatosi:', error)
+    // If cart context fails, close modal and show error
+    if (isOpen) {
+      alert('Savatcha ma\'lumotlarini yuklashda xatolik. Sahifani yangilang.')
+      onClose()
+    }
+    return null
+  }
+
   const [currentUser, setCurrentUser] = useState(null)
 
   // Debug: Check if cart is working

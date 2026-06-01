@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { X, Plus, Minus, Trash2, ShoppingCart, Smartphone } from 'lucide-react'
 import { useCart } from './context/CartContext'
 import CheckoutModal from './CheckoutModal'
+import ErrorBoundary from '../ErrorBoundary'
 
 const CartSidebar = ({ isOpen, onClose }) => {
   const { cartItems, updateQuantity, removeFromCart, getTotalPrice } = useCart()
@@ -278,14 +279,18 @@ const CartSidebar = ({ isOpen, onClose }) => {
         )}
       </div>
 
-      {/* Checkout Modal */}
-      <CheckoutModal
-        isOpen={showCheckout}
-        onClose={() => {
-          setShowCheckout(false)
-          onClose()
-        }}
-      />
+      {/* Checkout Modal - Must be inside CartProvider */}
+      {showCheckout && (
+        <ErrorBoundary>
+          <CheckoutModal
+            isOpen={showCheckout}
+            onClose={() => {
+              setShowCheckout(false)
+              onClose()
+            }}
+          />
+        </ErrorBoundary>
+      )}
     </>
   )
 }
