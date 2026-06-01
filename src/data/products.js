@@ -5,7 +5,7 @@ export const realProducts = [
     id: 'iphone-15-pro-max',
     name: 'iPhone 15 Pro Max',
     brand: 'Apple',
-    category: 'iPhone',
+    category: 'Apple',
     price: 18500000,
     originalPrice: 19500000,
     discount: 5,
@@ -46,7 +46,7 @@ export const realProducts = [
     id: 'iphone-15',
     name: 'iPhone 15',
     brand: 'Apple',
-    category: 'iPhone',
+    category: 'Apple',
     price: 13500000,
     originalPrice: 14000000,
     discount: 4,
@@ -210,192 +210,146 @@ export const realProducts = [
     isFeatured: true
   },
 
-  // Honor seriyasi
+  // Redmi seriyasi
   {
-    id: 'honor-magic-6-pro',
-    name: 'Honor Magic 6 Pro',
-    brand: 'Honor',
-    category: 'Honor',
-    price: 12800000,
-    originalPrice: 13500000,
-    discount: 5,
-    image: 'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=400&h=400&fit=crop',
+    id: 'redmi-note-13-pro',
+    name: 'Redmi Note 13 Pro',
+    brand: 'Redmi',
+    category: 'Redmi',
+    price: 3200000,
+    originalPrice: 3500000,
+    discount: 9,
+    image: 'https://images.unsplash.com/photo-1598327105666-5b89351aff97?w=400&h=400&fit=crop',
     images: [
-      'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=800&h=800&fit=crop',
-      'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=800&h=800&fit=crop&sat=-50',
-      'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=800&h=800&fit=crop&hue=180'
+      'https://images.unsplash.com/photo-1598327105666-5b89351aff97?w=800&h=800&fit=crop',
+      'https://images.unsplash.com/photo-1598327105666-5b89351aff97?w=800&h=800&fit=crop&sat=-50',
+      'https://images.unsplash.com/photo-1598327105666-5b89351aff97?w=800&h=800&fit=crop&hue=180'
     ],
-    description: 'Honor Magic 6 Pro - AI bilan kuchaytirilgan performance',
+    description: 'Redmi Note 13 Pro - eng yaxshi narx-sifat nisbati',
     specifications: {
-      display: '6.8" LTPO OLED',
-      processor: 'Snapdragon 8 Gen 3',
+      display: '6.67" AMOLED',
+      processor: 'Snapdragon 7s Gen 2',
       storage: '256GB',
-      camera: '50MP + 180MP + 50MP',
-      battery: '5600 mAh',
-      os: 'Android 14, MagicOS 8.0',
-      colors: ['Epi Green', 'Black', 'White']
+      camera: '200MP + 8MP + 2MP',
+      battery: '5000 mAh',
+      os: 'Android 13, MIUI 14',
+      colors: ['Midnight Black', 'Lavender Purple', 'Ice Blue']
     },
     features: [
-      'AI Magic Portal',
-      '180MP periscope kamera',
-      '80W fast charging',
-      '66W wireless charging',
-      'IP68 himoya',
+      '200MP kamera',
+      '67W fast charging',
+      'IP54 himoya',
+      'Stereo speakers',
       '5G aloqa',
-      'Magic Capsule'
+      'Side fingerprint'
     ],
-    stock: 10,
-    rating: 4.5,
-    reviews: 43,
+    stock: 25,
+    rating: 4.6,
+    reviews: 156,
     warranty: '1 yil rasmiy kafolat',
     inStock: true,
     isNew: true,
-    isFeatured: false
+    isFeatured: true
   },
 
-  // Vivo seriyasi
+  // ROG Phone seriyasi (Gaming)
   {
-    id: 'vivo-x100-pro',
-    name: 'Vivo X100 Pro',
-    brand: 'Vivo',
-    category: 'Vivo',
-    price: 11500000,
-    originalPrice: 12000000,
-    discount: 4,
-    image: 'https://images.unsplash.com/photo-1580910051074-3eb694886505?w=400&h=400&fit=crop',
+    id: 'rog-phone-7',
+    name: 'ROG Phone 7 Ultimate',
+    brand: 'ASUS',
+    category: 'ROG',
+    price: 16500000,
+    originalPrice: 17500000,
+    discount: 6,
+    image: 'https://images.unsplash.com/photo-1612287230202-1ff1d85d1bdf?w=400&h=400&fit=crop',
     images: [
-      'https://images.unsplash.com/photo-1580910051074-3eb694886505?w=800&h=800&fit=crop',
-      'https://images.unsplash.com/photo-1580910051074-3eb694886505?w=800&h=800&fit=crop&sat=-50',
-      'https://images.unsplash.com/photo-1580910051074-3eb694886505?w=800&h=800&fit=crop&hue=180'
+      'https://images.unsplash.com/photo-1612287230202-1ff1d85d1bdf?w=800&h=800&fit=crop',
+      'https://images.unsplash.com/photo-1612287230202-1ff1d85d1bdf?w=800&h=800&fit=crop&sat=-50',
+      'https://images.unsplash.com/photo-1612287230202-1ff1d85d1bdf?w=800&h=800&fit=crop&hue=180'
     ],
-    description: 'Vivo X100 Pro - Zeiss optika bilan professional kamera',
+    description: 'ROG Phone 7 Ultimate - eng kuchli gaming telefon',
     specifications: {
-      display: '6.78" LTPO AMOLED',
-      processor: 'MediaTek Dimensity 9300',
-      storage: '256GB',
-      camera: '50MP + 50MP + 50MP',
-      battery: '5400 mAh',
-      os: 'Android 14, OriginOS 4',
-      colors: ['Asteroid Black', 'Sunset Orange', 'White']
+      display: '6.78" AMOLED 165Hz',
+      processor: 'Snapdragon 8 Gen 2',
+      storage: '512GB',
+      camera: '50MP + 13MP + 5MP',
+      battery: '6000 mAh',
+      os: 'Android 13, ROG UI',
+      colors: ['Storm White', 'Phantom Black']
     },
     features: [
-      'Zeiss kamera',
-      'V3 imaging chip',
-      '100W fast charging',
-      '50W wireless charging',
-      'IP68 himoya',
-      '5G aloqa',
-      'Professional portrait'
+      '165Hz display',
+      'AirTrigger 7',
+      'GameCool 7 cooling',
+      '65W HyperCharge',
+      'RGB lighting',
+      'Dual front speakers'
     ],
-    stock: 15,
-    rating: 4.4,
-    reviews: 38,
+    stock: 8,
+    rating: 4.9,
+    reviews: 89,
     warranty: '1 yil rasmiy kafolat',
     inStock: true,
-    isNew: false,
-    isFeatured: false
+    isNew: true,
+    isFeatured: true
   },
 
-  // OnePlus seriyasi
+  // Vertu seriyasi (Luxury)
   {
-    id: 'oneplus-12',
-    name: 'OnePlus 12',
-    brand: 'OnePlus',
-    category: 'OnePlus',
-    price: 10800000,
-    originalPrice: 11300000,
-    discount: 4,
-    image: 'https://images.unsplash.com/photo-1574944985070-8f3ebc6b79d2?w=400&h=400&fit=crop',
+    id: 'vertu-signature-s',
+    name: 'Vertu Signature S',
+    brand: 'Vertu',
+    category: 'Vertu',
+    price: 85000000,
+    originalPrice: 90000000,
+    discount: 6,
+    image: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=400&h=400&fit=crop',
     images: [
-      'https://images.unsplash.com/photo-1574944985070-8f3ebc6b79d2?w=800&h=800&fit=crop',
-      'https://images.unsplash.com/photo-1574944985070-8f3ebc6b79d2?w=800&h=800&fit=crop&sat=-50',
-      'https://images.unsplash.com/photo-1574944985070-8f3ebc6b79d2?w=800&h=800&fit=crop&hue=180'
+      'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=800&h=800&fit=crop',
+      'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=800&h=800&fit=crop&sat=-50',
+      'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=800&h=800&fit=crop&hue=180'
     ],
-    description: 'OnePlus 12 - Never Settle, tez va kuchli performance',
+    description: 'Vertu Signature S - luxury premium telefon',
     specifications: {
-      display: '6.82" LTPO AMOLED',
-      processor: 'Snapdragon 8 Gen 3',
-      storage: '256GB',
-      camera: '50MP + 64MP + 48MP',
-      battery: '5400 mAh',
-      os: 'Android 14, OxygenOS 14',
-      colors: ['Silky Black', 'Flowy Emerald', 'White']
+      display: '6.67" AMOLED',
+      processor: 'Snapdragon 8 Gen 2',
+      storage: '512GB',
+      camera: '50MP + 50MP + 8MP',
+      battery: '4600 mAh',
+      os: 'Android 13',
+      colors: ['Black Alligator', 'Red Gold', 'Titanium']
     },
     features: [
-      'Hasselblad kamera',
-      '100W SuperVOOC charging',
-      '50W wireless charging',
-      'Alert Slider',
-      '5G aloqa',
-      'In-display fingerprint',
-      'Dolby Atmos'
+      'Qo\'lda ishlangan',
+      'Sapphire crystal',
+      'Titanium korpus',
+      'Alligator teri',
+      '24/7 Concierge',
+      'Lifetime warranty'
     ],
-    stock: 18,
-    rating: 4.6,
-    reviews: 72,
-    warranty: '1 yil rasmiy kafolat',
+    stock: 3,
+    rating: 5.0,
+    reviews: 12,
+    warranty: 'Umrbod kafolat',
     inStock: true,
-    isNew: false,
-    isFeatured: false
-  },
-
-  // Google Pixel seriyasi
-  {
-    id: 'google-pixel-8-pro',
-    name: 'Google Pixel 8 Pro',
-    brand: 'Google',
-    category: 'Google',
-    price: 13200000,
-    originalPrice: 13800000,
-    discount: 4,
-    image: 'https://images.unsplash.com/photo-1598300042247-d088f8ab3a91?w=400&h=400&fit=crop',
-    images: [
-      'https://images.unsplash.com/photo-1598300042247-d088f8ab3a91?w=800&h=800&fit=crop',
-      'https://images.unsplash.com/photo-1598300042247-d088f8ab3a91?w=800&h=800&fit=crop&sat=-50',
-      'https://images.unsplash.com/photo-1598300042247-d088f8ab3a91?w=800&h=800&fit=crop&hue=180'
-    ],
-    description: 'Google Pixel 8 Pro - AI bilan eng yaxshi Android tajriba',
-    specifications: {
-      display: '6.7" LTPO OLED',
-      processor: 'Google Tensor G3',
-      storage: '128GB',
-      camera: '50MP + 48MP + 48MP',
-      battery: '5050 mAh',
-      os: 'Android 14',
-      colors: ['Obsidian', 'Porcelain', 'Bay']
-    },
-    features: [
-      'Pure Android',
-      'Magic Eraser',
-      'Call Screen',
-      'Live Translate',
-      '5G aloqa',
-      'Titan M security',
-      '7 yil yangilanish'
-    ],
-    stock: 12,
-    rating: 4.5,
-    reviews: 85,
-    warranty: '1 yil rasmiy kafolat',
-    inStock: true,
-    isNew: false,
-    isFeatured: false
+    isNew: true,
+    isFeatured: true
   }
 ];
 
 // Kategoriyalar
 export const categories = [
   {
-    id: 'iphone',
-    name: 'iPhone',
-    description: 'Apple iPhone seriyasi',
+    id: 'apple',
+    name: 'Apple',
+    description: 'iPhone seriyasi',
     image: 'https://images.unsplash.com/photo-1695048133142-1a20484d2569?w=300&h=200&fit=crop',
     count: 2
   },
   {
     id: 'samsung',
     name: 'Samsung',
-    description: 'Samsung Galaxy seriyasi',
+    description: 'Galaxy seriyasi',
     image: 'https://images.unsplash.com/photo-1610945265064-0e34e5519bbf?w=300&h=200&fit=crop',
     count: 2
   },
@@ -407,31 +361,24 @@ export const categories = [
     count: 1
   },
   {
-    id: 'honor',
-    name: 'Honor',
-    description: 'Honor Magic seriyasi',
-    image: 'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=300&h=200&fit=crop',
+    id: 'redmi',
+    name: 'Redmi',
+    description: 'Arzon va sifatli telefonlar',
+    image: 'https://images.unsplash.com/photo-1598327105666-5b89351aff97?w=300&h=200&fit=crop',
     count: 1
   },
   {
-    id: 'vivo',
-    name: 'Vivo',
-    description: 'Vivo X seriyasi',
-    image: 'https://images.unsplash.com/photo-1580910051074-3eb694886505?w=300&h=200&fit=crop',
+    id: 'rog',
+    name: 'ROG Phone',
+    description: 'Gaming telefonlar',
+    image: 'https://images.unsplash.com/photo-1612287230202-1ff1d85d1bdf?w=300&h=200&fit=crop',
     count: 1
   },
   {
-    id: 'oneplus',
-    name: 'OnePlus',
-    description: 'OnePlus flagman telefonlar',
-    image: 'https://images.unsplash.com/photo-1574944985070-8f3ebc6b79d2?w=300&h=200&fit=crop',
-    count: 1
-  },
-  {
-    id: 'google',
-    name: 'Google',
-    description: 'Google Pixel seriyasi',
-    image: 'https://images.unsplash.com/photo-1598300042247-d088f8ab3a91?w=300&h=200&fit=crop',
+    id: 'vertu',
+    name: 'Vertu',
+    description: 'Luxury premium telefonlar',
+    image: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=300&h=200&fit=crop',
     count: 1
   }
 ];
