@@ -338,8 +338,7 @@ const Suppliers = () => {
 
             <div style={{
               display: 'flex',
-              gap: '8px',
-              justifyContent: 'space-between'
+              gap: '8px'
             }}>
               <button
                 onClick={() => {
@@ -347,8 +346,16 @@ const Suppliers = () => {
                   setShowDebtModal(true)
                 }}
                 className="btn btn-primary"
-                style={{ fontSize: '14px', flex: 1 }}
+                style={{ 
+                  fontSize: '14px', 
+                  flex: 1,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '6px'
+                }}
               >
+                <Plus size={16} />
                 Qarz qo'shish
               </button>
 
@@ -356,26 +363,34 @@ const Suppliers = () => {
                 onClick={() => setEditingSupplier(supplier)}
                 className="btn"
                 style={{
-                  padding: '8px 12px',
+                  padding: '8px 16px',
                   backgroundColor: '#f3f4f6',
                   color: '#374151',
-                  fontSize: '14px'
+                  fontSize: '14px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px'
                 }}
               >
                 <Edit size={16} />
+                Tahrirlash
               </button>
 
               <button
                 onClick={() => handleDeleteSupplier(supplier.id)}
                 className="btn"
                 style={{
-                  padding: '8px 12px',
+                  padding: '8px 16px',
                   backgroundColor: '#fef2f2',
                   color: '#ef4444',
-                  fontSize: '14px'
+                  fontSize: '14px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px'
                 }}
               >
                 <Trash2 size={16} />
+                O'chirish
               </button>
             </div>
 
