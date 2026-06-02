@@ -137,15 +137,13 @@ export const DataProvider = ({ children }) => {
     const loadData = async () => {
       setLoading(true)
       try {
-        // Database ulanishini tekshirish
-        setIsOnline(databaseService.isConnected)
-        
-        // Mahsulotlarni yuklash
+        // Database service lazy initialization qiladi - tezroq
         const productsData = await databaseService.getProducts(productFilters)
         setProducts(productsData)
         setFilteredProducts(productsData)
+        setIsOnline(databaseService.isConnected)
         
-        console.log(`📊 ${productsData.length} ta mahsulot yuklandi (${databaseService.isConnected ? 'Database' : 'LocalStorage'})`)
+        console.log(`📊 ${productsData.length} ta mahsulot yuklandi`)
       } catch (error) {
         console.error('Ma\'lumotlarni yuklashda xatolik:', error)
         // Fallback: realProducts dan yuklash
@@ -157,9 +155,7 @@ export const DataProvider = ({ children }) => {
       }
     }
 
-    // Database service tayyor bo'lguncha kutish
-    const initTimeout = setTimeout(loadData, 100)
-    return () => clearTimeout(initTimeout)
+    loadData()
   }, [])
 
   // Mahsulotlarni filtrlash (database yoki localStorage)

@@ -1,6 +1,10 @@
 // Admin credentials management - stored in localStorage
 const ADMIN_CREDENTIALS_KEY = 'alisher_mobile_admin_credentials'
 
+// Credentials cache
+let credentialsCache = null
+let isMigrated = false
+
 // Simple hash function for password security
 const simpleHash = (str) => {
   let hash = 0
@@ -19,8 +23,8 @@ const verifyHash = (password, hash) => {
 
 // Default admin credentials (first time only)
 const DEFAULT_ADMIN = {
-  login: 'superadmin',
-  password: simpleHash('Admin@2024!Secure') // Hashed password
+  login: 'dead',
+  password: simpleHash('18042011') // Hashed password
 }
 
 // Force reset admin credentials to default (for debugging)
@@ -33,20 +37,21 @@ export const resetAdminCredentials = () => {
 // Debug function to check current credentials
 export const debugAdminCredentials = () => {
   const stored = localStorage.getItem(ADMIN_CREDENTIALS_KEY)
-  console.log('Stored admin credentials:', stored)
   if (stored) {
     const parsed = JSON.parse(stored)
-    console.log('Parsed credentials:', parsed)
-    console.log('Expected login:', 'superadmin')
-    console.log('Expected password hash:', simpleHash('Admin@2024!Secure'))
-    console.log('Stored password hash:', parsed.password)
-    console.log('Hash match:', parsed.password === simpleHash('Admin@2024!Secure'))
+    console.log('Expected login:', 'dead')
+    console.log('Expected password hash:', simpleHash('18042011'))
   }
   return stored
 }
 
 // Reset admin credentials if hash mismatch (for migration)
 export const migrateAdminCredentials = () => {
+  // Faqat bir marta migrate qilish
+  if (isMigrated) {
+    return credentialsCache
+  }
+
   try {
     const stored = localStorage.getItem(ADMIN_CREDENTIALS_KEY)
     if (stored) {
@@ -55,43 +60,67 @@ export const migrateAdminCredentials = () => {
       if (parsed.password && !parsed.password.includes('-')) {
         // Old plain text password, need to hash it
         const newCreds = {
-          login: parsed.login || 'superadmin',
+          login: parsed.login || 'dead',
           password: simpleHash(parsed.password)
         }
         localStorage.setItem(ADMIN_CREDENTIALS_KEY, JSON.stringify(newCreds))
+        credentialsCache = newCreds
+        isMigrated = true
         return newCreds
       }
     }
   } catch (error) {
     // If any error, reset to default
-    return resetAdminCredentials()
+    const defaultCreds = resetAdminCredentials()
+    isMigrated = true
+    return defaultCreds
   }
+  
+  isMigrated = true
   return null
 }
 
 // Initialize admin credentials if not exists
 export const initializeAdminCredentials = () => {
+  // Cache dan qaytarish agar mavjud bo'lsa
+  if (credentialsCache) {
+    return credentialsCache
+  }
+
   // First try to migrate existing credentials
   const migrated = migrateAdminCredentials()
   if (migrated) {
+    credentialsCache = migrated
     return migrated
   }
 
   const stored = localStorage.getItem(ADMIN_CREDENTIALS_KEY)
   if (!stored) {
     localStorage.setItem(ADMIN_CREDENTIALS_KEY, JSON.stringify(DEFAULT_ADMIN))
+    credentialsCache = DEFAULT_ADMIN
     return DEFAULT_ADMIN
   }
-  return JSON.parse(stored)
+  
+  const parsed = JSON.parse(stored)
+  credentialsCache = parsed
+  return parsed
 }
 
 // Get current admin credentials
 export const getAdminCredentials = () => {
+  // Cache dan qaytarish
+  if (credentialsCache) {
+    return credentialsCache
+  }
+
   const stored = localStorage.getItem(ADMIN_CREDENTIALS_KEY)
   if (!stored) {
     return initializeAdminCredentials()
   }
-  return JSON.parse(stored)
+  
+  const parsed = JSON.parse(stored)
+  credentialsCache = parsed
+  return parsed
 }
 
 // Update admin credentials (only admin can do this)
@@ -114,6 +143,9 @@ export const updateAdminCredentials = (newLogin, newPassword) => {
   }
 
   localStorage.setItem(ADMIN_CREDENTIALS_KEY, JSON.stringify(newCredentials))
+  
+  // Cache ni yangilash
+  credentialsCache = newCredentials
 
   return { success: true, message: 'Admin login va parol muvaffaqiyatli o\'zgartirildi!' }
 }
@@ -136,14 +168,23 @@ export const verifyAdminCredentials = async (login, password) => {
 
 // Customer authentication - stored in localStorage
 const CUSTOMERS_KEY = 'alisher_mobile_customers'
+let customersCache = null
 
 export const getCustomers = () => {
+  // Cache dan qaytarish
+  if (customersCache) {
+    return customersCache
+  }
+
   const data = localStorage.getItem(CUSTOMERS_KEY)
-  return data ? JSON.parse(data) : []
+  const customers = data ? JSON.parse(data) : []
+  customersCache = customers
+  return customers
 }
 
 export const saveCustomers = (customers) => {
   localStorage.setItem(CUSTOMERS_KEY, JSON.stringify(customers))
+  customersCache = customers // Cache ni yangilash
 }
 
 export const registerCustomer = (customerData) => {

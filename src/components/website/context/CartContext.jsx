@@ -81,7 +81,7 @@ export const CartProvider = ({ children }) => {
     saveCartToStorage(cartItems)
   }, [cartItems, saveCartToStorage])
 
-  // Add item to cart with validation
+  // Add item to cart with STRICT stock validation
   const addToCart = useCallback((product, quantity = 1) => {
     try {
       setIsLoading(true)
@@ -92,32 +92,73 @@ export const CartProvider = ({ children }) => {
         throw new Error('Noto\'g\'ri mahsulot ma\'lumotlari')
       }
 
+      // CRITICAL: Get stock from product
+      const productStock = Number(product.stock) || 0
+      
+      // CRITICAL: If no stock, don't allow adding
+      if (productStock <= 0) {
+        alert('⚠️ Bu mahsulot tugagan!')
+        setError('Bu mahsulot tugagan')
+        return { success: false, message: 'Bu mahsulot tugagan' }
+      }
+
       // Validate quantity
       const validQuantity = Math.max(1, Math.floor(Number(quantity) || 1))
+
+      let success = false
+      let message = ''
 
       setCartItems(prev => {
         const existingItem = prev.find(item => item.id === product.id)
         
         if (existingItem) {
+          // CRITICAL: Calculate new quantity
           const newQuantity = existingItem.quantity + validQuantity
-          // Limit quantity to prevent excessive amounts
-          const limitedQuantity = Math.min(newQuantity, 99)
+          
+          // CRITICAL: Use stock from existing item (already saved)
+          const itemStock = Number(existingItem.stock) || 0
+          
+          // CRITICAL: Check if exceeds stock
+          if (newQuantity > itemStock) {
+            alert(`⚠️ Faqat ${itemStock} dona mavjud!\n\nSavatda: ${existingItem.quantity} dona\nQo'shmoqchisiz: ${validQuantity} dona\nJami: ${newQuantity} dona\n\nStock: ${itemStock} dona`)
+            setError(`Faqat ${itemStock} dona mavjud!`)
+            success = false
+            message = `Faqat ${itemStock} dona mavjud!`
+            return prev // Don't add
+          }
+          
+          success = true
+          message = 'Mahsulot savatga qo\'shildi'
           
           return prev.map(item =>
             item.id === product.id
-              ? { ...item, quantity: limitedQuantity }
+              ? { ...item, quantity: newQuantity }
               : item
           )
         }
         
+        // CRITICAL: Check stock for new item
+        if (validQuantity > productStock) {
+          alert(`⚠️ Faqat ${productStock} dona mavjud!\n\nQo'shmoqchisiz: ${validQuantity} dona\nStock: ${productStock} dona`)
+          setError(`Faqat ${productStock} dona mavjud!`)
+          success = false
+          message = `Faqat ${productStock} dona mavjud!`
+          return prev // Don't add
+        }
+        
+        success = true
+        message = 'Mahsulot savatga qo\'shildi'
+        
+        // CRITICAL: Save stock with item
         return [...prev, { 
-          ...product, 
+          ...product,
+          stock: productStock, // MUST save stock!
           quantity: validQuantity,
           addedAt: new Date().toISOString()
         }]
       })
 
-      return { success: true, message: 'Mahsulot savatga qo\'shildi' }
+      return { success, message }
     } catch (error) {
       const errorMessage = error.message || 'Mahsulotni savatga qo\'shishda xatolik'
       setError(errorMessage)
@@ -148,7 +189,7 @@ export const CartProvider = ({ children }) => {
     }
   }, [])
 
-  // Update item quantity
+  // Update item quantity with STRICT stock validation
   const updateQuantity = useCallback((productId, quantity) => {
     try {
       setIsLoading(true)
@@ -164,18 +205,36 @@ export const CartProvider = ({ children }) => {
         return removeFromCart(productId)
       }
 
-      // Limit quantity
-      const limitedQuantity = Math.min(validQuantity, 99)
+      let success = false
+      let message = ''
 
-      setCartItems(prev =>
-        prev.map(item =>
-          item.id === productId 
-            ? { ...item, quantity: limitedQuantity }
-            : item
+      setCartItems(prev => {
+        const item = prev.find(i => i.id === productId)
+        if (!item) return prev
+
+        // CRITICAL: Get stock from item
+        const productStock = Number(item.stock) || 0
+        
+        // CRITICAL: Check if exceeds stock
+        if (validQuantity > productStock) {
+          alert(`⚠️ Faqat ${productStock} dona mavjud!\n\nO'zgartirmoqchisiz: ${validQuantity} dona\nStock: ${productStock} dona`)
+          setError(`Faqat ${productStock} dona mavjud!`)
+          success = false
+          message = `Faqat ${productStock} dona mavjud!`
+          return prev // Don't update
+        }
+
+        success = true
+        message = 'Miqdor yangilandi'
+
+        return prev.map(i =>
+          i.id === productId 
+            ? { ...i, quantity: validQuantity }
+            : i
         )
-      )
+      })
 
-      return { success: true, message: 'Miqdor yangilandi' }
+      return { success, message }
     } catch (error) {
       const errorMessage = error.message || 'Miqdorni yangilashda xatolik'
       setError(errorMessage)

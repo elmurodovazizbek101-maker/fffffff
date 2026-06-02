@@ -49,30 +49,30 @@ const CategoriesPage = () => {
 
   // Brand icons mapping
   const brandIcons = {
-    'Apple': Apple,
-    'Samsung': Smartphone,
-    'Honor': Shield,
-    'Vivo': Circle,
-    'Nokia': Hexagon,
-    'OnePlus': Plus,
-    'Redmi': Flame,
-    'Oppo': Star,
-    'Realme': Zap,
     'ROG': Gamepad2,
+    'Redmi': Flame,
+    'Samsung': Smartphone,
+    'Apple': Apple,
+    'Honor': Shield,
+    'Vertu': Star,
+    'Nokia': Hexagon,
+    'Poco': Zap,
+    'Tecno': Circle,
+    'Redmagic': Gamepad2,
     'Xiaomi': Smartphone
   }
 
   const brandColors = {
-    'Apple': '#000000',
-    'Samsung': '#1428A0',
-    'Honor': '#ED1C24',
-    'Vivo': '#0066CC',
-    'Nokia': '#124191',
-    'OnePlus': '#F50514',
-    'Redmi': '#FF6900',
-    'Oppo': '#00A368',
-    'Realme': '#FFD700',
     'ROG': '#FF0000',
+    'Redmi': '#FF6900',
+    'Samsung': '#1428A0',
+    'Apple': '#000000',
+    'Honor': '#ED1C24',
+    'Vertu': '#FFD700',
+    'Nokia': '#124191',
+    'Poco': '#F7B500',
+    'Tecno': '#0066CC',
+    'Redmagic': '#DC143C',
     'Xiaomi': '#FF6900'
   }
 

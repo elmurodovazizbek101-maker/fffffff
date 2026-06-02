@@ -1,6 +1,9 @@
 import { useState, useEffect } from 'react'
-import { X, User, Phone, MapPin, CheckCircle, AlertCircle, Loader } from 'lucide-react'
+import { X, User, Phone, MapPin, CheckCircle, AlertCircle } from 'lucide-react'
 import { useCart } from './context/CartContext'
+import { telegramBot } from '../../utils/telegram'
+import { ErrorHandler, Validators, AppError, ErrorTypes } from '../../utils/errorHandler'
+import LoadingOverlay from '../LoadingOverlay'
 
 const CheckoutModal = ({ isOpen, onClose }) => {
   // Get cart data safely
@@ -17,6 +20,9 @@ const CheckoutModal = ({ isOpen, onClose }) => {
     notes: ''
   })
 
+  // Validation errors
+  const [errors, setErrors] = useState({})
+
   // UI state
   const [loading, setLoading] = useState(false)
   const [success, setSuccess] = useState(false)
@@ -26,12 +32,13 @@ const CheckoutModal = ({ isOpen, onClose }) => {
   useEffect(() => {
     if (!isOpen) {
       setFormData({ name: '', phone: '+998 ', address: '', notes: '' })
+      setErrors({})
       setSuccess(false)
       setError('')
     }
   }, [isOpen])
 
-  // Handle phone input
+  // Handle phone input with validation
   const handlePhoneChange = (value) => {
     let digits = value.replace(/\D/g, '')
     if (digits.startsWith('998')) digits = digits.slice(3)
@@ -44,68 +51,127 @@ const CheckoutModal = ({ isOpen, onClose }) => {
     if (digits.length > 7) formatted += ' ' + digits.slice(7, 9)
     
     setFormData(prev => ({ ...prev, phone: formatted }))
+    
+    // Clear phone error when typing
+    if (errors.phone) {
+      setErrors(prev => ({ ...prev, phone: '' }))
+    }
   }
 
-  // Handle form submit
+  // Validate form
+  const validateForm = () => {
+    const newErrors = {}
+
+    try {
+      // Name validation
+      Validators.required(formData.name, 'Ism')
+      Validators.minLength(formData.name, 2, 'Ism')
+      Validators.maxLength(formData.name, 50, 'Ism')
+    } catch (err) {
+      newErrors.name = err.message
+    }
+
+    try {
+      // Phone validation
+      Validators.required(formData.phone, 'Telefon raqam')
+      Validators.phone(formData.phone)
+    } catch (err) {
+      newErrors.phone = err.message
+    }
+
+    try {
+      // Address validation
+      Validators.required(formData.address, 'Manzil')
+      Validators.minLength(formData.address, 10, 'Manzil')
+      Validators.maxLength(formData.address, 200, 'Manzil')
+    } catch (err) {
+      newErrors.address = err.message
+    }
+
+    // Cart validation
+    if (cartItems.length === 0) {
+      throw new AppError('Savatcha bo\'sh', ErrorTypes.VALIDATION)
+    }
+
+    setErrors(newErrors)
+    return Object.keys(newErrors).length === 0
+  }
+
+  // Handle form submit with error handling
   const handleSubmit = async (e) => {
     e.preventDefault()
     setError('')
 
-    // Validation
-    if (!formData.name.trim()) {
-      setError('Iltimos, ismingizni kiriting')
-      return
-    }
-    if (formData.phone.length < 17) {
-      setError('Iltimos, to\'g\'ri telefon raqam kiriting')
-      return
-    }
-    if (!formData.address.trim()) {
-      setError('Iltimos, manzilni kiriting')
-      return
-    }
-    if (cartItems.length === 0) {
-      setError('Savatcha bo\'sh')
-      return
-    }
-
-    setLoading(true)
-
     try {
+      // Validate form
+      if (!validateForm()) {
+        throw new AppError('Iltimos, barcha maydonlarni to\'g\'ri to\'ldiring', ErrorTypes.VALIDATION)
+      }
+
+      setLoading(true)
+
       // Create order
       const order = {
         id: `ORD${Date.now()}`,
         customer: {
-          name: formData.name,
+          name: formData.name.trim(),
           phone: formData.phone,
-          address: formData.address
+          address: formData.address.trim()
         },
         items: cartItems,
         total: getTotalPrice(),
-        notes: formData.notes,
+        notes: formData.notes.trim(),
         date: new Date().toISOString(),
         status: 'pending'
       }
 
-      // Save to localStorage
-      const orders = JSON.parse(localStorage.getItem('alisher_mobile_orders') || '[]')
-      orders.push(order)
-      localStorage.setItem('alisher_mobile_orders', JSON.stringify(orders))
+      // Save to localStorage with error handling
+      try {
+        const orders = JSON.parse(localStorage.getItem('alisher_mobile_orders') || '[]')
+        orders.push(order)
+        localStorage.setItem('alisher_mobile_orders', JSON.stringify(orders))
+      } catch (storageError) {
+        console.error('localStorage error:', storageError)
+        throw new AppError('Buyurtmani saqlashda xatolik', ErrorTypes.SERVER)
+      }
 
-      // Clear cart
+      // Send Telegram notification (non-blocking)
+      try {
+        const telegramData = {
+          orderId: order.id,
+          customer: {
+            name: order.customer.name,
+            phone: order.customer.phone,
+            address: order.customer.address
+          },
+          items: order.items.map(item => ({
+            name: item.name,
+            quantity: item.quantity,
+            price: item.price
+          })),
+          total: order.total,
+          notes: order.notes,
+          date: order.date
+        }
+
+        await telegramBot.sendOrderNotification(telegramData)
+      } catch (telegramError) {
+        // Telegram error is non-critical, just log it
+        console.warn('Telegram notification failed:', telegramError)
+      }
+
+      // Success
+      setSuccess(true)
       clearCart()
 
-      // Show success
-      setSuccess(true)
-
-      // Close after 2 seconds
+      // Close modal after 2 seconds
       setTimeout(() => {
         onClose()
       }, 2000)
 
     } catch (err) {
-      console.error('Order error:', err)
-      setError('Buyurtmani yuborishda xatolik. Qayta urinib ko\'ring.')
+      const handled = ErrorHandler.handle(err, 'CheckoutModal.handleSubmit')
+      setError(handled.message)
     } finally {
       setLoading(false)
     }
@@ -231,7 +297,8 @@ const CheckoutModal = ({ isOpen, onClose }) => {
                     gap: '6px',
                     marginBottom: '6px',
                     fontSize: '14px',
-                    fontWeight: '500'
+                    fontWeight: '500',
+                    color: errors.name ? '#ef4444' : '#1f2937'
                   }}>
                     <User size={16} />
                     To'liq ism *
@@ -239,17 +306,30 @@ const CheckoutModal = ({ isOpen, onClose }) => {
                   <input
                     type="text"
                     value={formData.name}
-                    onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+                    onChange={(e) => {
+                      setFormData(prev => ({ ...prev, name: e.target.value }))
+                      if (errors.name) setErrors(prev => ({ ...prev, name: '' }))
+                    }}
                     placeholder="Ismingizni kiriting"
                     style={{
                       width: '100%',
                       padding: '10px 12px',
-                      border: '1px solid #e5e7eb',
+                      border: `1px solid ${errors.name ? '#ef4444' : '#e5e7eb'}`,
                       borderRadius: '8px',
-                      fontSize: '14px'
+                      fontSize: '14px',
+                      outline: 'none'
                     }}
                     required
                   />
+                  {errors.name && (
+                    <p style={{
+                      margin: '4px 0 0 0',
+                      fontSize: '12px',
+                      color: '#ef4444'
+                    }}>
+                      {errors.name}
+                    </p>
+                  )}
                 </div>
 
                 {/* Phone */}
@@ -260,7 +340,8 @@ const CheckoutModal = ({ isOpen, onClose }) => {
                     gap: '6px',
                     marginBottom: '6px',
                     fontSize: '14px',
-                    fontWeight: '500'
+                    fontWeight: '500',
+                    color: errors.phone ? '#ef4444' : '#1f2937'
                   }}>
                     <Phone size={16} />
                     Telefon raqam *
@@ -273,12 +354,22 @@ const CheckoutModal = ({ isOpen, onClose }) => {
                     style={{
                       width: '100%',
                       padding: '10px 12px',
-                      border: '1px solid #e5e7eb',
+                      border: `1px solid ${errors.phone ? '#ef4444' : '#e5e7eb'}`,
                       borderRadius: '8px',
-                      fontSize: '14px'
+                      fontSize: '14px',
+                      outline: 'none'
                     }}
                     required
                   />
+                  {errors.phone && (
+                    <p style={{
+                      margin: '4px 0 0 0',
+                      fontSize: '12px',
+                      color: '#ef4444'
+                    }}>
+                      {errors.phone}
+                    </p>
+                  )}
                 </div>
 
                 {/* Address */}
@@ -289,26 +380,40 @@ const CheckoutModal = ({ isOpen, onClose }) => {
                     gap: '6px',
                     marginBottom: '6px',
                     fontSize: '14px',
-                    fontWeight: '500'
+                    fontWeight: '500',
+                    color: errors.address ? '#ef4444' : '#1f2937'
                   }}>
                     <MapPin size={16} />
                     Yetkazib berish manzili *
                   </label>
                   <textarea
                     value={formData.address}
-                    onChange={(e) => setFormData(prev => ({ ...prev, address: e.target.value }))}
+                    onChange={(e) => {
+                      setFormData(prev => ({ ...prev, address: e.target.value }))
+                      if (errors.address) setErrors(prev => ({ ...prev, address: '' }))
+                    }}
                     placeholder="To'liq manzilni kiriting"
                     rows="3"
                     style={{
                       width: '100%',
                       padding: '10px 12px',
-                      border: '1px solid #e5e7eb',
+                      border: `1px solid ${errors.address ? '#ef4444' : '#e5e7eb'}`,
                       borderRadius: '8px',
                       fontSize: '14px',
-                      resize: 'vertical'
+                      resize: 'vertical',
+                      outline: 'none'
                     }}
                     required
                   />
+                  {errors.address && (
+                    <p style={{
+                      margin: '4px 0 0 0',
+                      fontSize: '12px',
+                      color: '#ef4444'
+                    }}>
+                      {errors.address}
+                    </p>
+                  )}
                 </div>
 
                 {/* Notes */}
@@ -332,7 +437,8 @@ const CheckoutModal = ({ isOpen, onClose }) => {
                       border: '1px solid #e5e7eb',
                       borderRadius: '8px',
                       fontSize: '14px',
-                      resize: 'vertical'
+                      resize: 'vertical',
+                      outline: 'none'
                     }}
                   />
                 </div>
@@ -376,7 +482,6 @@ const CheckoutModal = ({ isOpen, onClose }) => {
                   gap: '8px'
                 }}
               >
-                {loading && <Loader size={18} style={{ animation: 'spin 1s linear infinite' }} />}
                 {loading ? 'Yuborilmoqda...' : 'Buyurtma berish'}
               </button>
             </form>
@@ -384,12 +489,13 @@ const CheckoutModal = ({ isOpen, onClose }) => {
         </div>
       </div>
 
-      <style>{`
-        @keyframes spin {
-          from { transform: rotate(0deg); }
-          to { transform: rotate(360deg); }
-        }
-      `}</style>
+      {/* Loading Overlay */}
+      <LoadingOverlay 
+        isLoading={loading} 
+        message="Buyurtma yuklanmoqda..." 
+        fullScreen={false}
+        transparent={true}
+      />
     </div>
   )
 }

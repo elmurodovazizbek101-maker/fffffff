@@ -146,7 +146,12 @@ const CartSidebar = ({ isOpen, onClose }) => {
                       color: '#6b7280',
                       margin: '0 0 6px 0'
                     }}>
-                      {item.brand}
+                      {item.brand} • <span style={{ 
+                        color: (item.stock || 0) <= 3 ? '#ef4444' : '#10b981',
+                        fontWeight: '600'
+                      }}>
+                        {item.stock || 0} dona mavjud
+                      </span>
                     </p>
                     <div style={{
                       fontSize: '13px',
@@ -208,17 +213,46 @@ const CartSidebar = ({ isOpen, onClose }) => {
                       </span>
 
                       <button
-                        onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                        onClick={(e) => {
+                          e.preventDefault()
+                          e.stopPropagation()
+                          
+                          const currentStock = Number(item.stock) || 0
+                          const currentQuantity = Number(item.quantity) || 0
+                          const newQuantity = currentQuantity + 1
+                          
+                          // CRITICAL: Check stock before allowing increase
+                          if (currentStock === 0) {
+                            alert('⚠️ Bu mahsulot tugagan!')
+                            return
+                          }
+                          
+                          if (newQuantity > currentStock) {
+                            alert(`⚠️ STOCK LIMIT!\n\nFaqat ${currentStock} dona mavjud!\n\nSavatda: ${currentQuantity} dona\nQo'shmoqchisiz: 1 dona\nJami: ${newQuantity} dona\n\nBu stock limitidan oshib ketadi!`)
+                            return
+                          }
+                          
+                          updateQuantity(item.id, newQuantity)
+                        }}
+                        disabled={!item.stock || item.quantity >= item.stock}
+                        title={
+                          !item.stock 
+                            ? 'Mahsulot tugagan' 
+                            : item.quantity >= item.stock 
+                              ? `Stock limit: ${item.stock} dona` 
+                              : 'Miqdorni oshirish'
+                        }
                         style={{
                           width: '22px',
                           height: '22px',
                           border: '1px solid #e5e7eb',
                           borderRadius: '4px',
-                          background: 'white',
-                          cursor: 'pointer',
+                          background: (!item.stock || item.quantity >= item.stock) ? '#f3f4f6' : 'white',
+                          cursor: (!item.stock || item.quantity >= item.stock) ? 'not-allowed' : 'pointer',
                           display: 'flex',
                           alignItems: 'center',
-                          justifyContent: 'center'
+                          justifyContent: 'center',
+                          opacity: (!item.stock || item.quantity >= item.stock) ? 0.5 : 1
                         }}
                       >
                         <Plus size={10} />

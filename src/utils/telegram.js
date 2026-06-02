@@ -8,7 +8,7 @@ const TELEGRAM_CLIENT_SECRET = 'PW6A8l-05DRWvsCPgmQPwL7yyaxl13UueglZFeQXJkHihPp2
 
 // Admin chat ID - localStorage dan olinadi yoki default qiymat
 const getAdminChatId = () => {
-  return localStorage.getItem('telegram_admin_chat_id') || '123456789'
+  return localStorage.getItem('telegram_admin_chat_id') || null
 }
 
 const setAdminChatId = (chatId) => {
@@ -38,11 +38,13 @@ export class TelegramBotService {
       const adminChatId = this.getAdminChatId()
       
       // Chat ID tekshirish
-      if (adminChatId === '123456789') {
-        console.warn('⚠️ DIQQAT: Chat ID sozlanmagan! Admin paneldan Chat ID ni oling va o\'rnating.')
+      if (!adminChatId) {
+        console.warn('⚠️ DIQQAT: Chat ID sozlanmagan!')
+        console.log('📱 Telegram botga /start yuboring va Chat ID ni oling')
+        console.log('⚙️ Admin paneldan Settings > Telegram sozlamalariga o\'ting')
         return { 
           success: false, 
-          error: 'Chat ID sozlanmagan. Admin paneldan Chat ID ni oling va o\'rnating.' 
+          error: 'Chat ID sozlanmagan. Botga /start yuboring va Chat ID ni admin paneldan kiriting.' 
         }
       }
 
@@ -61,7 +63,6 @@ export class TelegramBotService {
       const result = await response.json()
       
       if (result.ok) {
-        console.log('✅ Telegram xabari muvaffaqiyatli yuborildi')
         return { success: true, result }
       } else {
         console.error('❌ Telegram API xatoligi:', result)
@@ -158,7 +159,6 @@ export class TelegramBotService {
       const result = await response.json()
       
       if (result.ok) {
-        console.log('✅ Bot ma\'lumotlari olindi:', result.result.first_name)
         return result
       } else {
         console.error('❌ Bot ma\'lumotlarini olishda xatolik:', result)
@@ -177,7 +177,6 @@ export class TelegramBotService {
       const result = await response.json()
       
       if (result.ok) {
-        console.log('✅ Bot yangilanishlari olindi')
         return result
       } else {
         console.error('❌ Bot yangilanishlarini olishda xatolik:', result)

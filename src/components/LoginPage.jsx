@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Eye, EyeOff, User, Lock, Shield, UserPlus } from 'lucide-react'
+import { Eye, EyeOff, User, Lock, Shield, UserPlus, LogIn, Smartphone, ArrowRight } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { verifyAdminCredentials, verifyCustomerCredentials, registerCustomer } from '../utils/auth'
 

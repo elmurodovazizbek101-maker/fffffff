@@ -4,19 +4,61 @@ import { realProducts } from '../data/products'
 class DatabaseService {
   constructor() {
     this.isConnected = false
-    this.initializeConnection()
+    this.isInitialized = false
+    this.initPromise = null
+    // Lazy initialization - faqat kerak bo'lganda ulanamiz
   }
 
   async initializeConnection() {
-    this.isConnected = await checkConnection()
-    if (this.isConnected) {
-      console.log('✅ Supabase database ulandi')
-      await this.seedInitialData()
-    } else {
-      console.log('📝 Demo rejim: localStorage ishlatiladi')
-      // Demo rejimda localStorage dan ma'lumotlarni yuklash
-      this.initializeLocalStorage()
+    // Agar allaqachon initialized bo'lsa, qayta ishlatmaymiz
+    if (this.isInitialized) {
+      return
     }
+
+    // Agar initialization jarayonida bo'lsa, kutamiz
+    if (this.initPromise) {
+      return this.initPromise
+    }
+
+    // Yangi initialization ni boshlaymiz
+    this.initPromise = (async () => {
+      try {
+        // Supabase mavjudligini tekshirish (tez)
+        if (!supabase) {
+          console.log('📝 Demo rejim: localStorage ishlatiladi')
+          this.isConnected = false
+          this.initializeLocalStorage()
+          this.isInitialized = true
+          return
+        }
+
+        // Connection tekshirish (timeout bilan)
+        const connectionTimeout = new Promise((resolve) => setTimeout(() => resolve(false), 2000))
+        const connectionCheck = checkConnection()
+        
+        this.isConnected = await Promise.race([connectionCheck, connectionTimeout])
+        
+        if (this.isConnected) {
+          console.log('✅ Supabase database ulandi')
+          // Seed data ni background da yuklash (blocking qilmasdan)
+          this.seedInitialData().catch(err => console.error('Seed data xatoligi:', err))
+        } else {
+          console.log('📝 Demo rejim: localStorage ishlatiladi')
+          this.initializeLocalStorage()
+        }
+        
+        this.isInitialized = true
+      } catch (error) {
+        console.error('Database initialization xatoligi:', error)
+        this.isConnected = false
+        this.initializeLocalStorage()
+        this.isInitialized = true
+      } finally {
+        this.initPromise = null
+      }
+    })()
+
+    return this.initPromise
   }
 
   // LocalStorage ni boshlang'ich ma'lumotlar bilan to'ldirish
@@ -134,6 +176,11 @@ class DatabaseService {
 
   // MAHSULOTLAR
   async getProducts(filters = {}) {
+    // Lazy initialization
+    if (!this.isInitialized) {
+      await this.initializeConnection()
+    }
+
     if (!this.isConnected) {
       return this.getProductsFromLocalStorage(filters)
     }

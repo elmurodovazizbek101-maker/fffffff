@@ -1,5 +1,5 @@
-import { useState, useEffect, useMemo } from 'react'
-import { Smartphone, ShoppingCart, Star, ChevronLeft, ChevronRight, Eye, User, Heart } from 'lucide-react'
+import { useState, useEffect, useMemo, memo } from 'react'
+import { Smartphone, ShoppingCart, Star, ChevronLeft, ChevronRight, Eye, User, Heart, CheckCircle } from 'lucide-react'
 import { useData } from '../../../context/DataContext'
 import { useCart } from '../context/CartContext'
 import WishlistButton from '../../WishlistButton'
@@ -10,7 +10,9 @@ const HomePage = () => {
   const [currentSlide, setCurrentSlide] = useState(0)
   const [showProductModal, setShowProductModal] = useState(false)
   const [selectedProduct, setSelectedProduct] = useState(null)
+  const [selectedQuantity, setSelectedQuantity] = useState(1)
   const [showAuthRequired, setShowAuthRequired] = useState(false)
+  const [notification, setNotification] = useState(null)
   const [darkMode, setDarkMode] = useState(() => {
     const saved = localStorage.getItem('alisher_mobile_theme')
     return saved === 'dark'
@@ -140,16 +142,82 @@ const HomePage = () => {
 
   const openProductModal = (product) => {
     setSelectedProduct(product)
+    setSelectedQuantity(1)
     setShowProductModal(true)
   }
 
   const handleAddToCart = (product) => {
-    addToCart(product, 1)
+    const maxStock = product.stock || 0
+    
+    if (selectedQuantity > maxStock) {
+      setNotification({
+        type: 'warning',
+        message: `Faqat ${maxStock} dona mavjud!`
+      })
+      setTimeout(() => setNotification(null), 3000)
+      return
+    }
+
+    addToCart(product, selectedQuantity)
+    setNotification({
+      type: 'success',
+      message: `${selectedQuantity} dona savatga qo'shildi!`
+    })
+    setTimeout(() => setNotification(null), 3000)
     setShowProductModal(false)
+  }
+
+  const handleQuantityChange = (change) => {
+    const maxStock = selectedProduct?.stock || 0
+    const newQuantity = selectedQuantity + change
+    
+    if (newQuantity < 1) {
+      setNotification({
+        type: 'warning',
+        message: 'Kamida 1 dona tanlang!'
+      })
+      setTimeout(() => setNotification(null), 2000)
+      return
+    }
+    
+    if (newQuantity > maxStock) {
+      setNotification({
+        type: 'warning',
+        message: `Faqat ${maxStock} dona mavjud!`
+      })
+      setTimeout(() => setNotification(null), 2000)
+      return
+    }
+    
+    setSelectedQuantity(newQuantity)
   }
 
   return (
     <div style={{ minHeight: '100vh', background: darkMode ? '#1f2937' : '#f8fafc' }}>
+      {/* Notification */}
+      {notification && (
+        <div style={{
+          position: 'fixed',
+          top: '20px',
+          right: '20px',
+          zIndex: 3000,
+          background: notification.type === 'success' ? '#10b981' : '#f59e0b',
+          color: 'white',
+          padding: '16px 24px',
+          borderRadius: '12px',
+          boxShadow: '0 10px 25px rgba(0,0,0,0.2)',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '12px',
+          animation: 'slideIn 0.3s ease-out'
+        }}>
+          <CheckCircle size={24} />
+          <span style={{ fontSize: '16px', fontWeight: '600' }}>
+            {notification.message}
+          </span>
+        </div>
+      )}
+
       {/* Promotional Slider */}
       <section style={{ position: 'relative', height: '500px', overflow: 'hidden' }}>
         {promoSlides.map((slide, index) => (
@@ -336,144 +404,197 @@ const HomePage = () => {
           Mashhur Mahsulotlar
         </h2>
 
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
-          gap: '30px',
-          justifyContent: 'center'
-        }}>
-          {featuredProducts.slice(0, 6).map(product => (
-            <div
-              key={product.id}
-              onClick={() => openProductModal(product)}
-              style={{
-                background: darkMode ? '#374151' : 'white',
-                borderRadius: '20px',
-                padding: '24px',
-                boxShadow: darkMode ? '0 8px 25px rgba(0,0,0,0.3)' : '0 8px 25px rgba(0,0,0,0.1)',
-                cursor: 'pointer',
-                transition: 'transform 0.3s, box-shadow 0.3s',
-                border: `1px solid ${darkMode ? '#4b5563' : '#e5e7eb'}`
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.transform = 'translateY(-8px)'
-                e.currentTarget.style.boxShadow = '0 15px 35px rgba(0,0,0,0.15)'
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.transform = 'translateY(0)'
-                e.currentTarget.style.boxShadow = '0 8px 25px rgba(0,0,0,0.1)'
-              }}
-            >
-              <div style={{
-                width: '100%',
-                height: '200px',
-                background: 'linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%)',
-                borderRadius: '16px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                marginBottom: '20px',
-                position: 'relative',
-                overflow: 'hidden'
-              }}>
-                <Smartphone size={60} color="#9ca3af" />
-                <div style={{
-                  position: 'absolute',
-                  top: '12px',
-                  right: '12px',
-                  background: 'rgba(0,0,0,0.7)',
-                  color: 'white',
-                  padding: '6px 12px',
-                  borderRadius: '20px',
-                  fontSize: '0.8rem',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '4px'
-                }}>
-                  <Eye size={14} />
-                  Ko'rish
+        {/* Mahsulotlar yuklanish holati */}
+        {!featuredProducts || featuredProducts.length === 0 ? (
+          <div style={{
+            textAlign: 'center',
+            padding: '60px 20px',
+            background: darkMode ? '#374151' : 'white',
+            borderRadius: '20px',
+            boxShadow: '0 8px 25px rgba(0,0,0,0.1)'
+          }}>
+            <Smartphone size={60} color={darkMode ? '#9ca3af' : '#d1d5db'} style={{ margin: '0 auto 20px' }} />
+            <p style={{
+              fontSize: '1.2rem',
+              color: darkMode ? '#9ca3af' : '#6b7280',
+              marginBottom: '16px'
+            }}>
+              Hozircha mahsulotlar yo'q
+            </p>
+            <p style={{
+              fontSize: '0.9rem',
+              color: darkMode ? '#6b7280' : '#9ca3af'
+            }}>
+              Tez orada yangi mahsulotlar qo'shiladi
+            </p>
+          </div>
+        ) : (
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
+            gap: '30px',
+            justifyContent: 'center'
+          }}>
+            {featuredProducts.slice(0, 6).map(product => {
+              // Mahsulot validatsiyasi
+              if (!product || !product.id || !product.name) {
+                console.warn('Invalid product data:', product)
+                return null
+              }
+
+              return (
+                <div
+                  key={product.id}
+                  onClick={() => openProductModal(product)}
+                  style={{
+                    background: darkMode ? '#374151' : 'white',
+                    borderRadius: '20px',
+                    padding: '24px',
+                    boxShadow: darkMode ? '0 8px 25px rgba(0,0,0,0.3)' : '0 8px 25px rgba(0,0,0,0.1)',
+                    cursor: 'pointer',
+                    transition: 'transform 0.3s, box-shadow 0.3s',
+                    border: `1px solid ${darkMode ? '#4b5563' : '#e5e7eb'}`,
+                    display: 'flex',
+                    flexDirection: 'column'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.transform = 'translateY(-8px)'
+                    e.currentTarget.style.boxShadow = darkMode 
+                      ? '0 15px 35px rgba(0,0,0,0.4)' 
+                      : '0 15px 35px rgba(0,0,0,0.15)'
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.transform = 'translateY(0)'
+                    e.currentTarget.style.boxShadow = darkMode 
+                      ? '0 8px 25px rgba(0,0,0,0.3)' 
+                      : '0 8px 25px rgba(0,0,0,0.1)'
+                  }}
+                >
+                  {/* Mahsulot rasmi */}
+                  <div style={{
+                    width: '100%',
+                    height: '200px',
+                    background: 'linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%)',
+                    borderRadius: '16px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    marginBottom: '20px',
+                    position: 'relative',
+                    overflow: 'hidden',
+                    flexShrink: 0
+                  }}>
+                    <Smartphone size={60} color="#9ca3af" />
+                    <div style={{
+                      position: 'absolute',
+                      top: '12px',
+                      right: '12px',
+                      background: 'rgba(0,0,0,0.7)',
+                      color: 'white',
+                      padding: '6px 12px',
+                      borderRadius: '20px',
+                      fontSize: '0.8rem',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '4px'
+                    }}>
+                      <Eye size={14} />
+                      Ko'rish
+                    </div>
+                    <div style={{
+                      position: 'absolute',
+                      top: '12px',
+                      left: '12px'
+                    }}>
+                      <WishlistButton 
+                        product={product} 
+                        size="small" 
+                        darkMode={darkMode}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Mahsulot nomi */}
+                  <h3 style={{
+                    fontSize: '1.3rem',
+                    fontWeight: '700',
+                    marginBottom: '8px',
+                    color: darkMode ? 'white' : '#1f2937',
+                    minHeight: '2.6rem',
+                    lineHeight: '1.3',
+                    display: '-webkit-box',
+                    WebkitLineClamp: '2',
+                    WebkitBoxOrient: 'vertical',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis'
+                  }}>
+                    {product.name || 'Nomi kiritilmagan'}
+                  </h3>
+
+                  {/* Brand va Stock */}
+                  <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                    marginBottom: '16px',
+                    flexWrap: 'wrap'
+                  }}>
+                    <span style={{
+                      backgroundColor: '#4f46e5',
+                      color: 'white',
+                      padding: '4px 8px',
+                      borderRadius: '12px',
+                      fontSize: '0.75rem',
+                      fontWeight: '600'
+                    }}>
+                      {product.brand || 'Brand'}
+                    </span>
+                    <span style={{
+                      backgroundColor: darkMode ? '#4b5563' : '#f3f4f6',
+                      color: darkMode ? '#d1d5db' : '#6b7280',
+                      padding: '4px 8px',
+                      borderRadius: '12px',
+                      fontSize: '0.75rem',
+                      fontWeight: '500'
+                    }}>
+                      {product.stock || 0} dona mavjud
+                    </span>
+                  </div>
+
+                  {/* Narx va Rating */}
+                  <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    marginTop: 'auto'
+                  }}>
+                    <span style={{
+                      fontSize: '1.5rem',
+                      fontWeight: '700',
+                      color: '#10b981'
+                    }}>
+                      {formatPrice(product.price || 0)}
+                    </span>
+
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                      {[...Array(5)].map((_, i) => (
+                        <Star
+                          key={i}
+                          size={16}
+                          fill={i < 4 ? '#fbbf24' : 'none'}
+                          color="#fbbf24"
+                        />
+                      ))}
+                      <span style={{ fontSize: '0.8rem', color: darkMode ? '#9ca3af' : '#6b7280', marginLeft: '4px' }}>
+                        ({product.rating || 4.5})
+                      </span>
+                    </div>
+                  </div>
                 </div>
-                <div style={{
-                  position: 'absolute',
-                  top: '12px',
-                  left: '12px'
-                }}>
-                  <WishlistButton 
-                    product={product} 
-                    size="small" 
-                    darkMode={darkMode}
-                  />
-                </div>
-              </div>
-
-              <h3 style={{
-                fontSize: '1.3rem',
-                fontWeight: '700',
-                marginBottom: '8px',
-                color: darkMode ? 'white' : '#1f2937'
-              }}>
-                {product.name}
-              </h3>
-
-              <div style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '8px',
-                marginBottom: '16px'
-              }}>
-                <span style={{
-                  backgroundColor: '#4f46e5',
-                  color: 'white',
-                  padding: '4px 8px',
-                  borderRadius: '12px',
-                  fontSize: '0.75rem',
-                  fontWeight: '600'
-                }}>
-                  {product.brand}
-                </span>
-                <span style={{
-                  backgroundColor: darkMode ? '#4b5563' : '#f3f4f6',
-                  color: darkMode ? '#d1d5db' : '#6b7280',
-                  padding: '4px 8px',
-                  borderRadius: '12px',
-                  fontSize: '0.75rem',
-                  fontWeight: '500'
-                }}>
-                  {product.quantity} dona mavjud
-                </span>
-              </div>
-
-              <div style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                marginBottom: '16px'
-              }}>
-                <span style={{
-                  fontSize: '1.5rem',
-                  fontWeight: '700',
-                  color: '#10b981'
-                }}>
-                  {formatPrice(product.price)}
-                </span>
-
-                <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                  {[...Array(5)].map((_, i) => (
-                    <Star
-                      key={i}
-                      size={16}
-                      fill={i < 4 ? '#fbbf24' : 'none'}
-                      color="#fbbf24"
-                    />
-                  ))}
-                  <span style={{ fontSize: '0.8rem', color: '#6b7280', marginLeft: '4px' }}>
-                    (4.{Math.floor(Math.random() * 9) + 1})
-                  </span>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
+              )
+            })}
+          </div>
+        )}
       </section>
 
 
@@ -529,7 +650,7 @@ const HomePage = () => {
               marginBottom: '20px',
               fontSize: '1.1rem'
             }}>
-              {selectedProduct.brand} • {selectedProduct.quantity} dona mavjud
+              {selectedProduct.brand} • {selectedProduct.stock} dona mavjud
             </p>
 
             <div style={{
@@ -558,6 +679,103 @@ const HomePage = () => {
                 <span style={{ marginLeft: '8px' }}>
                   (4.{Math.floor(Math.random() * 9) + 1})
                 </span>
+              </div>
+            </div>
+
+            {/* Stock Info */}
+            <div style={{
+              padding: '12px 16px',
+              background: (selectedProduct.stock || 0) > 10 ? '#dcfce7' : '#fef3c7',
+              borderRadius: '8px',
+              marginBottom: '20px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between'
+            }}>
+              <span style={{
+                fontSize: '14px',
+                fontWeight: '500',
+                color: (selectedProduct.stock || 0) > 10 ? '#166534' : '#92400e'
+              }}>
+                Omborda mavjud:
+              </span>
+              <span style={{
+                fontSize: '16px',
+                fontWeight: '700',
+                color: (selectedProduct.stock || 0) > 10 ? '#166534' : '#92400e'
+              }}>
+                {selectedProduct.stock || 0} dona
+              </span>
+            </div>
+
+            {/* Quantity Selector */}
+            <div style={{ marginBottom: '24px' }}>
+              <label style={{
+                display: 'block',
+                fontSize: '14px',
+                fontWeight: '600',
+                marginBottom: '8px',
+                color: '#1f2937'
+              }}>
+                Miqdor:
+              </label>
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '12px'
+              }}>
+                <button
+                  onClick={() => handleQuantityChange(-1)}
+                  style={{
+                    width: '40px',
+                    height: '40px',
+                    borderRadius: '8px',
+                    border: '2px solid #e5e7eb',
+                    background: 'white',
+                    fontSize: '20px',
+                    fontWeight: '600',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    color: '#6b7280'
+                  }}
+                >
+                  −
+                </button>
+                
+                <div style={{
+                  flex: 1,
+                  padding: '10px 16px',
+                  border: '2px solid #e5e7eb',
+                  borderRadius: '8px',
+                  textAlign: 'center',
+                  fontSize: '18px',
+                  fontWeight: '600',
+                  background: '#f9fafb'
+                }}>
+                  {selectedQuantity}
+                </div>
+                
+                <button
+                  onClick={() => handleQuantityChange(1)}
+                  style={{
+                    width: '40px',
+                    height: '40px',
+                    borderRadius: '8px',
+                    border: '2px solid #e5e7eb',
+                    background: 'white',
+                    fontSize: '20px',
+                    fontWeight: '600',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    color: '#6b7280'
+                  }}
+                >
+                  +
+                </button>
               </div>
             </div>
 
@@ -704,8 +922,27 @@ const HomePage = () => {
           </div>
         </div>
       )}
+
+      <style>{`
+        @keyframes spin {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
+        }
+        @keyframes slideIn {
+          from {
+            transform: translateX(100%);
+            opacity: 0;
+          }
+          to {
+            transform: translateX(0);
+            opacity: 1;
+          }
+        }
+      `}</style>
     </div>
   )
 }
 
-export default HomePage
+HomePage.displayName = 'HomePage'
+
+export default memo(HomePage)

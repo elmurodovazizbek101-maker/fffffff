@@ -82,7 +82,6 @@ export const realProducts = [
     isNew: true,
     isFeatured: true
   },
-  
   // Samsung Galaxy seriyasi
   {
     id: 'samsung-s24-ultra',
@@ -165,49 +164,6 @@ export const realProducts = [
     inStock: true,
     isNew: true,
     isFeatured: false
-  },
-
-  // Xiaomi seriyasi
-  {
-    id: 'xiaomi-14-ultra',
-    name: 'Xiaomi 14 Ultra',
-    brand: 'Xiaomi',
-    category: 'Xiaomi',
-    price: 14500000,
-    originalPrice: 15200000,
-    discount: 5,
-    image: 'https://images.unsplash.com/photo-1592750475338-74b7b21085ab?w=400&h=400&fit=crop',
-    images: [
-      'https://images.unsplash.com/photo-1592750475338-74b7b21085ab?w=800&h=800&fit=crop',
-      'https://images.unsplash.com/photo-1592750475338-74b7b21085ab?w=800&h=800&fit=crop&sat=-50',
-      'https://images.unsplash.com/photo-1592750475338-74b7b21085ab?w=800&h=800&fit=crop&hue=180'
-    ],
-    description: 'Xiaomi 14 Ultra - Leica kamera bilan professional suratga olish',
-    specifications: {
-      display: '6.73" LTPO AMOLED',
-      processor: 'Snapdragon 8 Gen 3',
-      storage: '512GB',
-      camera: '50MP + 50MP + 50MP + 50MP',
-      battery: '5300 mAh',
-      os: 'Android 14, HyperOS',
-      colors: ['Black', 'White']
-    },
-    features: [
-      'Leica kamera',
-      'Professional foto rejimi',
-      '90W fast charging',
-      '50W wireless charging',
-      'IP68 himoya',
-      '5G aloqa',
-      'Dolby Vision HDR'
-    ],
-    stock: 8,
-    rating: 4.7,
-    reviews: 67,
-    warranty: '1 yil rasmiy kafolat',
-    inStock: true,
-    isNew: true,
-    isFeatured: true
   },
 
   // Redmi seriyasi
@@ -334,17 +290,234 @@ export const realProducts = [
     inStock: true,
     isNew: true,
     isFeatured: true
+  },
+
+  // Honor seriyasi
+  {
+    id: 'honor-magic-6-pro',
+    name: 'Honor Magic 6 Pro',
+    brand: 'Honor',
+    category: 'Honor',
+    price: 9600000,
+    originalPrice: 10500000,
+    discount: 9,
+    image: 'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=400&h=400&fit=crop',
+    images: [
+      'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=800&h=800&fit=crop',
+      'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=800&h=800&fit=crop&sat=-50',
+      'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=800&h=800&fit=crop&hue=180'
+    ],
+    description: 'Honor Magic 6 Pro - AI kamera va kuchli batareya',
+    specifications: {
+      display: '6.8" LTPO OLED',
+      processor: 'Snapdragon 8 Gen 3',
+      storage: '512GB',
+      camera: '50MP + 180MP + 50MP',
+      battery: '5600 mAh',
+      os: 'Android 14, MagicOS 8',
+      colors: ['Black', 'Green', 'Purple']
+    },
+    features: [
+      'AI kamera',
+      '180MP periscope',
+      '80W fast charging',
+      'IP68 himoya',
+      '5G aloqa',
+      'Face unlock'
+    ],
+    stock: 15,
+    rating: 4.7,
+    reviews: 89,
+    warranty: '1 yil rasmiy kafolat',
+    inStock: true,
+    isNew: true,
+    isFeatured: true
+  },
+
+  // Nokia seriyasi
+  {
+    id: 'nokia-xr21',
+    name: 'Nokia XR21',
+    brand: 'Nokia',
+    category: 'Nokia',
+    price: 4500000,
+    originalPrice: 5000000,
+    discount: 10,
+    image: 'https://images.unsplash.com/photo-1574944985070-8f3ebc6b79d2?w=400&h=400&fit=crop',
+    images: [
+      'https://images.unsplash.com/photo-1574944985070-8f3ebc6b79d2?w=800&h=800&fit=crop',
+      'https://images.unsplash.com/photo-1574944985070-8f3ebc6b79d2?w=800&h=800&fit=crop&sat=-50',
+      'https://images.unsplash.com/photo-1574944985070-8f3ebc6b79d2?w=800&h=800&fit=crop&hue=180'
+    ],
+    description: 'Nokia XR21 - chidamli va ishonchli',
+    specifications: {
+      display: '6.49" IPS LCD',
+      processor: 'Snapdragon 695',
+      storage: '128GB',
+      camera: '64MP + 8MP',
+      battery: '4800 mAh',
+      os: 'Android 13',
+      colors: ['Pine Green', 'Midnight Black']
+    },
+    features: [
+      'IP68 + IP69K himoya',
+      'MIL-STD-810H',
+      'Gorilla Glass Victus',
+      '33W fast charging',
+      '3 yil OS yangilanish',
+      'Programmable button'
+    ],
+    stock: 20,
+    rating: 4.5,
+    reviews: 67,
+    warranty: '2 yil rasmiy kafolat',
+    inStock: true,
+    isNew: true,
+    isFeatured: false
+  },
+
+  // Poco seriyasi
+  {
+    id: 'poco-f6-pro',
+    name: 'Poco F6 Pro',
+    brand: 'Poco',
+    category: 'Poco',
+    price: 5800000,
+    originalPrice: 6500000,
+    discount: 11,
+    image: 'https://images.unsplash.com/photo-1556656793-08538906a9f8?w=400&h=400&fit=crop',
+    images: [
+      'https://images.unsplash.com/photo-1556656793-08538906a9f8?w=800&h=800&fit=crop',
+      'https://images.unsplash.com/photo-1556656793-08538906a9f8?w=800&h=800&fit=crop&sat=-50',
+      'https://images.unsplash.com/photo-1556656793-08538906a9f8?w=800&h=800&fit=crop&hue=180'
+    ],
+    description: 'Poco F6 Pro - tezkor va arzon gaming telefon',
+    specifications: {
+      display: '6.67" AMOLED 120Hz',
+      processor: 'Snapdragon 8 Gen 2',
+      storage: '256GB',
+      camera: '50MP + 8MP + 2MP',
+      battery: '5000 mAh',
+      os: 'Android 14, HyperOS',
+      colors: ['Black', 'White', 'Green']
+    },
+    features: [
+      '120W HyperCharge',
+      'Liquid cooling',
+      'Dolby Atmos',
+      'IR blaster',
+      '5G aloqa',
+      'Side fingerprint'
+    ],
+    stock: 25,
+    rating: 4.6,
+    reviews: 134,
+    warranty: '1 yil rasmiy kafolat',
+    inStock: true,
+    isNew: true,
+    isFeatured: true
+  },
+
+  // Tecno seriyasi
+  {
+    id: 'tecno-phantom-x2-pro',
+    name: 'Tecno Phantom X2 Pro',
+    brand: 'Tecno',
+    category: 'Tecno',
+    price: 6200000,
+    originalPrice: 7000000,
+    discount: 11,
+    image: 'https://images.unsplash.com/photo-1585060544812-6b45742d762f?w=400&h=400&fit=crop',
+    images: [
+      'https://images.unsplash.com/photo-1585060544812-6b45742d762f?w=800&h=800&fit=crop',
+      'https://images.unsplash.com/photo-1585060544812-6b45742d762f?w=800&h=800&fit=crop&sat=-50',
+      'https://images.unsplash.com/photo-1585060544812-6b45742d762f?w=800&h=800&fit=crop&hue=180'
+    ],
+    description: 'Tecno Phantom X2 Pro - retractable portrait kamera',
+    specifications: {
+      display: '6.8" AMOLED 120Hz',
+      processor: 'Dimensity 9000',
+      storage: '256GB',
+      camera: '50MP + 50MP + 13MP',
+      battery: '5160 mAh',
+      os: 'Android 13, HiOS 12',
+      colors: ['Mars Orange', 'Stardust Grey']
+    },
+    features: [
+      'Retractable portrait lens',
+      '65W fast charging',
+      'RGBW display',
+      'Stereo speakers',
+      '5G aloqa',
+      'In-display fingerprint'
+    ],
+    stock: 18,
+    rating: 4.4,
+    reviews: 78,
+    warranty: '1 yil rasmiy kafolat',
+    inStock: true,
+    isNew: true,
+    isFeatured: false
+  },
+
+  // Redmagic seriyasi
+  {
+    id: 'redmagic-9-pro',
+    name: 'Redmagic 9 Pro',
+    brand: 'Redmagic',
+    category: 'Redmagic',
+    price: 8900000,
+    originalPrice: 9800000,
+    discount: 9,
+    image: 'https://images.unsplash.com/photo-1603302576837-37561b2e2302?w=400&h=400&fit=crop',
+    images: [
+      'https://images.unsplash.com/photo-1603302576837-37561b2e2302?w=800&h=800&fit=crop',
+      'https://images.unsplash.com/photo-1603302576837-37561b2e2302?w=800&h=800&fit=crop&sat=-50',
+      'https://images.unsplash.com/photo-1603302576837-37561b2e2302?w=800&h=800&fit=crop&hue=180'
+    ],
+    description: 'Redmagic 9 Pro - professional gaming telefon',
+    specifications: {
+      display: '6.8" AMOLED 120Hz',
+      processor: 'Snapdragon 8 Gen 3',
+      storage: '512GB',
+      camera: '50MP + 50MP + 2MP',
+      battery: '6500 mAh',
+      os: 'Android 14, Redmagic OS 9',
+      colors: ['Cyclone', 'Sleet', 'Snowfall']
+    },
+    features: [
+      'ICE 13.0 cooling',
+      '520Hz touch sampling',
+      'RGB lighting',
+      '80W fast charging',
+      'Shoulder triggers',
+      'Dedicated gaming chip'
+    ],
+    stock: 12,
+    rating: 4.8,
+    reviews: 95,
+    warranty: '1 yil rasmiy kafolat',
+    inStock: true,
+    isNew: true,
+    isFeatured: true
   }
 ];
 
 // Kategoriyalar
 export const categories = [
   {
-    id: 'apple',
-    name: 'Apple',
-    description: 'iPhone seriyasi',
-    image: 'https://images.unsplash.com/photo-1695048133142-1a20484d2569?w=300&h=200&fit=crop',
-    count: 2
+    id: 'rog',
+    name: 'ROG',
+    description: 'Gaming telefonlar',
+    image: 'https://images.unsplash.com/photo-1612287230202-1ff1d85d1bdf?w=300&h=200&fit=crop',
+    count: 1
+  },
+  {
+    id: 'redmi',
+    name: 'Redmi',
+    description: 'Arzon va sifatli',
+    image: 'https://images.unsplash.com/photo-1598327105666-5b89351aff97?w=300&h=200&fit=crop',
+    count: 1
   },
   {
     id: 'samsung',
@@ -354,31 +527,52 @@ export const categories = [
     count: 2
   },
   {
-    id: 'xiaomi',
-    name: 'Xiaomi',
-    description: 'Xiaomi flagman telefonlar',
-    image: 'https://images.unsplash.com/photo-1592750475338-74b7b21085ab?w=300&h=200&fit=crop',
-    count: 1
+    id: 'apple',
+    name: 'Apple',
+    description: 'iPhone seriyasi',
+    image: 'https://images.unsplash.com/photo-1695048133142-1a20484d2569?w=300&h=200&fit=crop',
+    count: 2
   },
   {
-    id: 'redmi',
-    name: 'Redmi',
-    description: 'Arzon va sifatli telefonlar',
-    image: 'https://images.unsplash.com/photo-1598327105666-5b89351aff97?w=300&h=200&fit=crop',
-    count: 1
-  },
-  {
-    id: 'rog',
-    name: 'ROG Phone',
-    description: 'Gaming telefonlar',
-    image: 'https://images.unsplash.com/photo-1612287230202-1ff1d85d1bdf?w=300&h=200&fit=crop',
+    id: 'honor',
+    name: 'Honor',
+    description: 'Zamonaviy telefonlar',
+    image: 'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=300&h=200&fit=crop',
     count: 1
   },
   {
     id: 'vertu',
     name: 'Vertu',
-    description: 'Luxury premium telefonlar',
+    description: 'Luxury premium',
     image: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=300&h=200&fit=crop',
+    count: 1
+  },
+  {
+    id: 'nokia',
+    name: 'Nokia',
+    description: 'Ishonchli telefonlar',
+    image: 'https://images.unsplash.com/photo-1574944985070-8f3ebc6b79d2?w=300&h=200&fit=crop',
+    count: 1
+  },
+  {
+    id: 'poco',
+    name: 'Poco',
+    description: 'Tezkor va arzon',
+    image: 'https://images.unsplash.com/photo-1556656793-08538906a9f8?w=300&h=200&fit=crop',
+    count: 1
+  },
+  {
+    id: 'tecno',
+    name: 'Tecno',
+    description: 'Yangi avlod',
+    image: 'https://images.unsplash.com/photo-1585060544812-6b45742d762f?w=300&h=200&fit=crop',
+    count: 1
+  },
+  {
+    id: 'redmagic',
+    name: 'Redmagic',
+    description: 'Gaming pro',
+    image: 'https://images.unsplash.com/photo-1603302576837-37561b2e2302?w=300&h=200&fit=crop',
     count: 1
   }
 ];

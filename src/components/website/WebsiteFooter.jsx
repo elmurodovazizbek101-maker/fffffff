@@ -225,7 +225,7 @@ const WebsiteFooter = () => {
                     transition: 'color 0.2s'
                   }}
                 >
-                  Apple iPhone
+                  Apple
                 </Link>
               </li>
               <li style={{ marginBottom: '12px' }}>
@@ -238,7 +238,7 @@ const WebsiteFooter = () => {
                     transition: 'color 0.2s'
                   }}
                 >
-                  Samsung Galaxy
+                  Samsung
                 </Link>
               </li>
               <li style={{ marginBottom: '12px' }}>
@@ -251,12 +251,12 @@ const WebsiteFooter = () => {
                     transition: 'color 0.2s'
                   }}
                 >
-                  Honor Magic
+                  Honor
                 </Link>
               </li>
               <li style={{ marginBottom: '12px' }}>
                 <Link
-                  to="/products?brand=Vivo"
+                  to="/products?brand=ROG"
                   style={{
                     color: '#9ca3af',
                     textDecoration: 'none',
@@ -264,33 +264,7 @@ const WebsiteFooter = () => {
                     transition: 'color 0.2s'
                   }}
                 >
-                  Vivo X seriyasi
-                </Link>
-              </li>
-              <li style={{ marginBottom: '12px' }}>
-                <Link
-                  to="/products?brand=Nokia"
-                  style={{
-                    color: '#9ca3af',
-                    textDecoration: 'none',
-                    fontSize: '16px',
-                    transition: 'color 0.2s'
-                  }}
-                >
-                  Nokia
-                </Link>
-              </li>
-              <li style={{ marginBottom: '12px' }}>
-                <Link
-                  to="/products?brand=Oneplus"
-                  style={{
-                    color: '#9ca3af',
-                    textDecoration: 'none',
-                    fontSize: '16px',
-                    transition: 'color 0.2s'
-                  }}
-                >
-                  OnePlus
+                  ROG
                 </Link>
               </li>
               <li style={{ marginBottom: '12px' }}>
@@ -308,7 +282,7 @@ const WebsiteFooter = () => {
               </li>
               <li style={{ marginBottom: '12px' }}>
                 <Link
-                  to="/products?brand=Oppo"
+                  to="/products?brand=Vertu"
                   style={{
                     color: '#9ca3af',
                     textDecoration: 'none',
@@ -316,7 +290,59 @@ const WebsiteFooter = () => {
                     transition: 'color 0.2s'
                   }}
                 >
-                  Oppo
+                  Vertu
+                </Link>
+              </li>
+              <li style={{ marginBottom: '12px' }}>
+                <Link
+                  to="/products?brand=Nokia"
+                  style={{
+                    color: '#9ca3af',
+                    textDecoration: 'none',
+                    fontSize: '16px',
+                    transition: 'color 0.2s'
+                  }}
+                >
+                  Nokia
+                </Link>
+              </li>
+              <li style={{ marginBottom: '12px' }}>
+                <Link
+                  to="/products?brand=Poco"
+                  style={{
+                    color: '#9ca3af',
+                    textDecoration: 'none',
+                    fontSize: '16px',
+                    transition: 'color 0.2s'
+                  }}
+                >
+                  Poco
+                </Link>
+              </li>
+              <li style={{ marginBottom: '12px' }}>
+                <Link
+                  to="/products?brand=Tecno"
+                  style={{
+                    color: '#9ca3af',
+                    textDecoration: 'none',
+                    fontSize: '16px',
+                    transition: 'color 0.2s'
+                  }}
+                >
+                  Tecno
+                </Link>
+              </li>
+              <li style={{ marginBottom: '12px' }}>
+                <Link
+                  to="/products?brand=Redmagic"
+                  style={{
+                    color: '#9ca3af',
+                    textDecoration: 'none',
+                    fontSize: '16px',
+                    transition: 'color 0.2s'
+                  }}
+                >
+                  Redmagic
                 </Link>
               </li>
             </ul>

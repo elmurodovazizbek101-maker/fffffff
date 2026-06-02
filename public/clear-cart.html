@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Savatni Tozalash - Alisher Mobile</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    
+    .container {
+      background: white;
+      border-radius: 24px;
+      padding: 40px;
+      max-width: 500px;
+      width: 100%;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      text-align: center;
+    }
+    
+    h1 {
+      color: #1f2937;
+      font-size: 28px;
+      margin-bottom: 16px;
+    }
+    
+    p {
+      color: #6b7280;
+      font-size: 16px;
+      line-height: 1.6;
+      margin-bottom: 24px;
+    }
+    
+    .warning {
+      background: #fef3c7;
+      border: 2px solid #f59e0b;
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 24px;
+      color: #92400e;
+      font-weight: 500;
+    }
+    
+    .buttons {
+      display: flex;
+      gap: 12px;
+      flex-direction: column;
+    }
+    
+    button {
+      padding: 14px 24px;
+      border: none;
+      border-radius: 12px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    
+    .btn-danger {
+      background: #ef4444;
+      color: white;
+    }
+    
+    .btn-danger:hover {
+      background: #dc2626;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4);
+    }
+    
+    .btn-secondary {
+      background: #6b7280;
+      color: white;
+    }
+    
+    .btn-secondary:hover {
+      background: #4b5563;
+    }
+    
+    .btn-success {
+      background: #10b981;
+      color: white;
+    }
+    
+    .btn-success:hover {
+      background: #059669;
+    }
+    
+    .success-message {
+      background: #d1fae5;
+      border: 2px solid #10b981;
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 24px;
+      color: #065f46;
+      font-weight: 500;
+    }
+    
+    .info {
+      background: #f3f4f6;
+      border-radius: 12px;
+      padding: 16px;
+      margin-top: 24px;
+      text-align: left;
+    }
+    
+    .info h3 {
+      color: #1f2937;
+      font-size: 16px;
+      margin-bottom: 12px;
+    }
+    
+    .info ul {
+      list-style: none;
+      padding-left: 0;
+    }
+    
+    .info li {
+      color: #6b7280;
+      font-size: 14px;
+      padding: 6px 0;
+      padding-left: 20px;
+      position: relative;
+    }
+    
+    .info li:before {
+      content: "✓";
+      position: absolute;
+      left: 0;
+      color: #10b981;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🧹 Savatni Tozalash</h1>
+    <p>Bu sahifa savat ma'lumotlarini to'liq tozalaydi va stock limit muammosini hal qiladi.</p>
+    
+    <div class="warning" id="warning">
+      ⚠️ DIQQAT: Bu amal barcha savat ma'lumotlarini o'chiradi!
+    </div>
+    
+    <div class="success-message" id="success" style="display: none;">
+      ✅ Savat muvaffaqiyatli tozalandi!
+    </div>
+    
+    <div class="buttons" id="buttons">
+      <button class="btn-danger" onclick="clearCart()">
+        🗑️ Savatni Tozalash
+      </button>
+      <button class="btn-secondary" onclick="goBack()">
+        ← Orqaga
+      </button>
+    </div>
+    
+    <div class="buttons" id="success-buttons" style="display: none;">
+      <button class="btn-success" onclick="goHome()">
+        🏠 Bosh Sahifaga
+      </button>
+      <button class="btn-secondary" onclick="location.reload()">
+        🔄 Sahifani Yangilash
+      </button>
+    </div>
+    
+    <div class="info">
+      <h3>📋 Tozalanadi:</h3>
+      <ul>
+        <li>Savat ma'lumotlari (alisher_mobile_cart)</li>
+        <li>Eski stock ma'lumotlari</li>
+        <li>Noto'g'ri formatdagi ma'lumotlar</li>
+      </ul>
+    </div>
+  </div>
+  
+  <script>
+    function clearCart() {
+      try {
+        // Clear cart from localStorage
+        localStorage.removeItem('alisher_mobile_cart');
+        
+        // Show success message
+        document.getElementById('warning').style.display = 'none';
+        document.getElementById('success').style.display = 'block';
+        document.getElementById('buttons').style.display = 'none';
+        document.getElementById('success-buttons').style.display = 'flex';
+        
+        console.log('✅ Savat tozalandi!');
+      } catch (error) {
+        alert('❌ Xatolik: ' + error.message);
+      }
+    }
+    
+    function goBack() {
+      window.history.back();
+    }
+    
+    function goHome() {
+      window.location.href = '/';
+    }
+  </script>
+</body>
+</html>
