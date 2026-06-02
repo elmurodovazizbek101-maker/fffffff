@@ -337,8 +337,10 @@ const Suppliers = () => {
             </div>
 
             <div style={{
-              display: 'flex',
-              gap: '8px'
+              display: 'grid',
+              gridTemplateColumns: '2fr 1fr 1fr',
+              gap: '8px',
+              alignItems: 'stretch'
             }}>
               <button
                 onClick={() => {
@@ -347,12 +349,13 @@ const Suppliers = () => {
                 }}
                 className="btn btn-primary"
                 style={{ 
-                  fontSize: '14px', 
-                  flex: 1,
+                  fontSize: '14px',
+                  padding: '10px 12px',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  gap: '6px'
+                  gap: '6px',
+                  height: 'auto'
                 }}
               >
                 <Plus size={16} />
@@ -363,34 +366,38 @@ const Suppliers = () => {
                 onClick={() => setEditingSupplier(supplier)}
                 className="btn"
                 style={{
-                  padding: '8px 16px',
+                  padding: '10px 12px',
                   backgroundColor: '#f3f4f6',
                   color: '#374151',
                   fontSize: '14px',
                   display: 'flex',
                   alignItems: 'center',
-                  gap: '6px'
+                  justifyContent: 'center',
+                  gap: '4px',
+                  height: 'auto'
                 }}
               >
                 <Edit size={16} />
-                Tahrirlash
+                Edit
               </button>
 
               <button
                 onClick={() => handleDeleteSupplier(supplier.id)}
                 className="btn"
                 style={{
-                  padding: '8px 16px',
+                  padding: '10px 12px',
                   backgroundColor: '#fef2f2',
                   color: '#ef4444',
                   fontSize: '14px',
                   display: 'flex',
                   alignItems: 'center',
-                  gap: '6px'
+                  justifyContent: 'center',
+                  gap: '4px',
+                  height: 'auto'
                 }}
               >
                 <Trash2 size={16} />
-                O'chirish
+                Del
               </button>
             </div>
 
