@@ -491,7 +491,7 @@ const LoginPage = ({ onLogin }) => {
         }}>
           <p style={{ color: '#6b7280', fontSize: '12px', margin: 0, lineHeight: '1.5' }}>
             {mode === 'login' 
-              ? '🔐 Admin: admin / admin123'
+              ? 'Hisobingiz yo\'q bo\'lsa, ro\'yxatdan o\'ting'
               : 'Ro\'yxatdan o\'tganingizdan keyin saytdan foydalanishingiz mumkin'
             }
           </p>
