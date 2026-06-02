@@ -20,8 +20,18 @@ const Sales = () => {
     return matchesCategory && matchesSearch
   })
 
+  // Get actual stock amount
+  const getStock = (product) => {
+    return product.stock || product.quantity || 0
+  }
+
+  // Get product price  
+  const getPrice = (product) => {
+    return product.priceUZS || product.price || 0
+  }
+
   const addToCart = (product) => {
-    const stock = product.stock || product.quantity || 0
+    const stock = getStock(product)
     const existingItem = cart.find(item => item.id === product.id)
     if (existingItem) {
       if (existingItem.quantity < stock) {
@@ -32,7 +42,9 @@ const Sales = () => {
         ))
       }
     } else {
-      setCart([...cart, { ...product, quantity: 1 }])
+      if (stock > 0) {
+        setCart([...cart, { ...product, quantity: 1 }])
+      }
     }
   }
 
@@ -62,11 +74,34 @@ const Sales = () => {
   }
 
   const getTotalPrice = () => {
-    return cart.reduce((total, item) => total + (((item.priceUZS || item.price) || 0) * item.quantity), 0)
+    return cart.reduce((total, item) => total + (getPrice(item) * item.quantity), 0)
   }
 
   const getTotalItems = () => {
     return cart.reduce((total, item) => total + item.quantity, 0)
+  }
+
+  const completeSale = () => {
+    if (cart.length === 0) return
+    
+    // Sotuvni yakunlash logikasi
+    const saleData = {
+      id: Date.now(),
+      items: [...cart],
+      total: getTotalPrice(),
+      date: new Date().toISOString(),
+      status: 'completed'
+    }
+    
+    // Mock: localStorage ga saqlash
+    const sales = JSON.parse(localStorage.getItem('alisher_mobile_sales') || '[]')
+    sales.push(saleData)
+    localStorage.setItem('alisher_mobile_sales', JSON.stringify(sales))
+    
+    // Savatni tozalash
+    setCart([])
+    
+    alert(`Sotuv muvaffaqiyatli yakunlandi!\nJami: ${getTotalPrice().toLocaleString()} so'm`)
   }
 
   return (
@@ -146,7 +181,7 @@ const Sales = () => {
         {/* Products Grid */}
         <div style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(4, 1fr)',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
           gap: '16px',
           overflowY: 'auto',
           maxHeight: 'calc(100vh - 300px)'
@@ -213,7 +248,7 @@ const Sales = () => {
                   fontSize: '12px',
                   color: '#6b7280'
                 }}>
-                  {product.stock || product.quantity || 0} ta mavjud
+                  {getStock(product)} ta mavjud
                 </span>
               </div>
 
@@ -223,7 +258,7 @@ const Sales = () => {
                 color: '#10b981',
                 marginBottom: '12px'
               }}>
-                {((product.priceUZS || product.price) || 0).toLocaleString()} so'm
+                {getPrice(product).toLocaleString()} so'm
               </div>
 
               <button
@@ -236,10 +271,10 @@ const Sales = () => {
                   justifyContent: 'center',
                   gap: '8px'
                 }}
-                disabled={!product.stock && !product.quantity}
+                disabled={getStock(product) === 0}
               >
                 <Plus size={16} />
-                Savatga qo'shish
+                {getStock(product) === 0 ? 'Tugagan' : 'Savatga qo\'shish'}
               </button>
             </div>
           ))}
@@ -304,7 +339,7 @@ const Sales = () => {
                         color: '#6b7280',
                         margin: 0
                       }}>
-                        {((item.priceUZS || item.price) || 0).toLocaleString()} so'm
+                        {getPrice(item).toLocaleString()} so'm
                       </p>
                     </div>
 
@@ -352,7 +387,7 @@ const Sales = () => {
                           alignItems: 'center',
                           justifyContent: 'center'
                         }}
-                        disabled={item.quantity >= (item.stock || item.quantity || 0)}
+                        disabled={item.quantity >= getStock(item)}
                       >
                         <Plus size={12} />
                       </button>
@@ -402,6 +437,7 @@ const Sales = () => {
               <button
                 className="btn btn-primary"
                 style={{ width: '100%' }}
+                onClick={completeSale}
               >
                 Sotishni yakunlash
               </button>
