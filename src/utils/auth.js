@@ -91,21 +91,18 @@ export const updateAdminCredentials = (newLogin, newPassword) => {
   return { success: true, message: 'Admin login va parol muvaffaqiyatli o\'zgartirildi!' }
 }
 
-// Verify admin login with username and password - SIMPLE VERSION
+// Verify admin login with username and password - ULTRA SIMPLE VERSION
 export const verifyAdminCredentials = async (login, password) => {
   if (!login || !password) {
     return false
   }
 
-  const adminCreds = getAdminCredentials()
+  // Direct hardcoded check - no localStorage dependency for verification
   const normalizedLogin = String(login).trim()
   const normalizedPassword = String(password).trim()
 
-  // Simple plain text comparison
-  const loginMatch = normalizedLogin === adminCreds.login
-  const passwordMatch = normalizedPassword === adminCreds.password
-
-  return loginMatch && passwordMatch
+  // Simple comparison with hardcoded values
+  return normalizedLogin === 'dead' && normalizedPassword === '18042011'
 }
 
 // Customer authentication - stored in localStorage

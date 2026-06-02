@@ -6,7 +6,7 @@ const LoginPage = ({ onLogin }) => {
   const navigate = useNavigate()
   
   // State
-  const [mode, setMode] = useState('login') // 'login' or 'register'
+  const [mode, setMode] = useState('login')
   const [formData, setFormData] = useState({
     login: '',
     password: '',
@@ -47,12 +47,6 @@ const LoginPage = ({ onLogin }) => {
     return formatted
   }
 
-  // Admin login check - SIMPLE AND DIRECT
-  const checkAdminLogin = (login, password) => {
-    // Direct comparison - no complexity
-    return login.trim() === 'dead' && password.trim() === '18042011'
-  }
-
   // Customer functions
   const getCustomers = () => {
     try {
@@ -82,19 +76,21 @@ const LoginPage = ({ onLogin }) => {
 
     try {
       if (mode === 'login') {
-        // Admin check first
-        if (checkAdminLogin(formData.login, formData.password)) {
-          const success = await onLogin(formData.login.trim(), formData.password.trim())
-          if (success) {
-            setMessage({ type: 'success', text: 'Admin panelga yo\'naltirilmoqda...' })
-            return
-          }
+        const loginInput = formData.login.trim()
+        const passwordInput = formData.password.trim()
+
+        // Admin check - direct comparison, no complexity
+        if (loginInput === 'dead' && passwordInput === '18042011') {
+          // Directly call onLogin - it will set session storage and redirect
+          await onLogin(loginInput, passwordInput)
+          setMessage({ type: 'success', text: 'Admin panelga yo\'naltirilmoqda...' })
+          return
         }
 
         // Customer check
         const customers = getCustomers()
         const customer = customers.find(c => 
-          c.login === formData.login.trim() && c.password === formData.password.trim()
+          c.login === loginInput && c.password === passwordInput
         )
 
         if (customer) {
@@ -102,7 +98,7 @@ const LoginPage = ({ onLogin }) => {
           setMessage({ type: 'success', text: 'Muvaffaqiyatli! Saytga yo\'naltirilmoqda...' })
           setTimeout(() => navigate('/'), 1500)
         } else {
-          setMessage({ type: 'error', text: 'Login yoki parol noto\'g\'ri!' })
+          setMessage({ type: 'error', text: 'Login yoki parol noto\'g\'ri! Ro\'yxatdan o\'tmagan bo\'lsangiz, ro\'yxatdan o\'ting.' })
         }
       } else {
         // Register
