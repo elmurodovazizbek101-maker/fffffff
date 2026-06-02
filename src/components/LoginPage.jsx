@@ -79,11 +79,11 @@ const LoginPage = ({ onLogin }) => {
         const loginInput = formData.login.trim()
         const passwordInput = formData.password.trim()
 
-        // Admin check - direct comparison, no complexity
-        if (loginInput === 'dead' && passwordInput === '18042011') {
-          // Directly call onLogin - it will set session storage and redirect
+        // Admin check - SUPER SIMPLE: admin / admin123
+        if (loginInput === 'admin' && passwordInput === 'admin123') {
           await onLogin(loginInput, passwordInput)
           setMessage({ type: 'success', text: 'Admin panelga yo\'naltirilmoqda...' })
+          setTimeout(() => {}, 500) // Small delay for message display
           return
         }
 
@@ -491,7 +491,7 @@ const LoginPage = ({ onLogin }) => {
         }}>
           <p style={{ color: '#6b7280', fontSize: '12px', margin: 0, lineHeight: '1.5' }}>
             {mode === 'login' 
-              ? 'Admin: dead / 18042011'
+              ? '🔐 Admin: admin / admin123'
               : 'Ro\'yxatdan o\'tganingizdan keyin saytdan foydalanishingiz mumkin'
             }
           </p>
