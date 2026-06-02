@@ -450,7 +450,7 @@ const Expenses = () => {
                 </label>
                 <div style={{
                   display: 'grid',
-                  gridTemplateColumns: 'repeat(3, 1fr)',
+                  gridTemplateColumns: 'repeat(4, 1fr)',
                   gap: '8px'
                 }}>
                   {categories.map(category => {

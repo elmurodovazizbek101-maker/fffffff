@@ -10,7 +10,6 @@ import {
   Receipt,
   UserCheck,
   Settings,
-  Scan,
   Megaphone
 } from 'lucide-react'
 import { useLanguage } from '../context/LanguageContext'
@@ -29,8 +28,7 @@ const Sidebar = ({ isOpen }) => {
     { path: '/admin/expenses', icon: Receipt, label: t('expenses') },
     { path: '/admin/employees', icon: UserCheck, label: t('employees') },
     { path: '/admin/promotions', icon: Megaphone, label: 'Reklamalar' },
-    { path: '/admin/settings', icon: Settings, label: t('settings') },
-    { path: '/admin/scanner', icon: Scan, label: t('scanner') }
+    { path: '/admin/settings', icon: Settings, label: t('settings') }
   ]
 
   return (

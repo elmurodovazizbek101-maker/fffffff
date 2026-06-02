@@ -1078,7 +1078,7 @@ const Settings = () => {
         {/* Settings Grid - 3 ustun */}
         <div style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(3, 1fr)',
+          gridTemplateColumns: 'repeat(4, 1fr)',
           gap: '16px'
         }}>
           <div style={{

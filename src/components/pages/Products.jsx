@@ -219,7 +219,7 @@ const Products = () => {
       {/* Products Grid - 3 ustun (katta kartochkalar) */}
       <div style={{
         display: 'grid',
-        gridTemplateColumns: 'repeat(3, 1fr)',
+        gridTemplateColumns: 'repeat(4, 1fr)',
         gap: '20px'
       }}>
         {filteredProducts.map(product => {

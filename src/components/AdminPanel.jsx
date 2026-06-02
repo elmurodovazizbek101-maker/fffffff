@@ -12,7 +12,6 @@ import Suppliers from './pages/Suppliers'
 import Expenses from './pages/Expenses'
 import Employees from './pages/Employees'
 import Settings from './pages/Settings'
-import Scanner from './pages/Scanner'
 import Promotions from './pages/Promotions'
 import NotFoundPage from './NotFoundPage'
 
@@ -50,7 +49,6 @@ const AdminPanel = ({ onLogout }) => {
             <Route path="expenses" element={<Expenses />} />
             <Route path="employees" element={<Employees />} />
             <Route path="settings" element={<Settings />} />
-            <Route path="scanner" element={<Scanner />} />
             <Route path="promotions" element={<Promotions />} />
             <Route path="*" element={<NotFoundPage />} />
           </Routes>
