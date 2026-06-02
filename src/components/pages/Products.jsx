@@ -7,6 +7,13 @@ const Products = () => {
   const { t } = useLanguage()
   const { products, categories, addProduct, updateProduct, deleteProduct } = useData()
   const [showAddModal, setShowAddModal] = useState(false)
+  const [showPriceModal, setShowPriceModal] = useState(false)
+  const [selectedProduct, setSelectedProduct] = useState(null)
+  const [priceData, setPriceData] = useState({
+    priceUSD: '',
+    priceUZS: '',
+    quantity: ''
+  })
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedCategory, setSelectedCategory] = useState('all')
 
@@ -66,6 +73,32 @@ const Products = () => {
     deleteProduct(id)
   }
 
+  const openPriceModal = (product) => {
+    setSelectedProduct(product)
+    setPriceData({
+      priceUSD: product.priceUSD || 0,
+      priceUZS: product.priceUZS || product.price || 0,
+      quantity: product.quantity || product.stock || 0
+    })
+    setShowPriceModal(true)
+  }
+
+  const handleUpdatePrice = (e) => {
+    e.preventDefault()
+    if (!selectedProduct) return
+
+    const updatedProduct = {
+      ...selectedProduct,
+      priceUSD: parseFloat(priceData.priceUSD),
+      priceUZS: parseFloat(priceData.priceUZS),
+      quantity: parseInt(priceData.quantity)
+    }
+
+    updateProduct(updatedProduct.id, updatedProduct)
+    setShowPriceModal(false)
+    setSelectedProduct(null)
+  }
+
   const getStockStatus = (quantity) => {
     const stock = quantity || 0
     if (stock === 0) return { text: 'Tugagan', color: '#ef4444', icon: XCircle }
@@ -104,10 +137,10 @@ const Products = () => {
         </button>
       </div>
 
-      {/* Stats Cards - 4 ustun */}
+      {/* Stats Cards - 5 ustun */}
       <div style={{
         display: 'grid',
-        gridTemplateColumns: 'repeat(4, 1fr)',
+        gridTemplateColumns: 'repeat(5, 1fr)',
         gap: '16px',
         marginBottom: '24px'
       }}>
@@ -155,6 +188,23 @@ const Products = () => {
           </h3>
           <p style={{ color: '#6b7280', fontSize: '14px', margin: 0 }}>
             Jami qiymat
+          </p>
+        </div>
+
+        <div className="card" style={{ textAlign: 'center' }}>
+          <div style={{
+            fontSize: '32px',
+            color: '#8b5cf6',
+            margin: '0 auto 8px',
+            fontWeight: 'bold'
+          }}>
+            📦
+          </div>
+          <h3 style={{ fontSize: '18px', fontWeight: 'bold', margin: 0 }}>
+            {categoryNames.length}
+          </h3>
+          <p style={{ color: '#6b7280', fontSize: '14px', margin: 0 }}>
+            Kategoriyalar
           </p>
         </div>
       </div>
@@ -216,10 +266,10 @@ const Products = () => {
         </div>
       </div>
 
-      {/* Products Grid - 3 ustun (katta kartochkalar) */}
+      {/* Products Grid - 5 ustun */}
       <div style={{
         display: 'grid',
-        gridTemplateColumns: 'repeat(4, 1fr)',
+        gridTemplateColumns: 'repeat(5, 1fr)',
         gap: '20px'
       }}>
         {filteredProducts.map(product => {
@@ -227,7 +277,7 @@ const Products = () => {
           const StatusIcon = status.icon
 
           return (
-            <div key={product.id} className="card">
+            <div key={product.id} className="card" style={{ cursor: 'pointer' }} onClick={() => openPriceModal(product)}>
               <div style={{
                 width: '100%',
                 height: '200px',
@@ -336,6 +386,127 @@ const Products = () => {
           )
         })}
       </div>
+
+      {/* Price Edit Modal */}
+      {showPriceModal && selectedProduct && (
+        <div className="modal-overlay" onClick={() => setShowPriceModal(false)}>
+          <div className="modal" onClick={(e) => e.stopPropagation()}>
+            <div style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              marginBottom: '20px'
+            }}>
+              <h3 style={{ margin: 0, fontSize: '18px', fontWeight: '600' }}>
+                Narx va miqdorni tahrirlash
+              </h3>
+              <button
+                onClick={() => setShowPriceModal(false)}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  cursor: 'pointer',
+                  fontSize: '20px',
+                  color: '#6b7280'
+                }}
+              >
+                ×
+              </button>
+            </div>
+
+            <div style={{ marginBottom: '20px', textAlign: 'center' }}>
+              <h4 style={{ margin: '0 0 8px 0', fontSize: '16px', fontWeight: '600' }}>
+                {selectedProduct.name}
+              </h4>
+              <p style={{ margin: 0, color: '#6b7280', fontSize: '14px' }}>
+                {selectedProduct.category} • {selectedProduct.unit}
+              </p>
+            </div>
+
+            <form onSubmit={handleUpdatePrice}>
+              <div style={{
+                display: 'grid',
+                gridTemplateColumns: '1fr 1fr',
+                gap: '16px',
+                marginBottom: '16px'
+              }}>
+                <div>
+                  <label style={{
+                    display: 'block',
+                    marginBottom: '6px',
+                    fontSize: '14px',
+                    fontWeight: '500'
+                  }}>
+                    Narx (USD)
+                  </label>
+                  <input
+                    type="number"
+                    className="input"
+                    value={priceData.priceUSD}
+                    onChange={(e) => setPriceData({...priceData, priceUSD: e.target.value})}
+                    required
+                    step="0.01"
+                  />
+                </div>
+
+                <div>
+                  <label style={{
+                    display: 'block',
+                    marginBottom: '6px',
+                    fontSize: '14px',
+                    fontWeight: '500'
+                  }}>
+                    Narx (UZS)
+                  </label>
+                  <input
+                    type="number"
+                    className="input"
+                    value={priceData.priceUZS}
+                    onChange={(e) => setPriceData({...priceData, priceUZS: e.target.value})}
+                    required
+                    step="1"
+                  />
+                </div>
+              </div>
+
+              <div style={{ marginBottom: '20px' }}>
+                <label style={{
+                  display: 'block',
+                  marginBottom: '6px',
+                  fontSize: '14px',
+                  fontWeight: '500'
+                }}>
+                  Miqdor
+                </label>
+                <input
+                  type="number"
+                  className="input"
+                  value={priceData.quantity}
+                  onChange={(e) => setPriceData({...priceData, quantity: e.target.value})}
+                  required
+                  min="0"
+                />
+              </div>
+
+              <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end' }}>
+                <button
+                  type="button"
+                  onClick={() => setShowPriceModal(false)}
+                  className="btn btn-secondary"
+                >
+                  Bekor qilish
+                </button>
+                <button
+                  type="submit"
+                  className="btn btn-primary"
+                >
+                  Saqlash
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
 
       {/* Add Product Modal */}
       {showAddModal && (

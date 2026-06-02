@@ -7,6 +7,13 @@ const Customers = () => {
   const { t } = useLanguage()
   const { customers, addCustomer, updateCustomer, deleteCustomer } = useData()
   const [showAddModal, setShowAddModal] = useState(false)
+  const [showPaymentModal, setShowPaymentModal] = useState(false)
+  const [selectedCustomer, setSelectedCustomer] = useState(null)
+  const [paymentData, setPaymentData] = useState({
+    amount: '',
+    type: 'received', // 'received' or 'paid'
+    description: ''
+  })
   const [editingCustomer, setEditingCustomer] = useState(null)
   const [searchQuery, setSearchQuery] = useState('')
 
@@ -59,6 +66,48 @@ const Customers = () => {
     deleteCustomer(id)
   }
 
+  const openPaymentModal = (customer) => {
+    setSelectedCustomer(customer)
+    setPaymentData({
+      amount: '',
+      type: 'received',
+      description: ''
+    })
+    setShowPaymentModal(true)
+  }
+
+  const handlePayment = (e) => {
+    e.preventDefault()
+    if (!selectedCustomer) return
+
+    const amount = parseFloat(paymentData.amount)
+    const transaction = {
+      id: Date.now(),
+      customerId: selectedCustomer.id,
+      amount: amount,
+      type: paymentData.type,
+      description: paymentData.description,
+      date: new Date().toISOString()
+    }
+
+    // Save transaction to localStorage
+    const transactions = JSON.parse(localStorage.getItem('alisher_mobile_customer_transactions') || '[]')
+    transactions.push(transaction)
+    localStorage.setItem('alisher_mobile_customer_transactions', JSON.stringify(transactions))
+
+    // Update customer balance
+    const updatedCustomer = {
+      ...selectedCustomer,
+      totalAmount: paymentData.type === 'received' 
+        ? (selectedCustomer.totalAmount || 0) - amount
+        : (selectedCustomer.totalAmount || 0) + amount
+    }
+
+    updateCustomer(selectedCustomer.id, updatedCustomer)
+    setShowPaymentModal(false)
+    setSelectedCustomer(null)
+  }
+
   const totalCustomers = customers.length
   const activeCustomers = customers.filter(c => c.totalPurchases > 0).length
   const totalRevenue = customers.reduce((sum, c) => sum + c.totalAmount, 0)
@@ -98,7 +147,7 @@ const Customers = () => {
       {/* Stats Cards - 4 ustun */}
       <div style={{
         display: 'grid',
-        gridTemplateColumns: 'repeat(4, 1fr)',
+        gridTemplateColumns: 'repeat(5, 1fr)',
         gap: '16px',
         marginBottom: '24px'
       }}>
@@ -182,7 +231,7 @@ const Customers = () => {
       {/* Customers Grid - 2 ustun (katta kartochkalar) */}
       <div style={{
         display: 'grid',
-        gridTemplateColumns: 'repeat(2, 1fr)',
+        gridTemplateColumns: 'repeat(5, 1fr)',
         gap: '20px'
       }}>
         {filteredCustomers.map(customer => (
