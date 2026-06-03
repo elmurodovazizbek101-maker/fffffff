@@ -733,9 +733,54 @@ select {
     line-height: 1.3 !important;
   }
   
-  /* Sidebar agar ochiq bo'lsa ham kichikroq */
+  /* Sidebar uzunroq optimizatsiya */
   .sidebar-container {
-    width: 160px !important;
+    width: 180px !important; /* 160px dan kengroq */
+  }
+  
+  /* Sidebar item'lari uzunroq */
+  nav a {
+    padding: 10px 12px !important; /* 8px dan uzunroq */
+    margin-bottom: 3px !important; /* Item'lar orasida joy */
+    border-radius: 6px !important; /* Chiroyli ko'rinish */
+    min-height: 40px !important; /* Minimal balandlik */
+    display: flex !important;
+    align-items: center !important;
+  }
+  
+  /* Sidebar header uzunroq */
+  .sidebar-header {
+    padding: 15px 12px !important; /* 12px dan uzunroq */
+    min-height: 80px !important; /* Balandroq header */
+  }
+  
+  /* Sidebar brand text */
+  .sidebar-brand h2 {
+    font-size: 16px !important; /* 14px dan kattaroq */
+    line-height: 1.3 !important;
+  }
+  
+  .sidebar-brand p {
+    font-size: 12px !important; /* 10px dan kattaroq */
+    margin-top: 4px !important;
+  }
+  
+  /* Sidebar icon va text spacing */
+  .sidebar-item {
+    gap: 10px !important; /* Icon va text orasida ko'proq joy */
+  }
+  
+  .sidebar-item span {
+    font-size: 12px !important; /* 11px dan kattaroq */
+    font-weight: 500 !important;
+    line-height: 1.2 !important;
+  }
+  
+  /* Sidebar icon size */
+  .sidebar-item svg {
+    width: 18px !important;
+    height: 18px !important;
+    flex-shrink: 0 !important; /* Icon o'lchamini saqlash */
   }
   
   /* Main content margin */

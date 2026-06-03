@@ -49,7 +49,7 @@ const AdminPanel = ({ onLogout }) => {
     const width = window.innerWidth
     const height = window.innerHeight
     
-    // 1366x768 maxsus kenglik
+    // 1366x768 maxsus kenglik - uzunroq
     if (width === 1366 && height === 768) return '180px'
     if (isMobile) return '200px'
     if (isTablet) return '240px'
