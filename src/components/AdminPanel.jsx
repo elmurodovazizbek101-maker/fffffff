@@ -48,6 +48,7 @@ const AdminPanel = ({ onLogout }) => {
             <Route path="employees" element={<Employees />} />
             <Route path="settings" element={<Settings />} />
             <Route path="promotions" element={<Promotions />} />
+            <Route path="sales" element={<Navigate to="dashboard" replace />} />
             <Route path="*" element={<NotFoundPage />} />
           </Routes>
         </main>
