@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react'
 import { Search, Menu, LogOut, Edit } from 'lucide-react'
 import { useLanguage } from '../context/LanguageContext'
 
-const Header = ({ onToggleSidebar, onLogout }) => {
+const Header = ({ onToggleSidebar, onLogout, isMobile }) => {
   const { t } = useLanguage()
   const [searchQuery, setSearchQuery] = useState('')
   const [showProfileMenu, setShowProfileMenu] = useState(false)
@@ -34,18 +34,18 @@ const Header = ({ onToggleSidebar, onLogout }) => {
   return (
     <>
       <header style={{
-        height: '70px',
+        height: isMobile ? '60px' : '70px',
         backgroundColor: 'white',
         borderBottom: '1px solid #e2e8f0',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
-        padding: '0 20px',
+        padding: isMobile ? '0 12px' : '0 20px',
         position: 'sticky',
         top: 0,
         zIndex: 100
       }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: isMobile ? '12px' : '20px' }}>
           <button
             onClick={onToggleSidebar}
             style={{

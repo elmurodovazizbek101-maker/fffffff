@@ -157,6 +157,74 @@ a, button, [role="button"] {
   --transition-fast: 0.12s ease;
   --transition-normal: 0.25s ease;
   --transition-slow: 0.4s ease;
+
+  /* RESPONSIVE BREAKPOINTS */
+  --breakpoint-xs: 320px;   /* Mobile small */
+  --breakpoint-sm: 640px;   /* Mobile */
+  --breakpoint-md: 768px;   /* Tablet */
+  --breakpoint-lg: 1024px;  /* Desktop small */
+  --breakpoint-xl: 1280px;  /* Desktop */
+  --breakpoint-2xl: 1536px; /* Desktop large */
+}
+  --primary-hover: #2563eb;
+  --secondary-color: #64748b;
+  --success-color: #22c55e;
+  --warning-color: #f59e0b;
+  --error-color: #ef4444;
+  --info-color: #06b6d4;
+
+  /* Matn ranglari */
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --text-muted: #64748b;
+  --text-light: #94a3b8;
+  --text-white: #ffffff;
+
+  /* Fon ranglari */
+  --bg-primary: #ffffff;
+  --bg-secondary: #f8fafc;
+  --bg-tertiary: #f1f5f9;
+  --bg-accent: #e2e8f0;
+  --bg-dark: #0f172a;
+
+  /* Chegara ranglari */
+  --border-light: #e2e8f0;
+  --border-medium: #cbd5e1;
+  --border-dark: #94a3b8;
+
+  /* Gradient ranglari */
+  --gradient-primary: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+  --gradient-success: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+  --gradient-warning: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  --gradient-error: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  --gradient-secondary: linear-gradient(135deg, #64748b 0%, #475569 100%);
+
+  /* Soyalar - KICHIKROQ */
+  --shadow-sm: 0 1px 2px 0 rgba(15, 23, 42, 0.04);
+  --shadow-md: 0 3px 4px -1px rgba(15, 23, 42, 0.08), 0 1px 3px -1px rgba(15, 23, 42, 0.05);
+  --shadow-lg: 0 6px 10px -2px rgba(15, 23, 42, 0.08), 0 2px 4px -1px rgba(15, 23, 42, 0.04);
+  --shadow-xl: 0 12px 16px -3px rgba(15, 23, 42, 0.08), 0 6px 6px -3px rgba(15, 23, 42, 0.03);
+  --shadow-2xl: 0 16px 32px -8px rgba(15, 23, 42, 0.16);
+
+  /* Spacing - 25% KICHIKROQ */
+  --spacing-xs: 0.18rem;   /* 0.25rem dan */
+  --spacing-sm: 0.375rem;  /* 0.5rem dan */
+  --spacing-md: 0.75rem;   /* 1rem dan */
+  --spacing-lg: 1.125rem;  /* 1.5rem dan */
+  --spacing-xl: 1.5rem;    /* 2rem dan */
+  --spacing-2xl: 2.25rem;  /* 3rem dan */
+
+  /* Border Radius - KICHIKROQ */
+  --radius-sm: 0.25rem;    /* 0.375rem dan */
+  --radius-md: 0.375rem;   /* 0.5rem dan */
+  --radius-lg: 0.5rem;     /* 0.75rem dan */
+  --radius-xl: 0.75rem;    /* 1rem dan */
+  --radius-2xl: 1rem;      /* 1.5rem dan */
+
+  /* Transitions */
+  --transition-fast: 0.12s ease;
+  --transition-normal: 0.25s ease;
+  --transition-slow: 0.4s ease;
 }
 
 /* GLOBAL SCALING - BARCHA ELEMENTLARNI 90% QILISH */
@@ -1676,3 +1744,300 @@ textarea:focus-visible {
   scrollbar-width: thin;
   scrollbar-color: #cbd5e1 #f1f5f9;
 }
+
+/* ===== RESPONSIVE DESIGN - NOTEBOOK/LAPTOP OPTIMIZATION ===== */
+
+/* 1. DESKTOP LARGE (1536px+) - Katta monitorlar */
+@media (min-width: 1536px) {
+  .container {
+    max-width: 1440px;
+    margin: 0 auto;
+  }
+  
+  /* Grid layouts - 6 ustun katta ekranlarda */
+  [style*="gridTemplateColumns: 'repeat(5, 1fr)'"] {
+    grid-template-columns: repeat(6, 1fr) !important;
+  }
+  
+  /* Font sizes katta ekranlarda */
+  body {
+    font-size: 15px;
+  }
+  
+  h1 { font-size: 2.5rem; }
+  h2 { font-size: 2rem; }
+  h3 { font-size: 1.75rem; }
+}
+
+/* 2. DESKTOP (1280px - 1535px) - Standart desktop */
+@media (min-width: 1280px) and (max-width: 1535px) {
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  
+  /* 5 ustunli grid - optimal */
+  body {
+    font-size: 14px;
+  }
+}
+
+/* 3. DESKTOP SMALL (1024px - 1279px) - Kichik desktop/Notebook */
+@media (min-width: 1024px) and (max-width: 1279px) {
+  /* Sidebar kichikroq */
+  [style*="width: '280px'"] {
+    width: 240px !important;
+  }
+  
+  [style*="marginLeft: sidebarOpen ? '280px'"] {
+    margin-left: 240px !important;
+  }
+  
+  /* Grid 4 ustunli notebook uchun */
+  [style*="gridTemplateColumns: 'repeat(5, 1fr)'"] {
+    grid-template-columns: repeat(4, 1fr) !important;
+  }
+  
+  /* Padding kichikroq */
+  [style*="padding: '20px'"] {
+    padding: 16px !important;
+  }
+  
+  /* Gap kichikroq */
+  [style*="gap: '20px'"] {
+    gap: 16px !important;
+  }
+  
+  body {
+    font-size: 13px;
+  }
+  
+  /* Card padding kichikroq */
+  .card {
+    padding: 16px !important;
+  }
+  
+  /* Button sizes */
+  button {
+    padding: 8px 16px !important;
+    font-size: 13px !important;
+  }
+}
+
+/* 4. TABLET LANDSCAPE (768px - 1023px) */
+@media (min-width: 768px) and (max-width: 1023px) {
+  /* Sidebar yanada kichikroq */
+  [style*="width: '280px'"] {
+    width: 200px !important;
+  }
+  
+  [style*="marginLeft: sidebarOpen ? '280px'"] {
+    margin-left: 200px !important;
+  }
+  
+  /* Grid 3 ustunli */
+  [style*="gridTemplateColumns: 'repeat(5, 1fr)'"] {
+    grid-template-columns: repeat(3, 1fr) !important;
+  }
+  
+  /* Compact padding */
+  [style*="padding: '20px'"] {
+    padding: 12px !important;
+  }
+  
+  [style*="gap: '20px'"] {
+    gap: 12px !important;
+  }
+  
+  body {
+    font-size: 12px;
+  }
+  
+  .card {
+    padding: 12px !important;
+  }
+  
+  /* Header kichikroq */
+  h1 { font-size: 1.5rem; }
+  h2 { font-size: 1.25rem; }
+  h3 { font-size: 1.1rem; }
+}
+
+/* 5. SPECIAL NOTEBOOK OPTIMIZATION (1366x768, 1440x900) */
+@media (min-width: 1024px) and (max-width: 1440px) and (min-height: 600px) and (max-height: 900px) {
+  /* Maxsus notebook optimizatsiya */
+  html {
+    zoom: 0.85 !important; /* Notebook uchun kichikroq scale */
+  }
+  
+  /* Vertical space ni tejash */
+  [style*="minHeight: 'calc(100vh - 70px)'"] {
+    min-height: calc(100vh - 50px) !important;
+  }
+  
+  /* Header balandlik kichikroq */
+  header {
+    height: 50px !important;
+    padding: 8px 16px !important;
+  }
+  
+  /* Sidebar item padding kichikroq */
+  nav a {
+    padding: 8px 16px !important;
+  }
+  
+  /* Card margins kichikroq */
+  .card {
+    margin-bottom: 12px !important;
+  }
+}
+
+/* 6. GRID RESPONSIVE UTILITIES */
+.grid-responsive {
+  display: grid;
+  gap: 16px;
+}
+
+@media (min-width: 1536px) {
+  .grid-responsive { grid-template-columns: repeat(6, 1fr); }
+}
+
+@media (min-width: 1280px) and (max-width: 1535px) {
+  .grid-responsive { grid-template-columns: repeat(5, 1fr); }
+}
+
+@media (min-width: 1024px) and (max-width: 1279px) {
+  .grid-responsive { grid-template-columns: repeat(4, 1fr); }
+}
+
+@media (min-width: 768px) and (max-width: 1023px) {
+  .grid-responsive { grid-template-columns: repeat(3, 1fr); }
+}
+
+@media (min-width: 640px) and (max-width: 767px) {
+  .grid-responsive { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 639px) {
+  .grid-responsive { grid-template-columns: 1fr; }
+}
+
+/* 7. SIDEBAR RESPONSIVE */
+@media (max-width: 1023px) {
+  /* Tablet va kichikroqda sidebar overlay qilish */
+  .sidebar {
+    position: fixed !important;
+    z-index: 1000 !important;
+    transform: translateX(-100%) !important;
+    transition: transform 0.3s ease !important;
+  }
+  
+  .sidebar.open {
+    transform: translateX(0) !important;
+  }
+  
+  .main-content {
+    margin-left: 0 !important;
+    width: 100% !important;
+  }
+}
+
+/* 8. TYPOGRAPHY RESPONSIVE */
+@media (max-width: 1279px) {
+  h1 { font-size: 1.75rem; }
+  h2 { font-size: 1.5rem; }
+  h3 { font-size: 1.25rem; }
+  h4 { font-size: 1.1rem; }
+  h5 { font-size: 1rem; }
+  h6 { font-size: 0.9rem; }
+}
+
+@media (max-width: 1023px) {
+  h1 { font-size: 1.5rem; }
+  h2 { font-size: 1.25rem; }
+  h3 { font-size: 1.1rem; }
+  h4 { font-size: 1rem; }
+  h5 { font-size: 0.9rem; }
+  h6 { font-size: 0.8rem; }
+}
+
+/* 9. SPACING RESPONSIVE */
+@media (max-width: 1279px) {
+  :root {
+    --spacing-xs: 0.125rem;
+    --spacing-sm: 0.25rem;
+    --spacing-md: 0.5rem;
+    --spacing-lg: 0.75rem;
+    --spacing-xl: 1rem;
+    --spacing-2xl: 1.5rem;
+  }
+}
+
+@media (max-width: 1023px) {
+  :root {
+    --spacing-xs: 0.1rem;
+    --spacing-sm: 0.2rem;
+    --spacing-md: 0.4rem;
+    --spacing-lg: 0.6rem;
+    --spacing-xl: 0.8rem;
+    --spacing-2xl: 1.2rem;
+  }
+}
+
+/* 10. BUTTON RESPONSIVE */
+@media (max-width: 1279px) {
+  button, .btn {
+    padding: 6px 12px !important;
+    font-size: 12px !important;
+  }
+}
+
+@media (max-width: 1023px) {
+  button, .btn {
+    padding: 4px 8px !important;
+    font-size: 11px !important;
+  }
+}
+
+/* 11. CARD RESPONSIVE */
+@media (max-width: 1279px) {
+  .card {
+    padding: 12px !important;
+    margin-bottom: 8px !important;
+  }
+}
+
+@media (max-width: 1023px) {
+  .card {
+    padding: 8px !important;
+    margin-bottom: 6px !important;
+  }
+}
+
+/* 12. SPECIAL COMMON LAPTOP RESOLUTIONS */
+
+/* 1366x768 - Eng keng tarqalgan notebook */
+@media (width: 1366px) and (height: 768px) {
+  html { zoom: 0.82 !important; }
+  body { font-size: 12px; }
+}
+
+/* 1920x1080 - Full HD */
+@media (width: 1920px) and (height: 1080px) {
+  html { zoom: 0.9 !important; }
+  body { font-size: 14px; }
+}
+
+/* 1440x900 - MacBook Air */
+@media (width: 1440px) and (height: 900px) {
+  html { zoom: 0.85 !important; }
+  body { font-size: 13px; }
+}
+
+/* 1600x900 - Kichik desktop */
+@media (width: 1600px) and (height: 900px) {
+  html { zoom: 0.88 !important; }
+  body { font-size: 13px; }
+}
+
+/* ===== END RESPONSIVE DESIGN ===== */

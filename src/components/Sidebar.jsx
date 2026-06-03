@@ -13,7 +13,7 @@ import {
 } from 'lucide-react'
 import { useLanguage } from '../context/LanguageContext'
 
-const Sidebar = ({ isOpen }) => {
+const Sidebar = ({ isOpen, isMobile, width = '280px' }) => {
   const { t } = useLanguage()
 
   const menuItems = [
@@ -31,18 +31,19 @@ const Sidebar = ({ isOpen }) => {
 
   return (
     <div style={{
-      position: 'fixed',
+      position: isMobile ? 'fixed' : 'fixed',
       left: 0,
       top: 0,
       height: '100vh',
-      width: isOpen ? '280px' : '80px',
+      width: isOpen ? width : '80px',
       backgroundColor: '#1e293b',
-      transition: 'width 0.3s ease',
-      zIndex: 1000,
-      overflowY: 'auto'
+      transition: 'width 0.3s ease, transform 0.3s ease',
+      zIndex: isMobile ? 1000 : 1000,
+      overflowY: 'auto',
+      transform: isMobile && !isOpen ? 'translateX(-100%)' : 'translateX(0)'
     }}>
       <div style={{
-        padding: '20px',
+        padding: isMobile ? '12px' : '20px',
         borderBottom: '1px solid #334155'
       }}>
         <div style={{
@@ -51,15 +52,15 @@ const Sidebar = ({ isOpen }) => {
           gap: '12px'
         }}>
           <div style={{
-            width: '40px',
-            height: '40px',
+            width: isMobile ? '32px' : '40px',
+            height: isMobile ? '32px' : '40px',
             backgroundColor: '#4f46e5',
             borderRadius: '8px',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
             color: 'white',
-            fontSize: '18px',
+            fontSize: isMobile ? '14px' : '18px',
             fontWeight: 'bold'
           }}>
             A
@@ -68,7 +69,7 @@ const Sidebar = ({ isOpen }) => {
             <div>
               <h2 style={{
                 color: 'white',
-                fontSize: '18px',
+                fontSize: isMobile ? '14px' : '18px',
                 fontWeight: 'bold',
                 margin: 0
               }}>
@@ -76,7 +77,7 @@ const Sidebar = ({ isOpen }) => {
               </h2>
               <p style={{
                 color: '#94a3b8',
-                fontSize: '12px',
+                fontSize: isMobile ? '10px' : '12px',
                 margin: 0
               }}>
                 Admin Panel
@@ -86,7 +87,7 @@ const Sidebar = ({ isOpen }) => {
         </div>
       </div>
 
-      <nav style={{ padding: '20px 0' }}>
+      <nav style={{ padding: isMobile ? '12px 0' : '20px 0' }}>
         {menuItems.map((item) => (
           <NavLink
             key={item.path}
@@ -95,7 +96,7 @@ const Sidebar = ({ isOpen }) => {
               display: 'flex',
               alignItems: 'center',
               gap: '12px',
-              padding: '12px 20px',
+              padding: isMobile ? '8px 12px' : '12px 20px',
               color: isActive ? '#4f46e5' : '#94a3b8',
               textDecoration: 'none',
               backgroundColor: isActive ? 'rgba(79, 70, 229, 0.1)' : 'transparent',
@@ -103,10 +104,10 @@ const Sidebar = ({ isOpen }) => {
               transition: 'all 0.2s ease'
             })}
           >
-            <item.icon size={20} />
+            <item.icon size={isMobile ? 16 : 20} />
             {isOpen && (
               <span style={{
-                fontSize: '14px',
+                fontSize: isMobile ? '12px' : '14px',
                 fontWeight: '500'
               }}>
                 {item.label}
