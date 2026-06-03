@@ -152,7 +152,7 @@ const Suppliers = () => {
       {/* Stats Cards - 4 ustun */}
       <div style={{
         display: 'grid',
-        gridTemplateColumns: 'repeat(4, 1fr)',
+        gridTemplateColumns: 'repeat(5, 1fr)',
         gap: '16px',
         marginBottom: '24px'
       }}>
@@ -228,7 +228,7 @@ const Suppliers = () => {
       {/* Suppliers Grid - 3 ustun (o'rtacha kartochkalar) */}
       <div style={{
         display: 'grid',
-        gridTemplateColumns: 'repeat(3, 1fr)',
+        gridTemplateColumns: 'repeat(5, 1fr)',
         gap: '20px'
       }}>
         {filteredSuppliers.map(supplier => (

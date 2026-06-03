@@ -152,7 +152,7 @@ const Expenses = () => {
       {/* Stats Cards - 4 ustun */}
       <div style={{
         display: 'grid',
-        gridTemplateColumns: 'repeat(4, 1fr)',
+        gridTemplateColumns: 'repeat(5, 1fr)',
         gap: '16px',
         marginBottom: '24px'
       }}>
@@ -200,7 +200,7 @@ const Expenses = () => {
       {/* Charts */}
       <div style={{
         display: 'grid',
-        gridTemplateColumns: '1fr 1fr',
+        gridTemplateColumns: 'repeat(5, 1fr)',
         gap: '20px',
         marginBottom: '24px'
       }}>
@@ -344,7 +344,7 @@ const Expenses = () => {
       {/* Expenses Grid - 2 ustun (katta kartochkalar) */}
       <div style={{
         display: 'grid',
-        gridTemplateColumns: 'repeat(2, 1fr)',
+        gridTemplateColumns: 'repeat(5, 1fr)',
         gap: '16px'
       }}>
         {filteredExpenses.map(expense => {

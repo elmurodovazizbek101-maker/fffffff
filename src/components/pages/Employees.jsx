@@ -191,7 +191,7 @@ const Employees = () => {
       {/* Stats Cards - 4 ustun */}
       <div style={{
         display: 'grid',
-        gridTemplateColumns: 'repeat(4, 1fr)',
+        gridTemplateColumns: 'repeat(5, 1fr)',
         gap: '16px',
         marginBottom: '24px'
       }}>
