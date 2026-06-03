@@ -9,6 +9,15 @@ const Header = ({ onToggleSidebar, onLogout, isMobile }) => {
   const [showEditProfile, setShowEditProfile] = useState(false)
   const profileMenuRef = useRef(null)
 
+  const getHeaderHeight = () => {
+    const width = window.innerWidth
+    const height = window.innerHeight
+    
+    if (width === 1366 && height === 768) return '60px'
+    if (isMobile) return '60px'
+    return '70px'
+  }
+
   // Tashqariga bosganda dropdown yopish
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -34,7 +43,7 @@ const Header = ({ onToggleSidebar, onLogout, isMobile }) => {
   return (
     <>
       <header style={{
-        height: isMobile ? '60px' : '70px',
+        height: getHeaderHeight(),
         backgroundColor: 'white',
         borderBottom: '1px solid #e2e8f0',
         display: 'flex',

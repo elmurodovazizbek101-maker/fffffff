@@ -117,7 +117,7 @@ const AdminPanel = ({ onLogout }) => {
         <main style={{
           padding: getMainPadding(),
           backgroundColor: '#f8fafc',
-          minHeight: 'calc(100vh - 70px)'
+          minHeight: 'calc(100vh - 60px)' // Header 60px uchun
         }}>
           <Routes>
             <Route index element={<Navigate to="dashboard" replace />} />

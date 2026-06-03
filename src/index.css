@@ -563,41 +563,43 @@ select {
     width: 200px !important;
   }
   
-  /* Header balandlik kichikroq */
+  /* Header balandlik uzunroq */
   header {
-    height: 50px !important;
-    padding: 6px 12px !important;
+    height: 60px !important; /* 50px dan uzunroq */
+    padding: 8px 12px !important; /* 6px dan uzunroq */
   }
   
-  /* Card padding juda kichik */
-  .card {
-    padding: 8px !important;
-    margin-bottom: 6px !important;
-    border-radius: 4px !important;
-  }
-  
-  /* Grid columns 1366x768 uchun */
-  [style*="gridTemplateColumns"] {
-    grid-template-columns: repeat(4, 1fr) !important;
-    gap: 8px !important;
-  }
-  
-  /* Button sizes juda kichik */
-  button, .btn {
-    padding: 4px 8px !important;
-    font-size: 10px !important;
-    border-radius: 3px !important;
-  }
-  
-  /* Typography kichikroq */
-  h1 { font-size: 1.2rem !important; }
-  h2 { font-size: 1.1rem !important; }
-  h3 { font-size: 1rem !important; }
-  h4 { font-size: 0.9rem !important; }
-  
-  /* Main content padding */
+  /* Main content padding uzunroq */
   main {
-    padding: 8px !important;
+    padding: 12px !important; /* 8px dan uzunroq */
+    min-height: calc(100vh - 60px) !important; /* Header height ga mos */
+  }
+  
+  /* Gap'larni uzunroq qilish */
+  [style*="gap: '20px'"] {
+    gap: 12px !important; /* 8px dan uzunroq */
+  }
+  
+  [style*="gap: '16px'"] {
+    gap: 10px !important; /* 6px dan uzunroq */
+  }
+  
+  /* Padding'larni uzunroq qilish */
+  [style*="padding: '20px'"] {
+    padding: 12px !important; /* 8px dan uzunroq */
+  }
+  
+  [style*="padding: '16px'"] {
+    padding: 10px !important; /* 6px dan uzunroq */
+  }
+  
+  /* Margin'larni uzunroq qilish */
+  [style*="marginBottom: '20px'"] {
+    margin-bottom: 12px !important; /* 8px dan uzunroq */
+  }
+  
+  [style*="marginBottom: '24px'"] {
+    margin-bottom: 15px !important; /* 10px dan uzunroq */
   }
   
   /* Modal kichikroq */
@@ -694,33 +696,41 @@ select {
     font-size: 11px !important;
   }
   
-  /* Card height'larni kichikroq qilish */
+  /* Card height'larni UZUNROQ qilish */
   [style*="height: '180px'"] {
-    height: 120px !important;
+    height: 160px !important; /* Kichikroq emas, biroz uzunroq */
   }
   
   [style*="height: '200px'"] {
-    height: 140px !important;
+    height: 180px !important; /* Uzunroq */
   }
   
-  /* Icon size'larni kichikroq qilish */
-  svg {
-    width: 16px !important;
-    height: 16px !important;
+  [style*="height: '120px'"] {
+    height: 140px !important; /* Uzunroq */
   }
   
-  /* Button padding global */
-  button {
-    padding: 3px 6px !important;
-    font-size: 9px !important;
-    min-height: 24px !important;
+  /* Card padding uzunroq */
+  .card {
+    padding: 12px !important; /* 8px dan uzunroq */
+    margin-bottom: 10px !important; /* 6px dan uzunroq */
+    border-radius: 6px !important; /* Biroz kattaroq radius */
+    min-height: 140px !important; /* Minimal balandlik */
   }
   
-  /* Input padding global */
+  /* Button height uzunroq */
+  button, .btn {
+    padding: 6px 8px !important; /* 3px dan uzunroq */
+    font-size: 10px !important; /* 9px dan biroz kattaroq */
+    min-height: 32px !important; /* 24px dan uzunroq */
+    line-height: 1.4 !important; /* Matn uchun joy */
+  }
+  
+  /* Input height uzunroq */
   input, select, textarea {
-    padding: 3px 6px !important;
-    font-size: 10px !important;
-    min-height: 24px !important;
+    padding: 6px 8px !important; /* 3px dan uzunroq */
+    font-size: 11px !important; /* 10px dan kattaroq */
+    min-height: 32px !important; /* 24px dan uzunroq */
+    line-height: 1.3 !important;
   }
   
   /* Sidebar agar ochiq bo'lsa ham kichikroq */
@@ -739,24 +749,51 @@ select {
     font-size: 10px !important;
   }
   
-  /* Modal responsive */
+  /* Typography UZUNROQ */
+  h1 { font-size: 1.4rem !important; } /* 1.2rem dan kattaroq */
+  h2 { font-size: 1.2rem !important; } /* 1.1rem dan kattaroq */
+  h3 { font-size: 1.1rem !important; } /* 1rem dan kattaroq */
+  h4 { font-size: 1rem !important; }   /* 0.9rem dan kattaroq */
+  
+  /* Grid columns 1366x768 uchun */
+  [style*="gridTemplateColumns"] {
+    grid-template-columns: repeat(4, 1fr) !important;
+    gap: 12px !important; /* 8px dan uzunroq */
+  }
+  
+  /* Icon size'lar uzunroq */
+  svg {
+    width: 18px !important; /* 16px dan kattaroq */
+    height: 18px !important;
+  }
+  
+  /* Table cell padding uzunroq */
+  td, th {
+    padding: 4px 6px !important; /* 2px 4px dan uzunroq */
+    font-size: 11px !important; /* 10px dan kattaroq */
+    line-height: 1.4 !important;
+  }
+  
+  /* Modal responsive uzunroq */
   .modal-overlay {
-    padding: 8px !important;
+    padding: 12px !important; /* 8px dan uzunroq */
   }
   
   .modal {
-    max-width: 350px !important;
-    padding: 8px !important;
+    max-width: 400px !important; /* 350px dan kengroq */
+    padding: 12px !important; /* 8px dan uzunroq */
+    min-height: 200px !important; /* Minimal balandlik */
   }
   
-  /* Form elements spacing */
+  /* Form elements spacing uzunroq */
   .form-group {
-    margin-bottom: 6px !important;
+    margin-bottom: 10px !important; /* 6px dan uzunroq */
   }
   
   label {
-    font-size: 10px !important;
-    margin-bottom: 2px !important;
+    font-size: 11px !important; /* 10px dan kattaroq */
+    margin-bottom: 4px !important; /* 2px dan uzunroq */
+    line-height: 1.3 !important;
   }
 }
 
