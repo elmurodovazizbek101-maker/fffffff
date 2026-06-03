@@ -15,6 +15,9 @@ import { useLanguage } from '../context/LanguageContext'
 
 const Sidebar = ({ isOpen, isMobile, width = '280px' }) => {
   const { t } = useLanguage()
+  
+  // 1366x768 detection
+  const is1366x768 = window.innerWidth === 1366 && window.innerHeight === 768
 
   const menuItems = [
     { path: '/admin/dashboard', icon: LayoutDashboard, label: t('dashboard') },
@@ -30,18 +33,20 @@ const Sidebar = ({ isOpen, isMobile, width = '280px' }) => {
   ]
 
   return (
-    <div style={{
-      position: isMobile ? 'fixed' : 'fixed',
-      left: 0,
-      top: 0,
-      height: '100vh',
-      width: isOpen ? width : '80px',
-      backgroundColor: '#1e293b',
-      transition: 'width 0.3s ease, transform 0.3s ease',
-      zIndex: isMobile ? 1000 : 1000,
-      overflowY: 'auto',
-      transform: isMobile && !isOpen ? 'translateX(-100%)' : 'translateX(0)'
-    }}>
+    <div 
+      className={is1366x768 ? 'sidebar-container' : ''}
+      style={{
+        position: isMobile ? 'fixed' : 'fixed',
+        left: 0,
+        top: 0,
+        height: '100vh',
+        width: isOpen ? (is1366x768 ? '160px' : width) : '60px',
+        backgroundColor: '#1e293b',
+        transition: 'width 0.3s ease, transform 0.3s ease',
+        zIndex: isMobile ? 1000 : 1000,
+        overflowY: 'auto',
+        transform: isMobile && !isOpen ? 'translateX(-100%)' : 'translateX(0)'
+      }}>
       <div style={{
         padding: isMobile ? '12px' : '20px',
         borderBottom: '1px solid #334155'

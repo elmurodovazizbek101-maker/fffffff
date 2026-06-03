@@ -23,11 +23,16 @@ const AdminPanel = ({ onLogout }) => {
   useEffect(() => {
     const handleResize = () => {
       const width = window.innerWidth
+      const height = window.innerHeight
+      
       setIsMobile(width < 768)
       setIsTablet(width >= 768 && width < 1024)
       
-      // Auto-collapse sidebar on smaller screens
-      if (width < 1024) {
+      // 1366x768 maxsus optimizatsiya
+      const is1366x768 = width === 1366 && height === 768
+      
+      // Auto-collapse sidebar on smaller screens or 1366x768
+      if (width < 1024 || is1366x768) {
         setSidebarOpen(false)
       } else {
         setSidebarOpen(true)
@@ -41,6 +46,11 @@ const AdminPanel = ({ onLogout }) => {
 
   // Responsive sidebar width
   const getSidebarWidth = () => {
+    const width = window.innerWidth
+    const height = window.innerHeight
+    
+    // 1366x768 maxsus kenglik
+    if (width === 1366 && height === 768) return '180px'
     if (isMobile) return '200px'
     if (isTablet) return '240px'
     return '280px'
@@ -48,8 +58,24 @@ const AdminPanel = ({ onLogout }) => {
 
   // Responsive margin
   const getMainMargin = () => {
-    const width = getSidebarWidth()
-    return sidebarOpen && !isMobile ? width : '0px'
+    const width = window.innerWidth
+    const height = window.innerHeight
+    const sidebarWidth = getSidebarWidth()
+    
+    // 1366x768 da sidebar yopiq bo'ladi
+    if (width === 1366 && height === 768) return '0px'
+    return sidebarOpen && !isMobile ? sidebarWidth : '0px'
+  }
+
+  // Responsive padding
+  const getMainPadding = () => {
+    const width = window.innerWidth
+    const height = window.innerHeight
+    
+    if (width === 1366 && height === 768) return '6px'
+    if (isMobile) return '12px'
+    if (isTablet) return '16px'
+    return '20px'
   }
 
   return (
@@ -89,7 +115,7 @@ const AdminPanel = ({ onLogout }) => {
         />
 
         <main style={{
-          padding: isMobile ? '12px' : isTablet ? '16px' : '20px',
+          padding: getMainPadding(),
           backgroundColor: '#f8fafc',
           minHeight: 'calc(100vh - 70px)'
         }}>

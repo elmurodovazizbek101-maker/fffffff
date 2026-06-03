@@ -543,9 +543,85 @@ select {
 }
 
 /* 9. SPECIAL COMMON LAPTOP RESOLUTIONS */
+
+/* 1366x768 - ENG MASHHUR NOTEBOOK RAZMERI - MAXSUS OPTIMIZATSIYA */
 @media (width: 1366px) and (height: 768px) {
-  html { zoom: 0.82 !important; }
-  body { font-size: 12px; }
+  html { 
+    zoom: 0.78 !important; 
+    transform: scale(0.78) !important;
+    transform-origin: 0 0 !important;
+  }
+  
+  body { 
+    font-size: 11px; 
+    width: 128.2% !important; /* zoom ni qoplash uchun */
+    height: 128.2% !important;
+  }
+  
+  /* Sidebar kichikroq */
+  .sidebar-container {
+    width: 200px !important;
+  }
+  
+  /* Header balandlik kichikroq */
+  header {
+    height: 50px !important;
+    padding: 6px 12px !important;
+  }
+  
+  /* Card padding juda kichik */
+  .card {
+    padding: 8px !important;
+    margin-bottom: 6px !important;
+    border-radius: 4px !important;
+  }
+  
+  /* Grid columns 1366x768 uchun */
+  [style*="gridTemplateColumns"] {
+    grid-template-columns: repeat(4, 1fr) !important;
+    gap: 8px !important;
+  }
+  
+  /* Button sizes juda kichik */
+  button, .btn {
+    padding: 4px 8px !important;
+    font-size: 10px !important;
+    border-radius: 3px !important;
+  }
+  
+  /* Typography kichikroq */
+  h1 { font-size: 1.2rem !important; }
+  h2 { font-size: 1.1rem !important; }
+  h3 { font-size: 1rem !important; }
+  h4 { font-size: 0.9rem !important; }
+  
+  /* Main content padding */
+  main {
+    padding: 8px !important;
+  }
+  
+  /* Modal kichikroq */
+  .modal {
+    max-width: 400px !important;
+    padding: 12px !important;
+  }
+  
+  /* Input sizes */
+  input, select, textarea {
+    padding: 4px 6px !important;
+    font-size: 10px !important;
+  }
+  
+  /* Vertical spacing tejash */
+  .spacing-tight {
+    margin-bottom: 4px !important;
+  }
+}
+
+/* 1366x768 ning kichik variantlari */
+@media (min-width: 1360px) and (max-width: 1370px) and (min-height: 760px) and (max-height: 770px) {
+  html { zoom: 0.78 !important; }
+  body { font-size: 11px; }
 }
 
 @media (width: 1920px) and (height: 1080px) {
@@ -562,5 +638,126 @@ select {
   html { zoom: 0.88 !important; }
   body { font-size: 13px; }
 }
+}
 
 /* ===== END RESPONSIVE DESIGN ===== */
+/* ===== 1366x768 MAXSUS GRID OPTIMIZATSIYA ===== */
+
+/* 1366x768 da inline style'larni override qilish */
+@media (width: 1366px) and (height: 768px) {
+  /* Barcha 5 ustunli grid'larni 4 ga o'tkazish */
+  [style*="repeat(5, 1fr)"] {
+    grid-template-columns: repeat(4, 1fr) !important;
+  }
+  
+  /* Gap'larni kichikroq qilish */
+  [style*="gap: '20px'"] {
+    gap: 8px !important;
+  }
+  
+  [style*="gap: '16px'"] {
+    gap: 6px !important;
+  }
+  
+  /* Padding'larni kichikroq qilish */
+  [style*="padding: '20px'"] {
+    padding: 8px !important;
+  }
+  
+  [style*="padding: '16px'"] {
+    padding: 6px !important;
+  }
+  
+  /* Margin'larni kichikroq qilish */
+  [style*="marginBottom: '20px'"] {
+    margin-bottom: 8px !important;
+  }
+  
+  [style*="marginBottom: '24px'"] {
+    margin-bottom: 10px !important;
+  }
+  
+  /* Font size'larni kichikroq qilish */
+  [style*="fontSize: '28px'"] {
+    font-size: 18px !important;
+  }
+  
+  [style*="fontSize: '18px'"] {
+    font-size: 14px !important;
+  }
+  
+  [style*="fontSize: '16px'"] {
+    font-size: 12px !important;
+  }
+  
+  [style*="fontSize: '14px'"] {
+    font-size: 11px !important;
+  }
+  
+  /* Card height'larni kichikroq qilish */
+  [style*="height: '180px'"] {
+    height: 120px !important;
+  }
+  
+  [style*="height: '200px'"] {
+    height: 140px !important;
+  }
+  
+  /* Icon size'larni kichikroq qilish */
+  svg {
+    width: 16px !important;
+    height: 16px !important;
+  }
+  
+  /* Button padding global */
+  button {
+    padding: 3px 6px !important;
+    font-size: 9px !important;
+    min-height: 24px !important;
+  }
+  
+  /* Input padding global */
+  input, select, textarea {
+    padding: 3px 6px !important;
+    font-size: 10px !important;
+    min-height: 24px !important;
+  }
+  
+  /* Sidebar agar ochiq bo'lsa ham kichikroq */
+  .sidebar-container {
+    width: 160px !important;
+  }
+  
+  /* Main content margin */
+  .main-content {
+    margin-left: 0px !important;
+  }
+  
+  /* Table cell padding */
+  td, th {
+    padding: 2px 4px !important;
+    font-size: 10px !important;
+  }
+  
+  /* Modal responsive */
+  .modal-overlay {
+    padding: 8px !important;
+  }
+  
+  .modal {
+    max-width: 350px !important;
+    padding: 8px !important;
+  }
+  
+  /* Form elements spacing */
+  .form-group {
+    margin-bottom: 6px !important;
+  }
+  
+  label {
+    font-size: 10px !important;
+    margin-bottom: 2px !important;
+  }
+}
+
+/* ===== END 1366x768 OPTIMIZATSIYA ===== */
