@@ -828,6 +828,11 @@ select {
     gap: 12px !important; /* 8px dan uzunroq */
   }
   
+  /* Employees sahifasi maxsus - har doim 4 ustun */
+  .employees-grid {
+    grid-template-columns: repeat(4, 1fr) !important;
+  }
+  
   /* Icon size'lar uzunroq */
   svg {
     width: 18px !important; /* 16px dan kattaroq */

@@ -264,12 +264,14 @@ const Employees = () => {
         </div>
       </div>
 
-      {/* Employees Grid - 5 ustun */}
-      <div style={{
-        display: 'grid',
-        gridTemplateColumns: 'repeat(5, 1fr)',
-        gap: '20px'
-      }}>
+      {/* Employees Grid - 4 ustun */}
+      <div 
+        className="employees-grid"
+        style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(4, 1fr)',
+          gap: '20px'
+        }}>
         {filteredEmployees.map(employee => (
           <div key={employee.id} style={{
             background: 'linear-gradient(145deg, #ffffff 0%, #f8fafc 100%)',
