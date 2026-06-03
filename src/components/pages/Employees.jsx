@@ -5,6 +5,13 @@ import { useLanguage } from '../../context/LanguageContext'
 const Employees = () => {
   const { t } = useLanguage()
   const [showAddModal, setShowAddModal] = useState(false)
+  const [showSalaryModal, setShowSalaryModal] = useState(false)
+  const [selectedEmployee, setSelectedEmployee] = useState(null)
+  const [salaryPayment, setSalaryPayment] = useState({
+    amount: '',
+    type: 'salary', // 'salary', 'bonus', 'advance'
+    description: ''
+  })
   const [editingEmployee, setEditingEmployee] = useState(null)
   const [searchQuery, setSearchQuery] = useState('')
   const [employees, setEmployees] = useState([
@@ -97,6 +104,38 @@ const Employees = () => {
         ? { ...employee, status: employee.status === 'active' ? 'inactive' : 'active' }
         : employee
     ))
+  }
+
+  const openSalaryModal = (employee) => {
+    setSelectedEmployee(employee)
+    setSalaryPayment({
+      amount: employee.salary.toString(),
+      type: 'salary',
+      description: ''
+    })
+    setShowSalaryModal(true)
+  }
+
+  const handleSalaryPayment = (e) => {
+    e.preventDefault()
+    if (!selectedEmployee) return
+
+    const payment = {
+      id: Date.now(),
+      employeeId: selectedEmployee.id,
+      amount: parseFloat(salaryPayment.amount),
+      type: salaryPayment.type,
+      description: salaryPayment.description,
+      date: new Date().toISOString()
+    }
+
+    // Save payment to localStorage
+    const payments = JSON.parse(localStorage.getItem('alisher_mobile_salary_payments') || '[]')
+    payments.push(payment)
+    localStorage.setItem('alisher_mobile_salary_payments', JSON.stringify(payments))
+
+    setShowSalaryModal(false)
+    setSelectedEmployee(null)
   }
 
   const totalEmployees = employees.length
@@ -225,15 +264,45 @@ const Employees = () => {
         </div>
       </div>
 
-      {/* Employees Grid */}
-      {/* Employees Grid - 2 ustun (katta kartochkalar) */}
+      {/* Employees Grid - 5 ustun */}
       <div style={{
         display: 'grid',
-        gridTemplateColumns: 'repeat(2, 1fr)',
+        gridTemplateColumns: 'repeat(5, 1fr)',
         gap: '20px'
       }}>
         {filteredEmployees.map(employee => (
-          <div key={employee.id} className="card">
+          <div key={employee.id} style={{
+            background: 'linear-gradient(145deg, #ffffff 0%, #f8fafc 100%)',
+            border: '2px solid #e2e8f0',
+            borderRadius: '16px',
+            padding: '20px',
+            boxShadow: '0 8px 25px -8px rgba(15, 23, 42, 0.12), 0 4px 12px -4px rgba(15, 23, 42, 0.08)',
+            transition: 'all 0.3s ease',
+            position: 'relative',
+            overflow: 'hidden'
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.transform = 'translateY(-4px)'
+            e.currentTarget.style.boxShadow = '0 20px 40px -12px rgba(15, 23, 42, 0.18), 0 8px 20px -8px rgba(15, 23, 42, 0.12)'
+            e.currentTarget.style.borderColor = '#3b82f6'
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.transform = 'translateY(0)'
+            e.currentTarget.style.boxShadow = '0 8px 25px -8px rgba(15, 23, 42, 0.12), 0 4px 12px -4px rgba(15, 23, 42, 0.08)'
+            e.currentTarget.style.borderColor = '#e2e8f0'
+          }}
+          >
+            {/* Gradient top border */}
+            <div style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              height: '4px',
+              background: employee.status === 'active' 
+                ? 'linear-gradient(90deg, #22c55e 0%, #16a34a 100%)'
+                : 'linear-gradient(90deg, #6b7280 0%, #4b5563 100%)'
+            }} />
             <div style={{
               display: 'flex',
               alignItems: 'center',
@@ -359,35 +428,97 @@ const Employees = () => {
             </div>
 
             <div style={{
-              display: 'flex',
-              gap: '8px',
-              justifyContent: 'flex-end'
+              display: 'grid',
+              gridTemplateColumns: '2fr 1fr 1fr',
+              gap: '8px'
             }}>
               <button
-                onClick={() => setEditingEmployee(employee)}
-                className="btn"
+                onClick={() => openSalaryModal(employee)}
                 style={{
-                  padding: '8px 12px',
-                  backgroundColor: '#f3f4f6',
-                  color: '#374151',
-                  fontSize: '14px'
+                  padding: '10px 12px',
+                  fontSize: '12px',
+                  fontWeight: '600',
+                  border: 'none',
+                  borderRadius: '8px',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '4px',
+                  background: 'linear-gradient(135deg, #22c55e 0%, #16a34a 100%)',
+                  color: 'white',
+                  boxShadow: '0 2px 4px rgba(34, 197, 94, 0.2)',
+                  transition: 'all 0.2s ease'
+                }}
+                onMouseEnter={(e) => {
+                  e.target.style.transform = 'translateY(-1px)'
+                  e.target.style.boxShadow = '0 4px 8px rgba(34, 197, 94, 0.3)'
+                }}
+                onMouseLeave={(e) => {
+                  e.target.style.transform = 'translateY(0)'
+                  e.target.style.boxShadow = '0 2px 4px rgba(34, 197, 94, 0.2)'
                 }}
               >
-                <Edit size={16} style={{ marginRight: '4px' }} />
-                {t('edit')}
+                <DollarSign size={14} />
+                Maosh
+              </button>
+              <button
+                onClick={() => setEditingEmployee(employee)}
+                style={{
+                  padding: '10px 12px',
+                  fontSize: '12px',
+                  fontWeight: '600',
+                  border: 'none',
+                  borderRadius: '8px',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '4px',
+                  background: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
+                  color: 'white',
+                  boxShadow: '0 2px 4px rgba(59, 130, 246, 0.2)',
+                  transition: 'all 0.2s ease'
+                }}
+                onMouseEnter={(e) => {
+                  e.target.style.transform = 'translateY(-1px)'
+                  e.target.style.boxShadow = '0 4px 8px rgba(59, 130, 246, 0.3)'
+                }}
+                onMouseLeave={(e) => {
+                  e.target.style.transform = 'translateY(0)'
+                  e.target.style.boxShadow = '0 2px 4px rgba(59, 130, 246, 0.2)'
+                }}
+              >
+                <Edit size={14} />
               </button>
               <button
                 onClick={() => handleDeleteEmployee(employee.id)}
-                className="btn"
                 style={{
-                  padding: '8px 12px',
-                  backgroundColor: '#fef2f2',
-                  color: '#ef4444',
-                  fontSize: '14px'
+                  padding: '10px 12px',
+                  fontSize: '12px',
+                  fontWeight: '600',
+                  border: 'none',
+                  borderRadius: '8px',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '4px',
+                  background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
+                  color: 'white',
+                  boxShadow: '0 2px 4px rgba(239, 68, 68, 0.2)',
+                  transition: 'all 0.2s ease'
+                }}
+                onMouseEnter={(e) => {
+                  e.target.style.transform = 'translateY(-1px)'
+                  e.target.style.boxShadow = '0 4px 8px rgba(239, 68, 68, 0.3)'
+                }}
+                onMouseLeave={(e) => {
+                  e.target.style.transform = 'translateY(0)'
+                  e.target.style.boxShadow = '0 2px 4px rgba(239, 68, 68, 0.2)'
                 }}
               >
-                <Trash2 size={16} style={{ marginRight: '4px' }} />
-                {t('delete')}
+                <Trash2 size={14} />
               </button>
             </div>
           </div>
@@ -686,6 +817,186 @@ const Employees = () => {
                   className="btn btn-primary"
                 >
                   {t('save')}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Salary Payment Modal */}
+      {showSalaryModal && selectedEmployee && (
+        <div className="modal-overlay" onClick={() => setShowSalaryModal(false)}>
+          <div className="modal" onClick={(e) => e.stopPropagation()}>
+            <div style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              marginBottom: '20px'
+            }}>
+              <h3 style={{ margin: 0, fontSize: '18px', fontWeight: '600' }}>
+                Maosh to'lash - {selectedEmployee.name}
+              </h3>
+              <button
+                onClick={() => {
+                  setShowSalaryModal(false)
+                  setSelectedEmployee(null)
+                }}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  cursor: 'pointer',
+                  fontSize: '20px',
+                  color: '#6b7280'
+                }}
+              >
+                ×
+              </button>
+            </div>
+
+            <form onSubmit={handleSalaryPayment}>
+              <div style={{ marginBottom: '16px' }}>
+                <label style={{
+                  display: 'block',
+                  marginBottom: '6px',
+                  fontSize: '14px',
+                  fontWeight: '500'
+                }}>
+                  To'lov turi
+                </label>
+                <div style={{
+                  display: 'grid',
+                  gridTemplateColumns: '1fr 1fr 1fr',
+                  gap: '8px'
+                }}>
+                  <button
+                    type="button"
+                    onClick={() => setSalaryPayment({...salaryPayment, type: 'salary', amount: selectedEmployee.salary.toString()})}
+                    style={{
+                      padding: '12px',
+                      border: salaryPayment.type === 'salary' ? '2px solid #4f46e5' : '1px solid #e5e7eb',
+                      borderRadius: '8px',
+                      backgroundColor: salaryPayment.type === 'salary' ? '#f0f9ff' : 'white',
+                      color: salaryPayment.type === 'salary' ? '#4f46e5' : '#374151',
+                      fontWeight: salaryPayment.type === 'salary' ? '600' : '400',
+                      cursor: 'pointer',
+                      fontSize: '14px'
+                    }}
+                  >
+                    Oylik maosh
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setSalaryPayment({...salaryPayment, type: 'bonus', amount: ''})}
+                    style={{
+                      padding: '12px',
+                      border: salaryPayment.type === 'bonus' ? '2px solid #10b981' : '1px solid #e5e7eb',
+                      borderRadius: '8px',
+                      backgroundColor: salaryPayment.type === 'bonus' ? '#f0fdf4' : 'white',
+                      color: salaryPayment.type === 'bonus' ? '#10b981' : '#374151',
+                      fontWeight: salaryPayment.type === 'bonus' ? '600' : '400',
+                      cursor: 'pointer',
+                      fontSize: '14px'
+                    }}
+                  >
+                    Bonus
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setSalaryPayment({...salaryPayment, type: 'advance', amount: ''})}
+                    style={{
+                      padding: '12px',
+                      border: salaryPayment.type === 'advance' ? '2px solid #f59e0b' : '1px solid #e5e7eb',
+                      borderRadius: '8px',
+                      backgroundColor: salaryPayment.type === 'advance' ? '#fffbeb' : 'white',
+                      color: salaryPayment.type === 'advance' ? '#f59e0b' : '#374151',
+                      fontWeight: salaryPayment.type === 'advance' ? '600' : '400',
+                      cursor: 'pointer',
+                      fontSize: '14px'
+                    }}
+                  >
+                    Avans
+                  </button>
+                </div>
+              </div>
+
+              <div style={{ marginBottom: '16px' }}>
+                <label style={{
+                  display: 'block',
+                  marginBottom: '6px',
+                  fontSize: '14px',
+                  fontWeight: '500'
+                }}>
+                  Miqdor (so'm)
+                </label>
+                <input
+                  type="number"
+                  className="input"
+                  value={salaryPayment.amount}
+                  onChange={(e) => setSalaryPayment({...salaryPayment, amount: e.target.value})}
+                  placeholder="0"
+                  required
+                />
+              </div>
+
+              <div style={{ marginBottom: '20px' }}>
+                <label style={{
+                  display: 'block',
+                  marginBottom: '6px',
+                  fontSize: '14px',
+                  fontWeight: '500'
+                }}>
+                  Izoh
+                </label>
+                <textarea
+                  className="input"
+                  rows="3"
+                  value={salaryPayment.description}
+                  onChange={(e) => setSalaryPayment({...salaryPayment, description: e.target.value})}
+                  placeholder="To'lov haqida qo'shimcha ma'lumot..."
+                  required
+                />
+              </div>
+
+              <div style={{
+                padding: '12px',
+                backgroundColor: '#f8fafc',
+                borderRadius: '8px',
+                marginBottom: '20px'
+              }}>
+                <div style={{ fontSize: '14px', color: '#6b7280', marginBottom: '4px' }}>
+                  {selectedEmployee.position} - Oylik maosh:
+                </div>
+                <div style={{
+                  fontSize: '18px',
+                  fontWeight: 'bold',
+                  color: '#10b981'
+                }}>
+                  {selectedEmployee.salary.toLocaleString()} so'm
+                </div>
+              </div>
+
+              <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end' }}>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowSalaryModal(false)
+                    setSelectedEmployee(null)
+                  }}
+                  className="btn btn-secondary"
+                >
+                  {t('cancel')}
+                </button>
+                <button
+                  type="submit"
+                  className="btn btn-primary"
+                  style={{
+                    backgroundColor: salaryPayment.type === 'salary' ? '#4f46e5' : 
+                                   salaryPayment.type === 'bonus' ? '#10b981' : '#f59e0b'
+                  }}
+                >
+                  {salaryPayment.type === 'salary' ? 'Maosh to\'lash' : 
+                   salaryPayment.type === 'bonus' ? 'Bonus berish' : 'Avans berish'}
                 </button>
               </div>
             </form>

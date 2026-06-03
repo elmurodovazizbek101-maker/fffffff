@@ -352,10 +352,25 @@ const Customers = () => {
             </div>
 
             <div style={{
-              display: 'flex',
-              gap: '8px',
-              justifyContent: 'flex-end'
+              display: 'grid',
+              gridTemplateColumns: '2fr 1fr 1fr',
+              gap: '8px'
             }}>
+              <button
+                onClick={() => openPaymentModal(customer)}
+                className="btn btn-primary"
+                style={{
+                  padding: '8px 12px',
+                  fontSize: '14px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '4px'
+                }}
+              >
+                <Plus size={16} />
+                To'lov
+              </button>
               <button
                 onClick={() => setEditingCustomer(customer)}
                 className="btn"
@@ -363,11 +378,13 @@ const Customers = () => {
                   padding: '8px 12px',
                   backgroundColor: '#f3f4f6',
                   color: '#374151',
-                  fontSize: '14px'
+                  fontSize: '14px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center'
                 }}
               >
-                <Edit size={16} style={{ marginRight: '4px' }} />
-                {t('edit')}
+                <Edit size={16} />
               </button>
               <button
                 onClick={() => handleDeleteCustomer(customer.id)}
@@ -376,11 +393,13 @@ const Customers = () => {
                   padding: '8px 12px',
                   backgroundColor: '#fef2f2',
                   color: '#ef4444',
-                  fontSize: '14px'
+                  fontSize: '14px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center'
                 }}
               >
-                <Trash2 size={16} style={{ marginRight: '4px' }} />
-                {t('delete')}
+                <Trash2 size={16} />
               </button>
             </div>
           </div>
@@ -678,6 +697,166 @@ const Customers = () => {
                   className="btn btn-primary"
                 >
                   {t('save')}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Payment Modal */}
+      {showPaymentModal && selectedCustomer && (
+        <div className="modal-overlay" onClick={() => setShowPaymentModal(false)}>
+          <div className="modal" onClick={(e) => e.stopPropagation()}>
+            <div style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              marginBottom: '20px'
+            }}>
+              <h3 style={{ margin: 0, fontSize: '18px', fontWeight: '600' }}>
+                To'lov - {selectedCustomer.name}
+              </h3>
+              <button
+                onClick={() => {
+                  setShowPaymentModal(false)
+                  setSelectedCustomer(null)
+                }}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  cursor: 'pointer',
+                  fontSize: '20px',
+                  color: '#6b7280'
+                }}
+              >
+                ×
+              </button>
+            </div>
+
+            <form onSubmit={handlePayment}>
+              <div style={{ marginBottom: '16px' }}>
+                <label style={{
+                  display: 'block',
+                  marginBottom: '6px',
+                  fontSize: '14px',
+                  fontWeight: '500'
+                }}>
+                  To'lov turi
+                </label>
+                <div style={{
+                  display: 'grid',
+                  gridTemplateColumns: '1fr 1fr',
+                  gap: '12px'
+                }}>
+                  <button
+                    type="button"
+                    onClick={() => setPaymentData({...paymentData, type: 'received'})}
+                    style={{
+                      padding: '12px',
+                      border: paymentData.type === 'received' ? '2px solid #4f46e5' : '1px solid #e5e7eb',
+                      borderRadius: '8px',
+                      backgroundColor: paymentData.type === 'received' ? '#f0f9ff' : 'white',
+                      color: paymentData.type === 'received' ? '#4f46e5' : '#374151',
+                      fontWeight: paymentData.type === 'received' ? '600' : '400',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    Pul olindi
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setPaymentData({...paymentData, type: 'paid'})}
+                    style={{
+                      padding: '12px',
+                      border: paymentData.type === 'paid' ? '2px solid #ef4444' : '1px solid #e5e7eb',
+                      borderRadius: '8px',
+                      backgroundColor: paymentData.type === 'paid' ? '#fef2f2' : 'white',
+                      color: paymentData.type === 'paid' ? '#ef4444' : '#374151',
+                      fontWeight: paymentData.type === 'paid' ? '600' : '400',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    Pul berildi
+                  </button>
+                </div>
+              </div>
+
+              <div style={{ marginBottom: '16px' }}>
+                <label style={{
+                  display: 'block',
+                  marginBottom: '6px',
+                  fontSize: '14px',
+                  fontWeight: '500'
+                }}>
+                  Miqdor (so'm)
+                </label>
+                <input
+                  type="number"
+                  className="input"
+                  value={paymentData.amount}
+                  onChange={(e) => setPaymentData({...paymentData, amount: e.target.value})}
+                  placeholder="0"
+                  required
+                />
+              </div>
+
+              <div style={{ marginBottom: '20px' }}>
+                <label style={{
+                  display: 'block',
+                  marginBottom: '6px',
+                  fontSize: '14px',
+                  fontWeight: '500'
+                }}>
+                  Izoh
+                </label>
+                <textarea
+                  className="input"
+                  rows="3"
+                  value={paymentData.description}
+                  onChange={(e) => setPaymentData({...paymentData, description: e.target.value})}
+                  placeholder="To'lov haqida qo'shimcha ma'lumot..."
+                  required
+                />
+              </div>
+
+              <div style={{
+                padding: '12px',
+                backgroundColor: '#f8fafc',
+                borderRadius: '8px',
+                marginBottom: '20px'
+              }}>
+                <div style={{ fontSize: '14px', color: '#6b7280', marginBottom: '4px' }}>
+                  Joriy balans:
+                </div>
+                <div style={{
+                  fontSize: '18px',
+                  fontWeight: 'bold',
+                  color: (selectedCustomer.totalAmount || 0) >= 0 ? '#10b981' : '#ef4444'
+                }}>
+                  {((selectedCustomer.totalAmount || 0) / 1000000).toFixed(2)}M so'm
+                </div>
+              </div>
+
+              <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end' }}>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowPaymentModal(false)
+                    setSelectedCustomer(null)
+                  }}
+                  className="btn btn-secondary"
+                >
+                  {t('cancel')}
+                </button>
+                <button
+                  type="submit"
+                  className="btn btn-primary"
+                  style={{
+                    backgroundColor: paymentData.type === 'received' ? '#4f46e5' : '#ef4444'
+                  }}
+                >
+                  {paymentData.type === 'received' ? 'Pul olindi' : 'Pul berildi'}
                 </button>
               </div>
             </form>

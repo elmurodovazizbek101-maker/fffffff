@@ -1,4 +1,4 @@
-import { useEffect, Suspense, lazy, memo } from 'react'
+import { Suspense, lazy, memo } from 'react'
 import { Routes, Route } from 'react-router-dom'
 import { useData } from '../context/DataContext'
 import LoadingSpinner from './LoadingSpinner'

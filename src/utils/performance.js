@@ -1,256 +1,360 @@
-// Performance monitoring utilities
-export class PerformanceMonitor {
-  constructor() {
-    this.metrics = {
-      pageLoads: [],
-      apiCalls: [],
-      errors: [],
-      userActions: []
-    }
+// Performance Optimization Utilities
+// Sayt tezligini oshirish uchun utility funksiyalar
 
-    this.init()
+/**
+ * Debounce function - ko'p chaqirilgan funksiyalarni kechiktirish
+ */
+export const debounce = (func, delay) => {
+  let timeoutId
+  return (...args) => {
+    clearTimeout(timeoutId)
+    timeoutId = setTimeout(() => func.apply(null, args), delay)
   }
+}
 
-  init() {
-    // Monitor page load performance
-    if (typeof window !== 'undefined') {
-      window.addEventListener('load', () => {
-        this.recordPageLoad()
-      })
-
-      // Monitor unhandled errors
-      window.addEventListener('error', (event) => {
-        this.recordError({
-          type: 'javascript',
-          message: event.message,
-          filename: event.filename,
-          line: event.lineno,
-          column: event.colno,
-          stack: event.error?.stack,
-          timestamp: Date.now()
-        })
-      })
-
-      // Monitor unhandled promise rejections
-      window.addEventListener('unhandledrejection', (event) => {
-        this.recordError({
-          type: 'promise',
-          message: event.reason?.message || 'Unhandled promise rejection',
-          stack: event.reason?.stack,
-          timestamp: Date.now()
-        })
-      })
+/**
+ * Throttle function - funksiyani ma'lum vaqt oralig'ida cheklash
+ */
+export const throttle = (func, delay) => {
+  let timeoutId
+  let lastExecTime = 0
+  return (...args) => {
+    const currentTime = Date.now()
+    
+    if (currentTime - lastExecTime > delay) {
+      func.apply(null, args)
+      lastExecTime = currentTime
+    } else {
+      clearTimeout(timeoutId)
+      timeoutId = setTimeout(() => {
+        func.apply(null, args)
+        lastExecTime = Date.now()
+      }, delay - (currentTime - lastExecTime))
     }
   }
+}
 
-  recordPageLoad() {
-    if (typeof window === 'undefined' || !window.performance) return
+/**
+ * Virtual scrolling uchun visible items hisoblash
+ */
+export const calculateVisibleItems = (containerHeight, itemHeight, buffer = 5) => {
+  const visibleCount = Math.ceil(containerHeight / itemHeight)
+  return {
+    visibleCount,
+    startBuffer: buffer,
+    endBuffer: buffer,
+    totalVisible: visibleCount + buffer * 2
+  }
+}
 
-    const navigation = performance.getEntriesByType('navigation')[0]
-    if (!navigation) return
-
-    const metrics = {
-      timestamp: Date.now(),
-      url: window.location.href,
-      loadTime: navigation.loadEventEnd - navigation.loadEventStart,
-      domContentLoaded: navigation.domContentLoadedEventEnd - navigation.domContentLoadedEventStart,
-      firstPaint: this.getFirstPaint(),
-      firstContentfulPaint: this.getFirstContentfulPaint(),
-      largestContentfulPaint: this.getLargestContentfulPaint()
+/**
+ * Lazy loading implementation
+ */
+export class LazyLoader {
+  constructor(options = {}) {
+    this.options = {
+      threshold: 0.1,
+      rootMargin: '50px',
+      ...options
     }
-
-    this.metrics.pageLoads.push(metrics)
-    console.log('📊 Page Load Metrics:', metrics)
+    
+    this.observer = new IntersectionObserver(
+      this.handleIntersection.bind(this),
+      this.options
+    )
   }
 
-  getFirstPaint() {
-    const paintEntries = performance.getEntriesByType('paint')
-    const firstPaint = paintEntries.find(entry => entry.name === 'first-paint')
-    return firstPaint ? firstPaint.startTime : null
+  observe(element, callback) {
+    element._lazyCallback = callback
+    this.observer.observe(element)
   }
 
-  getFirstContentfulPaint() {
-    const paintEntries = performance.getEntriesByType('paint')
-    const fcp = paintEntries.find(entry => entry.name === 'first-contentful-paint')
-    return fcp ? fcp.startTime : null
+  unobserve(element) {
+    this.observer.unobserve(element)
+    delete element._lazyCallback
   }
 
-  getLargestContentfulPaint() {
-    return new Promise((resolve) => {
-      if (typeof window === 'undefined') {
-        resolve(null)
-        return
-      }
-
-      try {
-        const observer = new PerformanceObserver((list) => {
-          const entries = list.getEntries()
-          const lastEntry = entries[entries.length - 1]
-          resolve(lastEntry ? lastEntry.startTime : null)
-        })
-        observer.observe({ entryTypes: ['largest-contentful-paint'] })
-
-        // Timeout after 10 seconds
-        setTimeout(() => resolve(null), 10000)
-      } catch (error) {
-        resolve(null)
+  handleIntersection(entries) {
+    entries.forEach(entry => {
+      if (entry.isIntersecting && entry.target._lazyCallback) {
+        entry.target._lazyCallback()
+        this.unobserve(entry.target)
       }
     })
   }
 
-  recordApiCall(url, method, duration, status) {
-    const metric = {
-      timestamp: Date.now(),
-      url,
-      method,
-      duration,
-      status,
-      success: status >= 200 && status < 300
-    }
-
-    this.metrics.apiCalls.push(metric)
-
-    if (duration > 2000) {
-      console.warn('🐌 Slow API call detected:', metric)
-    }
+  disconnect() {
+    this.observer.disconnect()
   }
+}
 
-  recordError(error) {
-    this.metrics.errors.push(error)
-    console.error('🚨 Error recorded:', error)
-
-    // Send to error tracking service in production
-    if (import.meta.env.PROD) {
-      this.sendErrorToService(error)
-    }
-  }
-
-  recordUserAction(action, details = {}) {
-    const metric = {
-      timestamp: Date.now(),
-      action,
-      details,
-      url: typeof window !== 'undefined' ? window.location.href : null
-    }
-
-    this.metrics.userActions.push(metric)
-  }
-
-  async sendErrorToService(error) {
-    try {
-      // In a real app, you would send this to a service like Sentry, LogRocket, etc.
-      await fetch('/api/errors', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          ...error,
-          userAgent: navigator.userAgent,
-          url: window.location.href,
-          timestamp: Date.now()
-        })
-      })
-    } catch (err) {
-      console.error('Failed to send error to service:', err)
-    }
-  }
-
-  getMetrics() {
-    return this.metrics
-  }
-
-  getPerformanceReport() {
-    const pageLoads = this.metrics.pageLoads
-    const apiCalls = this.metrics.apiCalls
-    const errors = this.metrics.errors
-
+/**
+ * Memory usage monitoring
+ */
+export const getMemoryUsage = () => {
+  if (performance.memory) {
     return {
-      pageLoad: {
-        count: pageLoads.length,
-        averageLoadTime: pageLoads.length > 0
-          ? pageLoads.reduce((sum, load) => sum + load.loadTime, 0) / pageLoads.length
-          : 0,
-        slowestLoad: pageLoads.length > 0
-          ? Math.max(...pageLoads.map(load => load.loadTime))
-          : 0
-      },
-      api: {
-        count: apiCalls.length,
-        averageResponseTime: apiCalls.length > 0
-          ? apiCalls.reduce((sum, call) => sum + call.duration, 0) / apiCalls.length
-          : 0,
-        errorRate: apiCalls.length > 0
-          ? (apiCalls.filter(call => !call.success).length / apiCalls.length) * 100
-          : 0
-      },
-      errors: {
-        count: errors.length,
-        types: errors.reduce((acc, error) => {
-          acc[error.type] = (acc[error.type] || 0) + 1
-          return acc
-        }, {})
-      }
+      used: Math.round(performance.memory.usedJSHeapSize / 1048576), // MB
+      total: Math.round(performance.memory.totalJSHeapSize / 1048576), // MB
+      limit: Math.round(performance.memory.jsHeapSizeLimit / 1048576) // MB
     }
   }
+  return null
+}
 
-  // Clear old metrics to prevent memory leaks
-  cleanup() {
-    const oneHourAgo = Date.now() - (60 * 60 * 1000)
-
-    this.metrics.pageLoads = this.metrics.pageLoads.filter(m => m.timestamp > oneHourAgo)
-    this.metrics.apiCalls = this.metrics.apiCalls.filter(m => m.timestamp > oneHourAgo)
-    this.metrics.errors = this.metrics.errors.filter(m => m.timestamp > oneHourAgo)
-    this.metrics.userActions = this.metrics.userActions.filter(m => m.timestamp > oneHourAgo)
+/**
+ * Performance metrics collection
+ */
+export const collectPerformanceMetrics = () => {
+  const navigation = performance.getEntriesByType('navigation')[0]
+  const paint = performance.getEntriesByType('paint')
+  
+  return {
+    // Page load metrics
+    pageLoad: Math.round(navigation?.loadEventEnd - navigation?.loadEventStart),
+    domContentLoaded: Math.round(navigation?.domContentLoadedEventEnd - navigation?.domContentLoadedEventStart),
+    
+    // Paint metrics
+    firstPaint: Math.round(paint.find(p => p.name === 'first-paint')?.startTime || 0),
+    firstContentfulPaint: Math.round(paint.find(p => p.name === 'first-contentful-paint')?.startTime || 0),
+    
+    // Memory (if available)
+    memory: getMemoryUsage(),
+    
+    // Connection info
+    connection: navigator.connection ? {
+      effectiveType: navigator.connection.effectiveType,
+      downlink: navigator.connection.downlink,
+      rtt: navigator.connection.rtt
+    } : null
   }
 }
 
-// Create global instance
-export const performanceMonitor = new PerformanceMonitor()
+/**
+ * Component render time measurement
+ */
+export class RenderProfiler {
+  constructor(componentName) {
+    this.componentName = componentName
+    this.startTime = null
+  }
 
-// Cleanup every hour
-if (typeof window !== 'undefined') {
-  setInterval(() => {
-    performanceMonitor.cleanup()
-  }, 60 * 60 * 1000)
+  start() {
+    this.startTime = performance.now()
+  }
+
+  end() {
+    if (this.startTime) {
+      const renderTime = performance.now() - this.startTime
+      console.log(`🚀 ${this.componentName} render time: ${renderTime.toFixed(2)}ms`)
+      return renderTime
+    }
+    return 0
+  }
 }
 
-// Enhanced fetch wrapper with performance monitoring
-export const monitoredFetch = async (url, options = {}) => {
-  const startTime = performance.now()
-  const method = options.method || 'GET'
+/**
+ * localStorage with compression
+ */
+export const compressedStorage = {
+  set(key, data) {
+    try {
+      const compressed = JSON.stringify(data)
+      localStorage.setItem(key, compressed)
+      return true
+    } catch (error) {
+      console.error('Storage compression error:', error)
+      return false
+    }
+  },
 
-  try {
-    const response = await fetch(url, options)
-    const duration = performance.now() - startTime
+  get(key) {
+    try {
+      const compressed = localStorage.getItem(key)
+      return compressed ? JSON.parse(compressed) : null
+    } catch (error) {
+      console.error('Storage decompression error:', error)
+      return null
+    }
+  },
 
-    performanceMonitor.recordApiCall(url, method, duration, response.status)
+  remove(key) {
+    localStorage.removeItem(key)
+  },
 
-    return response
-  } catch (error) {
-    const duration = performance.now() - startTime
-    performanceMonitor.recordApiCall(url, method, duration, 0)
-    performanceMonitor.recordError({
-      type: 'network',
-      message: error.message,
-      url,
-      method,
+  clear() {
+    localStorage.clear()
+  }
+}
+
+/**
+ * Network request caching
+ */
+class RequestCache {
+  constructor(maxSize = 100, ttl = 300000) { // 5 minutes default TTL
+    this.cache = new Map()
+    this.maxSize = maxSize
+    this.ttl = ttl
+  }
+
+  get(key) {
+    const item = this.cache.get(key)
+    if (!item) return null
+
+    if (Date.now() - item.timestamp > this.ttl) {
+      this.cache.delete(key)
+      return null
+    }
+
+    return item.data
+  }
+
+  set(key, data) {
+    if (this.cache.size >= this.maxSize) {
+      // Remove oldest item
+      const firstKey = this.cache.keys().next().value
+      this.cache.delete(firstKey)
+    }
+
+    this.cache.set(key, {
+      data,
       timestamp: Date.now()
     })
-    throw error
+  }
+
+  clear() {
+    this.cache.clear()
+  }
+
+  size() {
+    return this.cache.size
   }
 }
 
-// User action tracking helpers
-export const trackUserAction = (action, details) => {
-  performanceMonitor.recordUserAction(action, details)
+export const requestCache = new RequestCache()
+
+/**
+ * Resource preloader
+ */
+export const preloadResource = (url, type = 'fetch') => {
+  return new Promise((resolve, reject) => {
+    const link = document.createElement('link')
+    link.rel = 'preload'
+    link.href = url
+    
+    switch (type) {
+      case 'image':
+        link.as = 'image'
+        break
+      case 'script':
+        link.as = 'script'
+        break
+      case 'style':
+        link.as = 'style'
+        break
+      default:
+        link.as = 'fetch'
+        link.crossOrigin = 'anonymous'
+    }
+
+    link.onload = resolve
+    link.onerror = reject
+    
+    document.head.appendChild(link)
+  })
 }
 
-// Performance debugging helpers
-export const logPerformanceReport = () => {
-  console.table(performanceMonitor.getPerformanceReport())
+/**
+ * Bundle size analyzer
+ */
+export const analyzeBundleSize = () => {
+  const scripts = Array.from(document.querySelectorAll('script[src]'))
+  const styles = Array.from(document.querySelectorAll('link[rel="stylesheet"]'))
+  
+  return {
+    scripts: scripts.length,
+    styles: styles.length,
+    totalResources: scripts.length + styles.length,
+    scriptUrls: scripts.map(s => s.src),
+    styleUrls: styles.map(s => s.href)
+  }
 }
 
-// Export for debugging in console
+/**
+ * Critical path optimization
+ */
+export const optimizeCriticalPath = () => {
+  // Preload critical fonts
+  const fonts = [
+    'https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap'
+  ]
+  
+  fonts.forEach(font => {
+    const link = document.createElement('link')
+    link.rel = 'preload'
+    link.href = font
+    link.as = 'style'
+    link.onload = function() { this.rel = 'stylesheet' }
+    document.head.appendChild(link)
+  })
+
+  // Remove unused CSS (basic implementation)
+  const unusedSelectors = []
+  const stylesheets = Array.from(document.styleSheets)
+  
+  stylesheets.forEach(sheet => {
+    try {
+      const rules = Array.from(sheet.cssRules || sheet.rules || [])
+      rules.forEach(rule => {
+        if (rule.type === 1) { // CSS Rule
+          try {
+            if (!document.querySelector(rule.selectorText)) {
+              unusedSelectors.push(rule.selectorText)
+            }
+          } catch (e) {
+            // Ignore pseudo-selectors and complex selectors
+          }
+        }
+      })
+    } catch (e) {
+      // Cross-origin or other restrictions
+    }
+  })
+
+  return { unusedSelectors }
+}
+
+// Performance monitoring setup
 if (typeof window !== 'undefined') {
-  window.performanceMonitor = performanceMonitor
-  window.logPerformanceReport = logPerformanceReport
+  // Monitor performance on page load
+  window.addEventListener('load', () => {
+    setTimeout(() => {
+      const metrics = collectPerformanceMetrics()
+      console.log('📊 Performance Metrics:', metrics)
+    }, 0)
+  })
+
+  // Monitor memory usage periodically
+  let memoryCheckInterval
+  
+  const startMemoryMonitoring = () => {
+    memoryCheckInterval = setInterval(() => {
+      const memory = getMemoryUsage()
+      if (memory && memory.used > memory.limit * 0.8) {
+        console.warn('⚠️ High memory usage detected:', memory)
+      }
+    }, 30000) // Check every 30 seconds
+  }
+
+  const stopMemoryMonitoring = () => {
+    if (memoryCheckInterval) {
+      clearInterval(memoryCheckInterval)
+    }
+  }
+
+  // Auto-start monitoring
+  startMemoryMonitoring()
+
+  // Cleanup on page unload
+  window.addEventListener('beforeunload', stopMemoryMonitoring)
 }

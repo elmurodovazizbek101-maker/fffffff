@@ -1,19 +1,30 @@
 import { createClient } from '@supabase/supabase-js'
 
 // Supabase konfiguratsiyasi
-// Vite da import.meta.env ishlatiladi, process.env emas
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || ''
-const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY || ''
+// Environment variables dan olish
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
+const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY
+
+// Environment variables mavjudligini tekshirish
+const hasValidCredentials = supabaseUrl && 
+  supabaseKey && 
+  supabaseUrl !== 'your_supabase_url_here' && 
+  supabaseKey !== 'your_supabase_anon_key_here' &&
+  supabaseUrl.includes('supabase.co')
 
 // Demo rejim tekshiruvi
-const isDemoMode = !supabaseUrl || !supabaseKey || supabaseUrl === 'https://demo.supabase.co'
+const isDemoMode = !hasValidCredentials
 
-// Demo rejim uchun - haqiqiy loyihada .env faylidan oling
-console.log('🔧 Supabase konfiguratsiyasi:', {
-  url: supabaseUrl || 'Demo mode',
-  hasKey: !!supabaseKey,
-  isDemoMode
-})
+// Configuration holati haqida ma'lumot
+if (isDemoMode) {
+  console.log('📝 DEMO MODE: localStorage ishlatiladi')
+  console.log('🔧 Supabase sozlash uchun .env faylini to\'ldiring:')
+  console.log('   VITE_SUPABASE_URL=https://your-project.supabase.co')
+  console.log('   VITE_SUPABASE_ANON_KEY=your-anon-key')
+} else {
+  console.log('✅ Supabase credentials topildi')
+  console.log('🔧 Supabase URL:', supabaseUrl?.substring(0, 30) + '...')
+}
 
 // Supabase client yaratish (faqat haqiqiy credentials bo'lsa)
 export const supabase = isDemoMode 

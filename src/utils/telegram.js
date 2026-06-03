@@ -1,13 +1,21 @@
 // Telegram Bot API utilities
-const TELEGRAM_BOT_TOKEN = '8861308673:AAG1V83_d33jueqRvsxuyos4opTaJVyCCmE'
+// Environment variables dan token olish
+const TELEGRAM_BOT_TOKEN = import.meta.env.VITE_TELEGRAM_BOT_TOKEN || '8861308673:AAG1V83_d33jueqRvsxuyos4opTaJVyCCmE'
 const TELEGRAM_API_URL = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}`
 
-// Telegram Login Widget credentials
-const TELEGRAM_CLIENT_ID = '8861308673'
-const TELEGRAM_CLIENT_SECRET = 'PW6A8l-05DRWvsCPgmQPwL7yyaxl13UueglZFeQXJkHihPp2l9miXQ'
+// Environment variables dan Telegram Login Widget credentials
+const TELEGRAM_CLIENT_ID = import.meta.env.VITE_TELEGRAM_CLIENT_ID || '8861308673'
+const TELEGRAM_CLIENT_SECRET = import.meta.env.VITE_TELEGRAM_CLIENT_SECRET || 'PW6A8l-05DRWvsCPgmQPwL7yyaxl13UueglZFeQXJkHihPp2l9miXQ'
 
-// Admin chat ID - localStorage dan olinadi yoki default qiymat
+// Admin chat ID - environment yoki localStorage dan olish
 const getAdminChatId = () => {
+  // Environment variable dan birinchi harakat
+  const envChatId = import.meta.env.VITE_TELEGRAM_CHAT_ID
+  if (envChatId && envChatId !== 'your_chat_id_here') {
+    return envChatId
+  }
+  
+  // localStorage dan olish
   return localStorage.getItem('telegram_admin_chat_id') || null
 }
 

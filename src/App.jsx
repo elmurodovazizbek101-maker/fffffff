@@ -6,6 +6,7 @@ import { LanguageProvider } from './context/LanguageContext'
 import { DataProvider } from './context/DataContext'
 import { TelegramProvider } from './context/TelegramService'
 import { AdminAuthProvider, useAdminAuth } from './context/AdminAuthContext'
+import { CustomerAuthProvider } from './context/CustomerAuthContext'
 import { initializeAdminCredentials } from './utils/auth'
 
 // Lazy load components for better performance
@@ -78,16 +79,18 @@ function App() {
       <LanguageProvider>
         <DataProvider>
           <TelegramProvider>
-            <AdminAuthProvider>
-              <Router
-                future={{
-                  v7_startTransition: true,
-                  v7_relativeSplatPath: true
-                }}
-              >
-                <AppRoutes />
-              </Router>
-            </AdminAuthProvider>
+            <CustomerAuthProvider>
+              <AdminAuthProvider>
+                <Router
+                  future={{
+                    v7_startTransition: true,
+                    v7_relativeSplatPath: true
+                  }}
+                >
+                  <AppRoutes />
+                </Router>
+              </AdminAuthProvider>
+            </CustomerAuthProvider>
           </TelegramProvider>
         </DataProvider>
       </LanguageProvider>

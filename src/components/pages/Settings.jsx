@@ -1,8 +1,9 @@
 import { useState } from 'react'
-import { Store, Phone, MapPin, Globe, Save, Lock, Key, Shield, Eye, EyeOff, RotateCcw, MessageCircle, Send, CheckCircle, AlertCircle, Settings as SettingsIcon } from 'lucide-react'
+import { Store, Phone, MapPin, Globe, Save, Lock, Key, Shield, Eye, EyeOff, RotateCcw, MessageCircle, Send, CheckCircle, AlertCircle, Database, Download, Upload, BarChart3 } from 'lucide-react'
 import { useLanguage } from '../../context/LanguageContext'
 import { getAdminCredentials, updateAdminCredentials, resetAdminCredentials } from '../../utils/auth'
 import { telegramBot } from '../../utils/telegram'
+import { downloadBackup, restoreBackup, readBackupFile, resetAllData, getBackupStats } from '../../utils/backupSystem'
 
 const Settings = () => {
   const { t, language, setLanguage } = useLanguage()
@@ -64,6 +65,15 @@ const Settings = () => {
   const [telegramTestResult, setTelegramTestResult] = useState(null)
   const [telegramTesting, setTelegramTesting] = useState(false)
   const [botInfo, setBotInfo] = useState(null)
+  const [telegramChatId, setTelegramChatId] = useState(() => {
+    return localStorage.getItem('telegram_admin_chat_id') || ''
+  })
+
+  // Backup system states
+  const [backupStats, setBackupStats] = useState(null)
+  const [backupLoading, setBackupLoading] = useState(false)
+  const [restoreLoading, setRestoreLoading] = useState(false)
+  const [backupMessage, setBackupMessage] = useState(null)
 
   const languages = [
     { code: 'uz', name: 'O\'zbekcha', flag: 'UZ' },
@@ -131,6 +141,40 @@ const Settings = () => {
     }
   }
 
+  // Telegram Chat ID saqlash funksiyasi
+  const handleSaveTelegramChatId = () => {
+    if (!telegramChatId.trim()) {
+      setTelegramTestResult({
+        type: 'error',
+        message: '❌ Chat ID bo\'sh bo\'lishi mumkin emas!'
+      })
+      return
+    }
+
+    // Chat ID formatini tekshirish (faqat raqamlar yoki - bilan boshlangan raqamlar)
+    const chatIdRegex = /^-?\d+$/
+    if (!chatIdRegex.test(telegramChatId.trim())) {
+      setTelegramTestResult({
+        type: 'error',
+        message: '❌ Chat ID formati noto\'g\'ri! Faqat raqamlar bo\'lishi kerak.'
+      })
+      return
+    }
+
+    // LocalStorage ga saqlash
+    localStorage.setItem('telegram_admin_chat_id', telegramChatId.trim())
+    setTelegramTestResult({
+      type: 'success',
+      message: '✅ Chat ID muvaffaqiyatli saqlandi!',
+      details: 'Endi test xabari yuborishingiz mumkin.'
+    })
+
+    // 3 soniyadan keyin xabarni yo'qotish
+    setTimeout(() => {
+      setTelegramTestResult(null)
+    }, 3000)
+  }
+
   // Telegram bot testing functions
   const handleTestTelegramBot = async () => {
     setTelegramTesting(true)
@@ -182,6 +226,95 @@ const Settings = () => {
     }
 
     setTelegramTesting(false)
+  }
+
+  // Backup system functions
+  const loadBackupStats = async () => {
+    try {
+      const stats = getBackupStats()
+      setBackupStats(stats)
+    } catch (error) {
+      console.error('Backup statistika xatoligi:', error)
+    }
+  }
+
+  // Component mount da backup stats yuklash
+  useState(() => {
+    loadBackupStats()
+  }, [])
+
+  const handleDownloadBackup = async () => {
+    setBackupLoading(true)
+    setBackupMessage(null)
+    
+    try {
+      const success = downloadBackup()
+      if (success) {
+        setBackupMessage({
+          type: 'success',
+          text: '✅ Backup muvaffaqiyatli yuklab olindi!'
+        })
+        loadBackupStats() // Refresh stats
+      } else {
+        setBackupMessage({
+          type: 'error', 
+          text: '❌ Backup yaratishda xatolik yuz berdi'
+        })
+      }
+    } catch (error) {
+      setBackupMessage({
+        type: 'error',
+        text: `❌ Backup xatoligi: ${error.message}`
+      })
+    }
+    
+    setBackupLoading(false)
+    setTimeout(() => setBackupMessage(null), 5000)
+  }
+
+  const handleRestoreBackup = async (event) => {
+    const file = event.target.files[0]
+    if (!file) return
+
+    setRestoreLoading(true)
+    setBackupMessage(null)
+
+    try {
+      const backupData = await readBackupFile(file)
+      
+      if (confirm(`📁 Backup fayli: ${file.name}\n📅 Sana: ${new Date(backupData.timestamp).toLocaleDateString('uz-UZ')}\n\n⚠️ Joriy barcha ma'lumotlar o'chiriladi va backup ma'lumotlari tiklanadi.\n\nDavom etasizmi?`)) {
+        const success = restoreBackup(backupData)
+        
+        if (success) {
+          setBackupMessage({
+            type: 'success',
+            text: '✅ Backup muvaffaqiyatli tiklandi! Sahifa qayta yuklanmoqda...'
+          })
+          
+          setTimeout(() => {
+            window.location.reload()
+          }, 2000)
+        }
+      }
+    } catch (error) {
+      setBackupMessage({
+        type: 'error',
+        text: `❌ Backup tiklash xatoligi: ${error.message}`
+      })
+    }
+
+    setRestoreLoading(false)
+    event.target.value = '' // Reset file input
+  }
+
+  const handleResetAllData = () => {
+    const success = resetAllData()
+    if (success) {
+      setBackupMessage({
+        type: 'success',
+        text: '🔄 Barcha ma\'lumotlar tozalandi! Sahifa qayta yuklanmoqda...'
+      })
+    }
   }
 
   const handleGetChatId = async () => {
@@ -895,6 +1028,45 @@ const Settings = () => {
                 marginBottom: '4px',
                 fontWeight: '500'
               }}>
+                Chat ID:
+              </div>
+              <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                <input
+                  type="text"
+                  value={telegramChatId}
+                  onChange={(e) => setTelegramChatId(e.target.value)}
+                  placeholder="123456789 (raqamlar)"
+                  style={{
+                    flex: 1,
+                    padding: '10px 12px',
+                    border: '1px solid #7dd3fc',
+                    borderRadius: '8px',
+                    fontSize: '12px',
+                    fontFamily: 'monospace',
+                    color: '#0c4a6e'
+                  }}
+                />
+                <button
+                  onClick={handleSaveTelegramChatId}
+                  className="btn btn-primary"
+                  style={{
+                    padding: '10px 16px',
+                    fontSize: '12px',
+                    whiteSpace: 'nowrap'
+                  }}
+                >
+                  Saqlash
+                </button>
+              </div>
+            </div>
+
+            <div style={{ marginBottom: '12px' }}>
+              <div style={{
+                fontSize: '12px',
+                color: '#0c4a6e',
+                marginBottom: '4px',
+                fontWeight: '500'
+              }}>
                 Bot Token:
               </div>
               <div style={{
@@ -1158,29 +1330,156 @@ const Settings = () => {
             border: '1px solid #e5e7eb',
             borderRadius: '8px'
           }}>
-            <h3 style={{
-              fontSize: '16px',
-              fontWeight: '500',
-              marginBottom: '8px',
-              color: '#1f2937'
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              marginBottom: '8px'
             }}>
-              Ma'lumotlar zaxirasi
-            </h3>
+              <Database size={20} color="#4f46e5" />
+              <h3 style={{
+                fontSize: '16px',
+                fontWeight: '500',
+                margin: 0,
+                color: '#1f2937'
+              }}>
+                Ma'lumotlar zaxirasi
+              </h3>
+            </div>
+            
             <p style={{
               fontSize: '14px',
               color: '#6b7280',
               marginBottom: '12px'
             }}>
-              Ma'lumotlarni zaxiralash va tiklash
+              Barcha ma'lumotlarni zaxiralash va tiklash
             </p>
-            <div style={{ display: 'flex', gap: '8px' }}>
-              <button className="btn btn-secondary" style={{ fontSize: '12px' }}>
-                Zaxiralash
+
+            {backupStats && (
+              <div style={{
+                marginBottom: '12px',
+                padding: '12px',
+                backgroundColor: '#f8fafc',
+                borderRadius: '6px',
+                border: '1px solid #e2e8f0'
+              }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '6px' }}>
+                  <BarChart3 size={16} color="#64748b" />
+                  <span style={{ fontSize: '12px', fontWeight: '500', color: '#475569' }}>
+                    Statistika:
+                  </span>
+                </div>
+                <div style={{ fontSize: '12px', color: '#64748b', lineHeight: '1.4' }}>
+                  • Jami ma'lumotlar: <strong>{backupStats.totalItems}</strong><br/>
+                  • Oxirgi backup: <strong>{backupStats.lastBackup || 'Hali amalga oshirilmagan'}</strong><br/>
+                  • Fayl hajmi: <strong>{(backupStats.dataSize / 1024).toFixed(1)} KB</strong>
+                </div>
+              </div>
+            )}
+
+            <div style={{ display: 'flex', gap: '8px', flexDirection: 'column' }}>
+              <button 
+                onClick={handleDownloadBackup}
+                disabled={backupLoading}
+                className="btn"
+                style={{ 
+                  fontSize: '12px',
+                  background: 'linear-gradient(135deg, #22c55e 0%, #16a34a 100%)',
+                  color: 'white',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '6px'
+                }}
+              >
+                {backupLoading ? (
+                  <>
+                    <div className="spinner" style={{ width: '14px', height: '14px' }} />
+                    Yuklanmoqda...
+                  </>
+                ) : (
+                  <>
+                    <Download size={14} />
+                    Backup Yaratish
+                  </>
+                )}
               </button>
-              <button className="btn btn-secondary" style={{ fontSize: '12px' }}>
-                Tiklash
+
+              <div style={{ position: 'relative' }}>
+                <input
+                  type="file"
+                  accept=".json"
+                  onChange={handleRestoreBackup}
+                  style={{ display: 'none' }}
+                  id="backup-restore-input"
+                  disabled={restoreLoading}
+                />
+                <label
+                  htmlFor="backup-restore-input"
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '6px',
+                    padding: '8px 12px',
+                    fontSize: '12px',
+                    background: restoreLoading ? '#9ca3af' : 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)',
+                    color: 'white',
+                    borderRadius: '6px',
+                    cursor: restoreLoading ? 'not-allowed' : 'pointer',
+                    fontWeight: '600',
+                    border: 'none',
+                    textAlign: 'center',
+                    userSelect: 'none'
+                  }}
+                >
+                  {restoreLoading ? (
+                    <>
+                      <div className="spinner" style={{ width: '14px', height: '14px' }} />
+                      Tiklanmoqda...
+                    </>
+                  ) : (
+                    <>
+                      <Upload size={14} />
+                      Backup Tiklash
+                    </>
+                  )}
+                </label>
+              </div>
+
+              <button 
+                onClick={handleResetAllData}
+                className="btn"
+                style={{ 
+                  fontSize: '12px',
+                  background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
+                  color: 'white',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '6px'
+                }}
+              >
+                <RotateCcw size={14} />
+                Barcha Ma'lumotlarni Tozalash
               </button>
             </div>
+
+            {backupMessage && (
+              <div style={{
+                marginTop: '12px',
+                padding: '10px 12px',
+                backgroundColor: backupMessage.type === 'success' ? '#dcfce7' : '#fee2e2',
+                border: `1px solid ${backupMessage.type === 'success' ? '#bbf7d0' : '#fecaca'}`,
+                borderRadius: '6px',
+                color: backupMessage.type === 'success' ? '#166534' : '#991b1b',
+                fontSize: '12px',
+                fontWeight: '500',
+                lineHeight: '1.4'
+              }}>
+                {backupMessage.text}
+              </div>
+            )}
           </div>
         </div>
       </div>

@@ -3,7 +3,6 @@ import { Routes, Route, Navigate } from 'react-router-dom'
 import Sidebar from './Sidebar'
 import Header from './Header'
 import Dashboard from './pages/Dashboard'
-import Sales from './pages/Sales'
 import Products from './pages/Products'
 import Categories from './pages/Categories'
 import Debts from './pages/Debts'
@@ -40,7 +39,6 @@ const AdminPanel = ({ onLogout }) => {
           <Routes>
             <Route index element={<Navigate to="dashboard" replace />} />
             <Route path="dashboard" element={<Dashboard />} />
-            <Route path="sales" element={<Sales />} />
             <Route path="products" element={<Products />} />
             <Route path="categories" element={<Categories />} />
             <Route path="debts" element={<Debts />} />

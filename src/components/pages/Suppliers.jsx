@@ -225,11 +225,10 @@ const Suppliers = () => {
         </div>
       </div>
 
-      {/* Suppliers Grid */}
-      {/* Suppliers Grid - 2 ustun (katta kartochkalar) */}
+      {/* Suppliers Grid - 3 ustun (o'rtacha kartochkalar) */}
       <div style={{
         display: 'grid',
-        gridTemplateColumns: 'repeat(2, 1fr)',
+        gridTemplateColumns: 'repeat(3, 1fr)',
         gap: '20px'
       }}>
         {filteredSuppliers.map(supplier => (

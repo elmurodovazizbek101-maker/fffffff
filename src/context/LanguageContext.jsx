@@ -22,7 +22,6 @@ const translations = {
 
     // Navigation
     dashboard: 'Boshqaruv paneli',
-    sales: 'Savdo',
     products: 'Mahsulotlar',
     categories: 'Kategoriyalar',
     debts: 'Qarzlar',
@@ -31,7 +30,6 @@ const translations = {
     expenses: 'Xarajatlar',
     employees: 'Xodimlar',
     settings: 'Sozlamalar',
-    scanner: 'Skaner',
 
     // Dashboard
     totalSales: 'Jami sotuv',
@@ -92,7 +90,6 @@ const translations = {
 
     // Navigation
     dashboard: 'Dashboard',
-    sales: 'Sales',
     products: 'Products',
     categories: 'Categories',
     debts: 'Debts',
@@ -101,7 +98,6 @@ const translations = {
     expenses: 'Expenses',
     employees: 'Employees',
     settings: 'Settings',
-    scanner: 'Scanner',
 
     // Dashboard
     totalSales: 'Total Sales',
@@ -162,7 +158,6 @@ const translations = {
 
     // Navigation
     dashboard: 'Панель управления',
-    sales: 'Продажи',
     products: 'Товары',
     categories: 'Категории',
     debts: 'Долги',
@@ -171,7 +166,6 @@ const translations = {
     expenses: 'Расходы',
     employees: 'Сотрудники',
     settings: 'Настройки',
-    scanner: 'Сканер',
 
     // Dashboard
     totalSales: 'Общие продажи',

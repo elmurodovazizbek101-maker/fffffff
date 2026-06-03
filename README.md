@@ -104,8 +104,8 @@ npm run build
 ## 🔧 Sozlamalar
 
 ### Admin Login
-- **Login:** `superadmin`
-- **Parol:** `Admin@2024!Secure`
+- **Login:** `admin`
+- **Parol:** `admin123`
 
 ### Telegram Bot Sozlash
 1. Admin panelga kiring

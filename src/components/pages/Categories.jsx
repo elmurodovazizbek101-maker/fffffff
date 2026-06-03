@@ -70,7 +70,7 @@ const Categories = () => {
       {/* Categories Grid */}
       <div style={{
         display: 'grid',
-        gridTemplateColumns: 'repeat(4, 1fr)',
+        gridTemplateColumns: 'repeat(5, 1fr)',
         gap: '20px'
       }}>
         {categories.map(category => (
@@ -118,29 +118,63 @@ const Categories = () => {
             }}>
               <button
                 onClick={() => setEditingCategory(category)}
-                className="btn"
                 style={{
-                  padding: '8px 12px',
-                  backgroundColor: '#f3f4f6',
-                  color: '#374151',
-                  fontSize: '14px'
+                  padding: '10px 12px',
+                  fontSize: '12px',
+                  fontWeight: '600',
+                  border: 'none',
+                  borderRadius: '8px',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '4px',
+                  background: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
+                  color: 'white',
+                  boxShadow: '0 2px 4px rgba(59, 130, 246, 0.2)',
+                  transition: 'all 0.2s ease'
+                }}
+                onMouseEnter={(e) => {
+                  e.target.style.transform = 'translateY(-1px)'
+                  e.target.style.boxShadow = '0 4px 8px rgba(59, 130, 246, 0.3)'
+                }}
+                onMouseLeave={(e) => {
+                  e.target.style.transform = 'translateY(0)'
+                  e.target.style.boxShadow = '0 2px 4px rgba(59, 130, 246, 0.2)'
                 }}
               >
-                <Edit size={16} style={{ marginRight: '4px' }} />
-                {t('edit')}
+                <Edit size={14} />
+                Edit
               </button>
               <button
                 onClick={() => handleDeleteCategory(category.id)}
-                className="btn"
                 style={{
-                  padding: '8px 12px',
-                  backgroundColor: '#fef2f2',
-                  color: '#ef4444',
-                  fontSize: '14px'
+                  padding: '10px 12px',
+                  fontSize: '12px',
+                  fontWeight: '600',
+                  border: 'none',
+                  borderRadius: '8px',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '4px',
+                  background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
+                  color: 'white',
+                  boxShadow: '0 2px 4px rgba(239, 68, 68, 0.2)',
+                  transition: 'all 0.2s ease'
+                }}
+                onMouseEnter={(e) => {
+                  e.target.style.transform = 'translateY(-1px)'
+                  e.target.style.boxShadow = '0 4px 8px rgba(239, 68, 68, 0.3)'
+                }}
+                onMouseLeave={(e) => {
+                  e.target.style.transform = 'translateY(0)'
+                  e.target.style.boxShadow = '0 2px 4px rgba(239, 68, 68, 0.2)'
                 }}
               >
-                <Trash2 size={16} style={{ marginRight: '4px' }} />
-                {t('delete')}
+                <Trash2 size={14} />
+                Del
               </button>
             </div>
           </div>

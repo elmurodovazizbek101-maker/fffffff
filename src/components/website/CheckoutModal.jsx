@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react'
-import { X, User, Phone, MapPin, CheckCircle, AlertCircle } from 'lucide-react'
+import { X, User, Phone, MapPin, CheckCircle, AlertCircle, Lock } from 'lucide-react'
 import { useCart } from './context/CartContext'
+import { useCustomerAuth } from '../../context/CustomerAuthContext'
 import { telegramBot } from '../../utils/telegram'
 import { ErrorHandler, Validators, AppError, ErrorTypes } from '../../utils/errorHandler'
 import LoadingOverlay from '../LoadingOverlay'
+import LoginModal from './LoginModal'
 
 const CheckoutModal = ({ isOpen, onClose }) => {
   // Get cart data safely
@@ -12,13 +14,36 @@ const CheckoutModal = ({ isOpen, onClose }) => {
   const getTotalPrice = cart?.getTotalPrice || (() => 0)
   const clearCart = cart?.clearCart || (() => {})
 
-  // Form state
+  // Authentication
+  const { isAuthenticated, currentUser } = useCustomerAuth()
+  const [showLoginModal, setShowLoginModal] = useState(false)
+
+  // Form state - pre-fill with user data if authenticated
   const [formData, setFormData] = useState({
     name: '',
     phone: '+998 ',
     address: '',
     notes: ''
   })
+
+  // Update form data when user authenticates or modal opens
+  useEffect(() => {
+    if (isAuthenticated && currentUser) {
+      setFormData(prev => ({
+        ...prev,
+        name: currentUser.name || '',
+        phone: currentUser.phone || '+998 '
+      }))
+    }
+  }, [isAuthenticated, currentUser])
+
+  // Check authentication when trying to checkout
+  useEffect(() => {
+    if (isOpen && !isAuthenticated) {
+      // Show login requirement message
+      return
+    }
+  }, [isOpen, isAuthenticated])
 
   // Validation errors
   const [errors, setErrors] = useState({})
@@ -31,12 +56,14 @@ const CheckoutModal = ({ isOpen, onClose }) => {
   // Reset form when modal closes
   useEffect(() => {
     if (!isOpen) {
-      setFormData({ name: '', phone: '+998 ', address: '', notes: '' })
+      if (!isAuthenticated) {
+        setFormData({ name: '', phone: '+998 ', address: '', notes: '' })
+      }
       setErrors({})
       setSuccess(false)
       setError('')
     }
-  }, [isOpen])
+  }, [isOpen, isAuthenticated])
 
   // Handle phone input with validation
   const handlePhoneChange = (value) => {
@@ -235,7 +262,108 @@ const CheckoutModal = ({ isOpen, onClose }) => {
 
         {/* Content */}
         <div style={{ padding: '20px' }}>
-          {success ? (
+          {!isAuthenticated ? (
+            // Authentication required message
+            <div style={{ textAlign: 'center', padding: '40px 20px' }}>
+              <Lock size={64} color="#f59e0b" style={{ margin: '0 auto 16px' }} />
+              <h3 style={{ fontSize: '20px', fontWeight: '600', color: '#1f2937', marginBottom: '8px' }}>
+                Buyurtma berish uchun ro'yxatdan o'ting
+              </h3>
+              <p style={{ color: '#6b7280', margin: '0 0 24px 0', lineHeight: '1.5' }}>
+                Xavfsiz xarid qilish va buyurtmalaringizni kuzatish uchun hisobingizga kiring yoki yangi hisob yarating
+              </p>
+              
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                <button
+                  onClick={() => setShowLoginModal(true)}
+                  style={{
+                    width: '100%',
+                    padding: '12px',
+                    backgroundColor: '#4f46e5',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '8px',
+                    fontSize: '16px',
+                    fontWeight: '600',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '8px'
+                  }}
+                >
+                  <User size={18} />
+                  Kirish / Ro'yxatdan o'tish
+                </button>
+                
+                <button
+                  onClick={onClose}
+                  style={{
+                    width: '100%',
+                    padding: '12px',
+                    backgroundColor: '#f3f4f6',
+                    color: '#6b7280',
+                    border: 'none',
+                    borderRadius: '8px',
+                    fontSize: '16px',
+                    fontWeight: '500',
+                    cursor: 'pointer'
+                  }}
+                >
+                  Keyinroq
+                </button>
+              </div>
+
+              {/* Order Summary for unauthenticated users */}
+              <div style={{
+                backgroundColor: '#f9fafb',
+                padding: '16px',
+                borderRadius: '8px',
+                marginTop: '20px',
+                border: '1px solid #e5e7eb'
+              }}>
+                <h4 style={{ fontSize: '14px', fontWeight: '600', marginBottom: '12px', color: '#6b7280' }}>
+                  Savatchangizdagi mahsulotlar ({cartItems.length} ta)
+                </h4>
+                <div style={{
+                  maxHeight: '120px',
+                  overflowY: 'auto'
+                }}>
+                  {cartItems.slice(0, 3).map(item => (
+                    <div key={item.id} style={{
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      fontSize: '12px',
+                      marginBottom: '4px',
+                      color: '#6b7280'
+                    }}>
+                      <span>{item.name} × {item.quantity}</span>
+                      <span>{((item.price || 0) * (item.quantity || 0)).toLocaleString()} so'm</span>
+                    </div>
+                  ))}
+                  {cartItems.length > 3 && (
+                    <div style={{ fontSize: '12px', color: '#9ca3af', textAlign: 'center', marginTop: '8px' }}>
+                      +{cartItems.length - 3} ta boshqa mahsulot
+                    </div>
+                  )}
+                </div>
+                <div style={{
+                  borderTop: '1px solid #e5e7eb',
+                  paddingTop: '8px',
+                  marginTop: '12px',
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  fontWeight: '600',
+                  color: '#1f2937'
+                }}>
+                  <span>Jami:</span>
+                  <span style={{ color: '#10b981' }}>
+                    {getTotalPrice().toLocaleString()} so'm
+                  </span>
+                </div>
+              </div>
+            </div>
+          ) : success ? (
             // Success message
             <div style={{ textAlign: 'center', padding: '40px 20px' }}>
               <CheckCircle size={64} color="#10b981" style={{ margin: '0 auto 16px' }} />
@@ -495,6 +623,16 @@ const CheckoutModal = ({ isOpen, onClose }) => {
         message="Buyurtma yuklanmoqda..." 
         fullScreen={false}
         transparent={true}
+      />
+
+      {/* Login Modal */}
+      <LoginModal 
+        isOpen={showLoginModal}
+        onClose={() => setShowLoginModal(false)}
+        onSuccess={() => {
+          setShowLoginModal(false)
+          // Modal will automatically update with user data
+        }}
       />
     </div>
   )

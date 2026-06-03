@@ -1,7 +1,6 @@
 import { NavLink } from 'react-router-dom'
 import {
   LayoutDashboard,
-  ShoppingCart,
   Package,
   Tag,
   CreditCard,
@@ -19,7 +18,6 @@ const Sidebar = ({ isOpen }) => {
 
   const menuItems = [
     { path: '/admin/dashboard', icon: LayoutDashboard, label: t('dashboard') },
-    { path: '/admin/sales', icon: ShoppingCart, label: t('sales') },
     { path: '/admin/products', icon: Package, label: t('products') },
     { path: '/admin/categories', icon: Tag, label: t('categories') },
     { path: '/admin/debts', icon: CreditCard, label: t('debts') },

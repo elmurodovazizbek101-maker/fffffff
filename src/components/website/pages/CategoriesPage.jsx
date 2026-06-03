@@ -1,354 +1,216 @@
-import { useState, useEffect } from 'react'
+import React from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Smartphone, ChevronRight, Apple, Zap, Shield, Gamepad2, Flame, Plus, Circle, Hexagon, Star } from 'lucide-react'
 import { useData } from '../../../context/DataContext'
+import { useLanguage } from '../../../context/LanguageContext'
+import { Package, ArrowRight } from 'lucide-react'
 
 const CategoriesPage = () => {
+  const { categories, products } = useData()
+  const { t } = useLanguage()
   const navigate = useNavigate()
-  const { activeProducts } = useData()
-  const [darkMode, setDarkMode] = useState(() => {
-    const saved = localStorage.getItem('alisher_mobile_theme')
-    return saved === 'dark'
-  })
 
-  // Listen for theme changes
-  useEffect(() => {
-    const handleThemeChange = () => {
-      const theme = document.documentElement.getAttribute('data-theme')
-      setDarkMode(theme === 'dark')
-    }
-
-    const observer = new MutationObserver(handleThemeChange)
-    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] })
-
-    return () => observer.disconnect()
-  }, [])
-
-  // Get unique brands with product counts
-  const brandStats = activeProducts.reduce((acc, product) => {
-    const brand = product.brand || 'Boshqa'
-    if (!acc[brand]) {
-      acc[brand] = {
-        name: brand,
-        count: 0,
-        totalValue: 0,
-        products: []
-      }
-    }
-    acc[brand].count++
-    acc[brand].totalValue += product.price || 0
-    acc[brand].products.push(product)
-    return acc
-  }, {})
-
-  const brands = Object.values(brandStats).sort((a, b) => b.count - a.count)
-
-  const handleBrandClick = (brandName) => {
-    navigate(`/products?brand=${brandName}`)
-  }
-
-  // Brand icons mapping
-  const brandIcons = {
-    'ROG': Gamepad2,
-    'Redmi': Flame,
-    'Samsung': Smartphone,
-    'Apple': Apple,
-    'Honor': Shield,
-    'Vertu': Star,
-    'Nokia': Hexagon,
-    'Poco': Zap,
-    'Tecno': Circle,
-    'Redmagic': Gamepad2,
-    'Xiaomi': Smartphone
-  }
-
-  const brandColors = {
-    'ROG': '#FF0000',
-    'Redmi': '#FF6900',
-    'Samsung': '#1428A0',
-    'Apple': '#000000',
-    'Honor': '#ED1C24',
-    'Vertu': '#FFD700',
-    'Nokia': '#124191',
-    'Poco': '#F7B500',
-    'Tecno': '#0066CC',
-    'Redmagic': '#DC143C',
-    'Xiaomi': '#FF6900'
+  // Har bir kategoriya uchun mahsulotlar sonini hisoblash
+  const getCategoryProductCount = (categoryId) => {
+    return products.filter(product => product.categoryId === categoryId).length
   }
 
   return (
-    <div style={{
-      minHeight: '100vh',
-      background: darkMode ? '#1f2937' : '#f8fafc',
-      padding: '40px 20px'
-    }}>
-      <div style={{
-        maxWidth: '1200px',
-        margin: '0 auto'
-      }}>
+    <div style={{ padding: '2rem 1rem' }}>
+      <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
         {/* Header */}
-        <div style={{
-          textAlign: 'center',
-          marginBottom: '60px'
-        }}>
+        <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
           <h1 style={{
-            fontSize: '48px',
-            fontWeight: '800',
-            color: darkMode ? 'white' : '#1f2937',
-            marginBottom: '16px'
+            fontSize: '2.5rem',
+            fontWeight: 'bold',
+            color: 'var(--text-primary)',
+            marginBottom: '1rem'
           }}>
-            Kataloglar
+            {t('categories')}
           </h1>
           <p style={{
-            fontSize: '20px',
-            color: darkMode ? '#9ca3af' : '#6b7280',
+            fontSize: '1.1rem',
+            color: 'var(--text-secondary)',
             maxWidth: '600px',
             margin: '0 auto'
           }}>
-            Barcha brendlar va ularning mahsulotlari
+            Telefon va aksessuarlarning barcha kategoriyalarini ko'ring
           </p>
         </div>
 
-        {/* Stats */}
+        {/* Categories Grid */}
         <div style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-          gap: '20px',
-          marginBottom: '50px'
+          gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+          gap: '2rem',
+          marginBottom: '3rem'
         }}>
-          <div style={{
-            background: darkMode ? '#374151' : 'white',
-            padding: '30px',
-            borderRadius: '16px',
-            textAlign: 'center',
-            boxShadow: darkMode ? '0 4px 6px rgba(0,0,0,0.3)' : '0 4px 6px rgba(0,0,0,0.05)'
-          }}>
-            <div style={{
-              fontSize: '48px',
-              fontWeight: '800',
-              color: '#4f46e5',
-              marginBottom: '8px'
-            }}>
-              {brands.length}
-            </div>
-            <div style={{
-              fontSize: '16px',
-              color: darkMode ? '#9ca3af' : '#6b7280'
-            }}>
-              Jami brendlar
-            </div>
-          </div>
-
-          <div style={{
-            background: darkMode ? '#374151' : 'white',
-            padding: '30px',
-            borderRadius: '16px',
-            textAlign: 'center',
-            boxShadow: darkMode ? '0 4px 6px rgba(0,0,0,0.3)' : '0 4px 6px rgba(0,0,0,0.05)'
-          }}>
-            <div style={{
-              fontSize: '48px',
-              fontWeight: '800',
-              color: '#10b981',
-              marginBottom: '8px'
-            }}>
-              {activeProducts.length}
-            </div>
-            <div style={{
-              fontSize: '16px',
-              color: darkMode ? '#9ca3af' : '#6b7280'
-            }}>
-              Jami mahsulotlar
-            </div>
-          </div>
-
-          <div style={{
-            background: darkMode ? '#374151' : 'white',
-            padding: '30px',
-            borderRadius: '16px',
-            textAlign: 'center',
-            boxShadow: darkMode ? '0 4px 6px rgba(0,0,0,0.3)' : '0 4px 6px rgba(0,0,0,0.05)'
-          }}>
-            <div style={{
-              fontSize: '48px',
-              fontWeight: '800',
-              color: '#f59e0b',
-              marginBottom: '8px'
-            }}>
-              {brands[0]?.name || 'N/A'}
-            </div>
-            <div style={{
-              fontSize: '16px',
-              color: darkMode ? '#9ca3af' : '#6b7280'
-            }}>
-              Eng ko'p mahsulot
-            </div>
-          </div>
-        </div>
-
-        {/* Brands Grid */}
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
-          gap: '30px'
-        }}>
-          {brands.map(brand => {
-            const BrandIcon = brandIcons[brand.name] || Smartphone
-            const brandColor = brandColors[brand.name] || '#4f46e5'
-
-            return (
-              <div
-                key={brand.name}
-                onClick={() => handleBrandClick(brand.name)}
-                style={{
-                  background: darkMode ? '#374151' : 'white',
-                  borderRadius: '20px',
-                  padding: '30px',
-                  cursor: 'pointer',
-                  transition: 'all 0.3s',
-                  boxShadow: darkMode ? '0 4px 6px rgba(0,0,0,0.3)' : '0 4px 6px rgba(0,0,0,0.05)',
-                  border: `2px solid ${darkMode ? '#4b5563' : '#e5e7eb'}`,
-                  position: 'relative',
-                  overflow: 'hidden'
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.transform = 'translateY(-8px)'
-                  e.currentTarget.style.boxShadow = '0 15px 35px rgba(0,0,0,0.15)'
-                  e.currentTarget.style.borderColor = brandColor
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.transform = 'translateY(0)'
-                  e.currentTarget.style.boxShadow = darkMode ? '0 4px 6px rgba(0,0,0,0.3)' : '0 4px 6px rgba(0,0,0,0.05)'
-                  e.currentTarget.style.borderColor = darkMode ? '#4b5563' : '#e5e7eb'
-                }}
-              >
-                {/* Brand Icon */}
+          {categories.map(category => (
+            <div
+              key={category.id}
+              className="card"
+              style={{
+                cursor: 'pointer',
+                transition: 'all 0.3s ease',
+                borderLeft: `4px solid ${category.color}`,
+                background: `linear-gradient(135deg, #ffffff 0%, ${category.color}08 100%)`,
+                position: 'relative',
+                overflow: 'hidden'
+              }}
+              onClick={() => navigate(`/products?category=${category.id}`)}
+            >
+              {/* Background pattern */}
+              <div style={{
+                position: 'absolute',
+                top: 0,
+                right: 0,
+                width: '100px',
+                height: '100px',
+                background: `linear-gradient(135deg, ${category.color}15, transparent)`,
+                borderRadius: '0 0 0 100px'
+              }} />
+              
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '1rem',
+                marginBottom: '1.5rem',
+                position: 'relative',
+                zIndex: 1
+              }}>
                 <div style={{
-                  width: '80px',
-                  height: '80px',
-                  borderRadius: '50%',
-                  background: `linear-gradient(135deg, ${brandColor}22, ${brandColor}44)`,
+                  width: '60px',
+                  height: '60px',
+                  backgroundColor: category.color,
+                  borderRadius: '12px',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  marginBottom: '20px'
+                  boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
                 }}>
-                  <BrandIcon size={40} color={brandColor} strokeWidth={2} />
+                  <Package size={28} color="white" />
                 </div>
-
-              {/* Brand Name */}
-              <h3 style={{
-                fontSize: '28px',
-                fontWeight: '700',
-                color: darkMode ? 'white' : '#1f2937',
-                marginBottom: '12px'
-              }}>
-                {brand.name}
-              </h3>
-
-              {/* Stats */}
-              <div style={{
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '8px',
-                marginBottom: '20px'
-              }}>
-                <div style={{
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'center'
-                }}>
-                  <span style={{
-                    fontSize: '14px',
-                    color: darkMode ? '#9ca3af' : '#6b7280'
-                  }}>
-                    Mahsulotlar:
-                  </span>
-                  <span style={{
-                    fontSize: '18px',
+                
+                <div>
+                  <h3 style={{
+                    fontSize: '1.5rem',
                     fontWeight: '600',
-                    color: darkMode ? 'white' : '#1f2937'
+                    color: 'var(--text-primary)',
+                    margin: 0
                   }}>
-                    {brand.count} ta
-                  </span>
-                </div>
-
-                <div style={{
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'center'
-                }}>
-                  <span style={{
-                    fontSize: '14px',
-                    color: darkMode ? '#9ca3af' : '#6b7280'
+                    {category.name}
+                  </h3>
+                  <p style={{
+                    fontSize: '0.9rem',
+                    color: 'var(--text-muted)',
+                    margin: 0
                   }}>
-                    O'rtacha narx:
-                  </span>
-                  <span style={{
-                    fontSize: '16px',
-                    fontWeight: '600',
-                    color: '#10b981'
-                  }}>
-                    {Math.round(brand.totalValue / brand.count / 1000000)} mln
-                  </span>
+                    {getCategoryProductCount(category.id)} ta mahsulot
+                  </p>
                 </div>
               </div>
 
-              {/* View Button */}
+              {category.description && (
+                <p style={{
+                  fontSize: '0.95rem',
+                  color: 'var(--text-secondary)',
+                  lineHeight: '1.6',
+                  marginBottom: '1.5rem'
+                }}>
+                  {category.description}
+                </p>
+              )}
+
               <div style={{
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'space-between',
-                padding: '12px 16px',
-                background: darkMode ? '#4b5563' : '#f3f4f6',
-                borderRadius: '12px',
-                marginTop: '20px'
+                paddingTop: '1rem',
+                borderTop: '1px solid var(--border-light)'
               }}>
                 <span style={{
-                  fontSize: '14px',
+                  color: category.color,
                   fontWeight: '600',
-                  color: darkMode ? 'white' : '#1f2937'
+                  fontSize: '0.9rem'
                 }}>
-                  Mahsulotlarni ko'rish
+                  Kategoriyani ko'rish
                 </span>
-                <ChevronRight size={20} color={darkMode ? 'white' : '#1f2937'} />
+                <ArrowRight size={20} color={category.color} />
               </div>
-
-              {/* Popular Badge */}
-              {brand.count >= 5 && (
-                <div style={{
-                  position: 'absolute',
-                  top: '20px',
-                  right: '20px',
-                  background: '#10b981',
-                  color: 'white',
-                  padding: '6px 12px',
-                  borderRadius: '20px',
-                  fontSize: '12px',
-                  fontWeight: '600'
-                }}>
-                  Mashhur
-                </div>
-              )}
             </div>
-            );
-          })}
+          ))}
         </div>
 
-        {/* Empty State */}
-        {brands.length === 0 && (
+        {/* Featured Categories Stats */}
+        <div className="card" style={{
+          background: 'linear-gradient(135deg, var(--primary-color) 0%, var(--primary-hover) 100%)',
+          color: 'white',
+          textAlign: 'center'
+        }}>
+          <h3 style={{
+            fontSize: '1.5rem',
+            marginBottom: '1rem',
+            color: 'white'
+          }}>
+            Jami Statistika
+          </h3>
+          
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+            gap: '2rem',
+            marginTop: '2rem'
+          }}>
+            <div>
+              <div style={{
+                fontSize: '2.5rem',
+                fontWeight: 'bold',
+                marginBottom: '0.5rem'
+              }}>
+                {categories.length}
+              </div>
+              <div style={{ opacity: 0.9 }}>
+                Jami kategoriyalar
+              </div>
+            </div>
+            
+            <div>
+              <div style={{
+                fontSize: '2.5rem',
+                fontWeight: 'bold',
+                marginBottom: '0.5rem'
+              }}>
+                {products.length}
+              </div>
+              <div style={{ opacity: 0.9 }}>
+                Jami mahsulotlar
+              </div>
+            </div>
+            
+            <div>
+              <div style={{
+                fontSize: '2.5rem',
+                fontWeight: 'bold',
+                marginBottom: '0.5rem'
+              }}>
+                {products.filter(p => p.stock > 0).length}
+              </div>
+              <div style={{ opacity: 0.9 }}>
+                Mavjud mahsulotlar
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Empty state */}
+        {categories.length === 0 && (
           <div style={{
             textAlign: 'center',
-            padding: '80px 20px',
-            color: darkMode ? '#9ca3af' : '#6b7280'
+            padding: '4rem 2rem',
+            color: 'var(--text-muted)'
           }}>
-            <Smartphone size={80} style={{ margin: '0 auto 20px', opacity: 0.3 }} />
-            <h3 style={{ fontSize: '24px', marginBottom: '12px' }}>
-              Hozircha brendlar yo'q
-            </h3>
-            <p style={{ fontSize: '16px' }}>
-              Admin paneldan mahsulotlar qo'shing
-            </p>
+            <Package size={64} style={{ marginBottom: '1rem', opacity: 0.5 }} />
+            <h3 style={{ marginBottom: '0.5rem' }}>Hozircha kategoriyalar yo'q</h3>
+            <p>Admin panel orqali kategoriya qo'shing</p>
           </div>
         )}
       </div>
