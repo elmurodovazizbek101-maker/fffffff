@@ -91,10 +91,10 @@ const WebsiteHeader = ({ onCartClick }) => {
   }, [darkMode])
 
   const navigation = [
-    { name: 'Bosh sahifa', href: '/' },
-    { name: 'Mahsulotlar', href: '/products' },
-    { name: 'Kataloglar', href: '/categories' },
-    { name: 'Biz haqimizda', href: '/about' }
+    { name: 'Bosh sahifa', href: '/', path: '/' },
+    { name: 'Mahsulotlar', href: '/products', path: '/products' },
+    { name: 'Kataloglar', href: '/categories', path: '/categories' },
+    { name: 'Biz haqimizda', href: '/about', path: '/about' }
   ]
 
   const isActive = (path) => {
