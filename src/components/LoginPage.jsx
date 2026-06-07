@@ -442,22 +442,14 @@ const LoginPage = ({ onLogin }) => {
           <button
             type="submit"
             disabled={loading}
+            className={`btn ${loading ? 'btn-secondary' : 'btn-primary'}`}
             style={{
               width: '100%',
-              padding: '14px',
-              background: loading ? '#9ca3af' : 'linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%)',
-              color: 'white',
-              border: 'none',
-              borderRadius: '8px',
-              fontSize: '16px',
-              fontWeight: '700',
-              cursor: loading ? 'not-allowed' : 'pointer',
-              transition: 'all 0.2s',
-              boxShadow: loading ? 'none' : '0 4px 12px rgba(79, 70, 229, 0.4)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              gap: '8px'
+              gap: '8px',
+              cursor: loading ? 'not-allowed' : 'pointer'
             }}
           >
             {loading ? (

@@ -39,7 +39,17 @@ export const DataProvider = ({ children }) => {
         { id: 3, name: 'Xiaomi', color: '#FF6900', productCount: 0 },
         { id: 4, name: 'Oppo', color: '#1BA345', productCount: 0 },
         { id: 5, name: 'Vivo', color: '#4285F4', productCount: 0 },
-        { id: 6, name: 'Huawei', color: '#FF0000', productCount: 0 }
+        { id: 6, name: 'Huawei', color: '#FF0000', productCount: 0 },
+        { id: 7, name: 'Honor', color: '#FF6B35', productCount: 0 },
+        { id: 8, name: 'ROG', color: '#DC143C', productCount: 0 },
+        { id: 9, name: 'Redmi', color: '#FF4500', productCount: 0 },
+        { id: 10, name: 'Nokia', color: '#124191', productCount: 0 },
+        { id: 11, name: 'Poco', color: '#F7DC06', productCount: 0 },
+        { id: 12, name: 'OnePlus', color: '#EB0028', productCount: 0 },
+        { id: 13, name: 'Realme', color: '#FFC400', productCount: 0 },
+        { id: 14, name: 'Tecno', color: '#00BCD4', productCount: 0 },
+        { id: 15, name: 'Infinix', color: '#9C27B0', productCount: 0 },
+        { id: 16, name: 'Nothing', color: '#2E2E2E', productCount: 0 }
       ]
     } catch (error) {
       console.error('Kategoriyalarni yuklash xatoligi:', error)
@@ -49,7 +59,17 @@ export const DataProvider = ({ children }) => {
         { id: 3, name: 'Xiaomi', color: '#FF6900', productCount: 0 },
         { id: 4, name: 'Oppo', color: '#1BA345', productCount: 0 },
         { id: 5, name: 'Vivo', color: '#4285F4', productCount: 0 },
-        { id: 6, name: 'Huawei', color: '#FF0000', productCount: 0 }
+        { id: 6, name: 'Huawei', color: '#FF0000', productCount: 0 },
+        { id: 7, name: 'Honor', color: '#FF6B35', productCount: 0 },
+        { id: 8, name: 'ROG', color: '#DC143C', productCount: 0 },
+        { id: 9, name: 'Redmi', color: '#FF4500', productCount: 0 },
+        { id: 10, name: 'Nokia', color: '#124191', productCount: 0 },
+        { id: 11, name: 'Poco', color: '#F7DC06', productCount: 0 },
+        { id: 12, name: 'OnePlus', color: '#EB0028', productCount: 0 },
+        { id: 13, name: 'Realme', color: '#FFC400', productCount: 0 },
+        { id: 14, name: 'Tecno', color: '#00BCD4', productCount: 0 },
+        { id: 15, name: 'Infinix', color: '#9C27B0', productCount: 0 },
+        { id: 16, name: 'Nothing', color: '#2E2E2E', productCount: 0 }
       ]
     }
   })
@@ -215,15 +235,23 @@ export const DataProvider = ({ children }) => {
   }
 
   const updateCategory = (id, updates) => {
+    console.log('updateCategory called:', { id, updates, categories })
     setCategories(prev => {
-      const updated = prev.map(category => 
-        category.id === id 
+      const updated = prev.map(category => {
+        // ID ni string va number sifatida tekshirish
+        const categoryId = category.id
+        const targetId = id
+        console.log('Comparing IDs:', { categoryId, targetId, match: categoryId == targetId })
+        
+        return categoryId == targetId
           ? { ...category, ...updates, updatedAt: new Date().toISOString() }
           : category
-      )
+      })
+      
       // localStorage ga saqlash
       try {
         localStorage.setItem('alisher_mobile_categories', JSON.stringify(updated))
+        console.log('Categories saved to localStorage')
       } catch (error) {
         console.error('Kategoriyani yangilash xatoligi:', error)
       }
@@ -232,11 +260,20 @@ export const DataProvider = ({ children }) => {
   }
 
   const deleteCategory = (id) => {
+    console.log('deleteCategory called:', { id, categories })
     setCategories(prev => {
-      const updated = prev.filter(category => category.id !== id)
+      const updated = prev.filter(category => {
+        const categoryId = category.id
+        const targetId = id
+        const shouldKeep = categoryId != targetId
+        console.log('Delete filter:', { categoryId, targetId, shouldKeep })
+        return shouldKeep
+      })
+      
       // localStorage ga saqlash
       try {
         localStorage.setItem('alisher_mobile_categories', JSON.stringify(updated))
+        console.log('Categories saved to localStorage after delete')
       } catch (error) {
         console.error('Kategoriyani o\'chirish xatoligi:', error)
       }

@@ -3,6 +3,9 @@ import ReactDOM from 'react-dom/client'
 import App from './App.jsx'
 import './index.css'
 
+// Import button enhancer to ensure all buttons work
+import './utils/buttonEnhancer.js'
+
 // Clean up old sales-related localStorage data
 const cleanupSalesData = () => {
   try {

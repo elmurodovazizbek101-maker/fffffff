@@ -361,23 +361,40 @@ const Products = () => {
                 justifyContent: 'flex-end'
               }}>
                 <button
-                  className="btn"
-                  style={{
-                    padding: '8px',
-                    backgroundColor: '#f3f4f6',
-                    color: '#374151'
+                  onClick={(e) => {
+                    e.preventDefault()
+                    e.stopPropagation()
+                    console.log('Edit product clicked:', product.id)
+                    openPriceModal(product)
                   }}
+                  className="btn btn-primary"
+                  style={{
+                    padding: '8px 12px',
+                    minHeight: '36px',
+                    minWidth: '40px'
+                  }}
+                  title="Tahrirlash"
+                  type="button"
                 >
                   <Edit size={16} />
                 </button>
                 <button
-                  onClick={() => handleDeleteProduct(product.id)}
-                  className="btn"
-                  style={{
-                    padding: '8px',
-                    backgroundColor: '#fef2f2',
-                    color: '#ef4444'
+                  onClick={(e) => {
+                    e.preventDefault()
+                    e.stopPropagation()
+                    console.log('Delete product clicked:', product.id)
+                    if (window.confirm('Ushbu mahsulotni o\'chirmoqchimisiz?')) {
+                      handleDeleteProduct(product.id)
+                    }
                   }}
+                  className="btn btn-danger"
+                  style={{
+                    padding: '8px 12px',
+                    minHeight: '36px',
+                    minWidth: '40px'
+                  }}
+                  title="O'chirish"
+                  type="button"
                 >
                   <Trash2 size={16} />
                 </button>

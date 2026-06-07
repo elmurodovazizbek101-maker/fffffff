@@ -248,13 +248,16 @@ const CheckoutModal = ({ isOpen, onClose }) => {
           </h2>
           <button
             onClick={onClose}
+            className="btn btn-ghost"
             style={{
-              background: 'none',
-              border: 'none',
-              cursor: 'pointer',
-              padding: '4px',
-              color: '#6b7280'
+              width: '40px',
+              height: '40px',
+              minWidth: '40px',
+              minHeight: '40px',
+              padding: '8px'
             }}
+            type="button"
+            aria-label="Yopish"
           >
             <X size={24} />
           </button>
@@ -276,21 +279,15 @@ const CheckoutModal = ({ isOpen, onClose }) => {
               <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                 <button
                   onClick={() => setShowLoginModal(true)}
+                  className="btn btn-primary"
                   style={{
                     width: '100%',
-                    padding: '12px',
-                    backgroundColor: '#4f46e5',
-                    color: 'white',
-                    border: 'none',
-                    borderRadius: '8px',
-                    fontSize: '16px',
-                    fontWeight: '600',
-                    cursor: 'pointer',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
                     gap: '8px'
                   }}
+                  type="button"
                 >
                   <User size={18} />
                   Kirish / Ro'yxatdan o'tish
@@ -298,17 +295,11 @@ const CheckoutModal = ({ isOpen, onClose }) => {
                 
                 <button
                   onClick={onClose}
+                  className="btn btn-secondary"
                   style={{
-                    width: '100%',
-                    padding: '12px',
-                    backgroundColor: '#f3f4f6',
-                    color: '#6b7280',
-                    border: 'none',
-                    borderRadius: '8px',
-                    fontSize: '16px',
-                    fontWeight: '500',
-                    cursor: 'pointer'
+                    width: '100%'
                   }}
+                  type="button"
                 >
                   Keyinroq
                 </button>

@@ -38,72 +38,35 @@ const Modal = ({
 
   if (!isOpen) return null
 
-  const getSizeStyles = () => {
+  const getSizeClasses = () => {
     switch (size) {
       case 'small':
-        return { maxWidth: '400px', width: '90%' }
+        return 'max-w-md'
       case 'medium':
-        return { maxWidth: '600px', width: '90%' }
+        return 'max-w-2xl'
       case 'large':
-        return { maxWidth: '800px', width: '95%' }
+        return 'max-w-4xl'
       case 'full':
-        return { maxWidth: '95vw', width: '95%', maxHeight: '95vh' }
+        return 'max-w-7xl'
       default:
-        return { maxWidth: '600px', width: '90%' }
+        return 'max-w-2xl'
     }
   }
 
-  const sizeStyles = getSizeStyles()
-
   return (
     <div
-      style={{
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        backgroundColor: 'rgba(0, 0, 0, 0.6)',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        zIndex: 9999,
-        padding: '20px',
-        animation: 'fadeIn 0.3s ease-out'
-      }}
+      className="modal-overlay"
       onClick={closeOnOverlayClick ? onClose : undefined}
     >
       <div
-        style={{
-          backgroundColor: 'white',
-          borderRadius: '16px',
-          boxShadow: '0 25px 50px rgba(0, 0, 0, 0.25)',
-          ...sizeStyles,
-          maxHeight: '90vh',
-          display: 'flex',
-          flexDirection: 'column',
-          animation: 'slideUp 0.3s ease-out'
-        }}
+        className={`modal ${getSizeClasses()}`}
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
         {(title || showCloseButton) && (
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            padding: '24px 24px 0 24px',
-            borderBottom: title ? '1px solid #e5e7eb' : 'none',
-            paddingBottom: title ? '16px' : '0',
-            marginBottom: title ? '0' : '0'
-          }}>
+          <div className="flex items-center justify-between mb-6">
             {title && (
-              <h2 style={{
-                fontSize: '20px',
-                fontWeight: '700',
-                color: '#1f2937',
-                margin: 0
-              }}>
+              <h2 className="text-3xl font-bold text-gray-900 m-0">
                 {title}
               </h2>
             )}
@@ -111,65 +74,20 @@ const Modal = ({
             {showCloseButton && (
               <button
                 onClick={onClose}
-                style={{
-                  background: 'none',
-                  border: 'none',
-                  cursor: 'pointer',
-                  padding: '8px',
-                  borderRadius: '8px',
-                  color: '#6b7280',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  transition: 'all 0.2s',
-                  marginLeft: title ? '16px' : '0'
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.background = '#f3f4f6'
-                  e.currentTarget.style.color = '#374151'
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.background = 'none'
-                  e.currentTarget.style.color = '#6b7280'
-                }}
+                className="btn-ghost p-2 rounded-xl hover:bg-gray-100 text-gray-500 hover:text-gray-700"
+                style={{ minHeight: 'auto' }}
               >
-                <X size={20} />
+                <X size={24} />
               </button>
             )}
           </div>
         )}
 
         {/* Content */}
-        <div style={{
-          padding: title ? '24px' : '24px',
-          flex: 1,
-          overflowY: 'auto'
-        }}>
+        <div className="modal-content">
           {children}
         </div>
       </div>
-
-      <style>{`
-        @keyframes fadeIn {
-          from {
-            opacity: 0;
-          }
-          to {
-            opacity: 1;
-          }
-        }
-
-        @keyframes slideUp {
-          from {
-            transform: translateY(50px);
-            opacity: 0;
-          }
-          to {
-            transform: translateY(0);
-            opacity: 1;
-          }
-        }
-      `}</style>
     </div>
   )
 }

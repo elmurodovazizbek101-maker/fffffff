@@ -1,7 +1,28 @@
 import { Link } from 'react-router-dom'
 import { MapPin, Phone, Mail, Instagram, MessageCircle, Facebook } from 'lucide-react'
+import { useData } from '../../context/DataContext'
 
 const WebsiteFooter = () => {
+  const { categories, products } = useData()
+
+  // Brendlar bo'yicha mahsulotlar sonini hisoblash
+  const getBrandProductCount = (brandName) => {
+    return products.filter(product => 
+      product.brand && product.brand.toLowerCase() === brandName.toLowerCase()
+    ).length
+  }
+
+  // Kategoriyalar bo'yicha mahsulotlar sonini hisoblash  
+  const getCategoryProductCount = (categoryId) => {
+    return products.filter(product => product.categoryId === categoryId).length
+  }
+
+  // Eng mashhur brendlarni olish (mahsulotlar soni bo'yicha)
+  const popularBrands = [
+    'Apple', 'Samsung', 'Honor', 'Xiaomi', 'Oppo', 'Vivo', 'Nokia', 'Redmi', 'ROG', 'Poco'
+  ].filter(brand => getBrandProductCount(brand) > 0)
+    .sort((a, b) => getBrandProductCount(b) - getBrandProductCount(a))
+    .slice(0, 8) // Eng mashhur 8 ta brend
   return (
     <footer style={{
       backgroundColor: '#1f2937',
@@ -215,134 +236,83 @@ const WebsiteFooter = () => {
               padding: 0,
               margin: 0
             }}>
-              <li style={{ marginBottom: '12px' }}>
+              {/* Haqiqiy kategoriyalarni ko'rsatish */}
+              {categories.slice(0, 6).map(category => (
+                <li key={category.id} style={{ marginBottom: '12px' }}>
+                  <Link
+                    to={`/products?category=${category.id}`}
+                    style={{
+                      color: '#9ca3af',
+                      textDecoration: 'none',
+                      fontSize: '16px',
+                      transition: 'color 0.2s',
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center'
+                    }}
+                    onMouseEnter={(e) => e.currentTarget.style.color = '#ffffff'}
+                    onMouseLeave={(e) => e.currentTarget.style.color = '#9ca3af'}
+                  >
+                    <span>{category.name}</span>
+                    <span style={{ 
+                      fontSize: '12px', 
+                      color: '#6b7280',
+                      backgroundColor: '#374151',
+                      padding: '2px 6px',
+                      borderRadius: '10px'
+                    }}>
+                      {getCategoryProductCount(category.id)}
+                    </span>
+                  </Link>
+                </li>
+              ))}
+              
+              {/* Agar kategoriyalar kam bo'lsa, mashhur brendlarni qo'shish */}
+              {categories.length < 6 && popularBrands.slice(0, 6 - categories.length).map(brand => (
+                <li key={brand} style={{ marginBottom: '12px' }}>
+                  <Link
+                    to={`/products?brand=${brand}`}
+                    style={{
+                      color: '#9ca3af',
+                      textDecoration: 'none',
+                      fontSize: '16px',
+                      transition: 'color 0.2s',
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center'
+                    }}
+                    onMouseEnter={(e) => e.currentTarget.style.color = '#ffffff'}
+                    onMouseLeave={(e) => e.currentTarget.style.color = '#9ca3af'}
+                  >
+                    <span>{brand}</span>
+                    <span style={{ 
+                      fontSize: '12px', 
+                      color: '#6b7280',
+                      backgroundColor: '#374151',
+                      padding: '2px 6px',
+                      borderRadius: '10px'
+                    }}>
+                      {getBrandProductCount(brand)}
+                    </span>
+                  </Link>
+                </li>
+              ))}
+              
+              {/* Barcha kategoriyalarni ko'rish havolasi */}
+              <li style={{ marginTop: '16px', paddingTop: '12px', borderTop: '1px solid #374151' }}>
                 <Link
-                  to="/products?brand=Apple"
+                  to="/categories"
                   style={{
-                    color: '#9ca3af',
+                    color: '#4f46e5',
                     textDecoration: 'none',
-                    fontSize: '16px',
+                    fontSize: '14px',
+                    fontWeight: '600',
                     transition: 'color 0.2s'
                   }}
+                  onMouseEnter={(e) => e.currentTarget.style.color = '#6366f1'}
+                  onMouseLeave={(e) => e.currentTarget.style.color = '#4f46e5'}
                 >
-                  Apple
-                </Link>
-              </li>
-              <li style={{ marginBottom: '12px' }}>
-                <Link
-                  to="/products?brand=Samsung"
-                  style={{
-                    color: '#9ca3af',
-                    textDecoration: 'none',
-                    fontSize: '16px',
-                    transition: 'color 0.2s'
-                  }}
-                >
-                  Samsung
-                </Link>
-              </li>
-              <li style={{ marginBottom: '12px' }}>
-                <Link
-                  to="/products?brand=Honor"
-                  style={{
-                    color: '#9ca3af',
-                    textDecoration: 'none',
-                    fontSize: '16px',
-                    transition: 'color 0.2s'
-                  }}
-                >
-                  Honor
-                </Link>
-              </li>
-              <li style={{ marginBottom: '12px' }}>
-                <Link
-                  to="/products?brand=ROG"
-                  style={{
-                    color: '#9ca3af',
-                    textDecoration: 'none',
-                    fontSize: '16px',
-                    transition: 'color 0.2s'
-                  }}
-                >
-                  ROG
-                </Link>
-              </li>
-              <li style={{ marginBottom: '12px' }}>
-                <Link
-                  to="/products?brand=Redmi"
-                  style={{
-                    color: '#9ca3af',
-                    textDecoration: 'none',
-                    fontSize: '16px',
-                    transition: 'color 0.2s'
-                  }}
-                >
-                  Redmi
-                </Link>
-              </li>
-              <li style={{ marginBottom: '12px' }}>
-                <Link
-                  to="/products?brand=Vertu"
-                  style={{
-                    color: '#9ca3af',
-                    textDecoration: 'none',
-                    fontSize: '16px',
-                    transition: 'color 0.2s'
-                  }}
-                >
-                  Vertu
-                </Link>
-              </li>
-              <li style={{ marginBottom: '12px' }}>
-                <Link
-                  to="/products?brand=Nokia"
-                  style={{
-                    color: '#9ca3af',
-                    textDecoration: 'none',
-                    fontSize: '16px',
-                    transition: 'color 0.2s'
-                  }}
-                >
-                  Nokia
-                </Link>
-              </li>
-              <li style={{ marginBottom: '12px' }}>
-                <Link
-                  to="/products?brand=Poco"
-                  style={{
-                    color: '#9ca3af',
-                    textDecoration: 'none',
-                    fontSize: '16px',
-                    transition: 'color 0.2s'
-                  }}
-                >
-                  Poco
-                </Link>
-              </li>
-              <li style={{ marginBottom: '12px' }}>
-                <Link
-                  to="/products?brand=Tecno"
-                  style={{
-                    color: '#9ca3af',
-                    textDecoration: 'none',
-                    fontSize: '16px',
-                    transition: 'color 0.2s'
-                  }}
-                >
-                  Tecno
-                </Link>
-              </li>
-              <li style={{ marginBottom: '12px' }}>
-                <Link
-                  to="/products?brand=Redmagic"
-                  style={{
-                    color: '#9ca3af',
-                    textDecoration: 'none',
-                    fontSize: '16px',
-                    transition: 'color 0.2s'
-                  }}
-                >
-                  Redmagic
+                  Barcha kategoriyalarni ko'rish →
                 </Link>
               </li>
             </ul>

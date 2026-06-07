@@ -234,6 +234,19 @@ const Employees = () => {
             O'rtacha maosh
           </p>
         </div>
+
+        <div className="card" style={{ textAlign: 'center' }}>
+          <Calendar size={32} color="#ec4899" style={{ margin: '0 auto 8px' }} />
+          <h3 style={{ fontSize: '18px', fontWeight: 'bold', margin: 0 }}>
+            {employees.length > 0 ? Math.floor(employees.reduce((sum, e) => {
+              const days = Math.ceil((new Date() - new Date(e.joinDate)) / (1000 * 60 * 60 * 24))
+              return sum + days
+            }, 0) / employees.length / 30) : 0} oy
+          </h3>
+          <p style={{ color: '#6b7280', fontSize: '14px', margin: 0 }}>
+            O'rtacha ish staji
+          </p>
+        </div>
       </div>
 
       {/* Search */}
@@ -264,12 +277,12 @@ const Employees = () => {
         </div>
       </div>
 
-      {/* Employees Grid - 4 ustun */}
+      {/* Employees Grid - 5 ustun */}
       <div 
         className="employees-grid"
         style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(4, 1fr)',
+          gridTemplateColumns: 'repeat(5, 1fr)',
           gap: '20px'
         }}>
         {filteredEmployees.map(employee => (

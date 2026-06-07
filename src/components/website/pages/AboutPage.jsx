@@ -2,24 +2,6 @@ import { useState, useEffect } from 'react'
 import { MapPin, Phone, Clock, Users, Award, Smartphone, Store } from 'lucide-react'
 
 const AboutPage = () => {
-  const [darkMode, setDarkMode] = useState(() => {
-    const saved = localStorage.getItem('alisher_mobile_theme')
-    return saved === 'dark'
-  })
-
-  // Listen for theme changes
-  useEffect(() => {
-    const handleThemeChange = () => {
-      const theme = document.documentElement.getAttribute('data-theme')
-      setDarkMode(theme === 'dark')
-    }
-
-    const observer = new MutationObserver(handleThemeChange)
-    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] })
-
-    return () => observer.disconnect()
-  }, [])
-
   const stats = [
     { icon: Users, number: '5000+', label: 'Mamnun mijozlar' },
     { icon: Smartphone, number: '10000+', label: 'Sotilgan telefonlar' },
@@ -50,7 +32,6 @@ const AboutPage = () => {
       maxWidth: '1200px',
       margin: '0 auto',
       padding: '40px 20px',
-      background: darkMode ? '#1f2937' : 'transparent',
       minHeight: '100vh'
     }}>
       {/* Header */}
@@ -58,14 +39,14 @@ const AboutPage = () => {
         <h1 style={{
           fontSize: '48px',
           fontWeight: 'bold',
-          color: darkMode ? 'white' : '#1f2937',
+          color: '#1f2937',
           marginBottom: '20px'
         }}>
           Biz haqimizda
         </h1>
         <p style={{
           fontSize: '20px',
-          color: darkMode ? '#9ca3af' : '#6b7280',
+          color: '#6b7280',
           maxWidth: '600px',
           margin: '0 auto',
           lineHeight: '1.6'

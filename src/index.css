@@ -1,69 +1,5 @@
-/* Modern CSS Reset va Global Styles */
+/* Modern Design System - Large & Beautiful */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
-
-/* Skip link for accessibility */
-.skip-link {
-  position: absolute;
-  top: -40px;
-  left: 0;
-  background: #4f46e5;
-  color: white;
-  padding: 8px 16px;
-  text-decoration: none;
-  border-radius: 0 0 4px 0;
-  z-index: 10000;
-}
-
-.skip-link:focus {
-  top: 0;
-}
-
-/* Focus visible styles for better keyboard navigation */
-*:focus-visible {
-  outline: 2px solid #4f46e5;
-  outline-offset: 2px;
-}
-
-button:focus-visible,
-a:focus-visible,
-input:focus-visible,
-textarea:focus-visible,
-select:focus-visible {
-  outline: 2px solid #4f46e5;
-  outline-offset: 2px;
-}
-
-/* Reduced motion for accessibility */
-@media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-    scroll-behavior: auto !important;
-  }
-}
-
-/* High contrast mode support */
-@media (prefers-contrast: high) {
-  * {
-    border-color: currentColor !important;
-  }
-}
-
-/* Screen reader only class */
-.sr-only {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  white-space: nowrap;
-  border-width: 0;
-}
 
 /* CSS Reset */
 *, *::before, *::after {
@@ -82,9 +18,131 @@ a, button {
   -webkit-tap-highlight-color: transparent;
 }
 
-/* Faster transitions for better UX */
+/* Smooth transitions */
 a, button, [role="button"] {
-  transition: all 0.15s ease-in-out !important;
+  transition: all 0.2s ease-in-out !important;
+}
+
+/* Enhanced notification animations */
+@keyframes slideInBounce {
+  0% {
+    transform: translateX(100%) translateY(-10px);
+    opacity: 0;
+    scale: 0.95;
+  }
+  60% {
+    transform: translateX(-5px) translateY(0);
+    opacity: 1;
+    scale: 1.02;
+  }
+  100% {
+    transform: translateX(0) translateY(0);
+    opacity: 1;
+    scale: 1;
+  }
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+/* Modal Styles */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  padding: 20px;
+  animation: fadeIn 0.3s ease-out;
+}
+
+.modal {
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  max-width: 600px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  padding: 32px;
+  animation: modalSlideIn 0.4s ease-out;
+  position: relative;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes modalSlideIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+/* Modal responsive */
+@media (max-width: 640px) {
+  .modal {
+    padding: 20px;
+    margin: 10px;
+    border-radius: 12px;
+  }
+}
+
+/* Input and Form Styles */
+.input, input, textarea, select {
+  width: 100%;
+  padding: 12px 16px;
+  border: 2px solid var(--gray-300);
+  border-radius: 12px;
+  font-size: 16px;
+  font-family: inherit;
+  background: white;
+  transition: all 0.2s ease;
+  box-sizing: border-box;
+}
+
+.input:focus, input:focus, textarea:focus, select:focus {
+  outline: none;
+  border-color: var(--primary-500);
+  box-shadow: 0 0 0 3px var(--primary-100);
+}
+
+.input:disabled, input:disabled, textarea:disabled, select:disabled {
+  background: var(--gray-100);
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+label {
+  display: block;
+  margin-bottom: 6px;
+  font-weight: 600;
+  color: var(--gray-700);
+  font-size: 14px;
 }
 
 /* Optimize animations */
@@ -94,97 +152,159 @@ a, button, [role="button"] {
   }
 }
 
-/* Root Variables - KOMPAKT DIZAYN UCHUN KICHIKROQ SPACING */
-:root {
-  /* Yangi rang palitri */
-  --primary-color: #3b82f6;
-  --primary-hover: #2563eb;
-  --secondary-color: #64748b;
-  --success-color: #22c55e;
-  --warning-color: #f59e0b;
-  --error-color: #ef4444;
-  --info-color: #06b6d4;
-
-  /* Matn ranglari */
-  --text-primary: #0f172a;
-  --text-secondary: #475569;
-  --text-muted: #64748b;
-  --text-light: #94a3b8;
-  --text-white: #ffffff;
-
-  /* Fon ranglari */
-  --bg-primary: #ffffff;
-  --bg-secondary: #f8fafc;
-  --bg-tertiary: #f1f5f9;
-  --bg-accent: #e2e8f0;
-  --bg-dark: #0f172a;
-
-  /* Chegara ranglari */
-  --border-light: #e2e8f0;
-  --border-medium: #cbd5e1;
-  --border-dark: #94a3b8;
-
-  /* Gradient ranglari */
-  --gradient-primary: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
-  --gradient-success: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
-  --gradient-warning: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
-  --gradient-error: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
-  --gradient-secondary: linear-gradient(135deg, #64748b 0%, #475569 100%);
-
-  /* Soyalar - KICHIKROQ */
-  --shadow-sm: 0 1px 2px 0 rgba(15, 23, 42, 0.04);
-  --shadow-md: 0 3px 4px -1px rgba(15, 23, 42, 0.08), 0 1px 3px -1px rgba(15, 23, 42, 0.05);
-  --shadow-lg: 0 6px 10px -2px rgba(15, 23, 42, 0.08), 0 2px 4px -1px rgba(15, 23, 42, 0.04);
-  --shadow-xl: 0 12px 16px -3px rgba(15, 23, 42, 0.08), 0 6px 6px -3px rgba(15, 23, 42, 0.03);
-  --shadow-2xl: 0 16px 32px -8px rgba(15, 23, 42, 0.16);
-
-  /* Spacing - 25% KICHIKROQ */
-  --spacing-xs: 0.18rem;
-  --spacing-sm: 0.375rem;
-  --spacing-md: 0.75rem;
-  --spacing-lg: 1.125rem;
-  --spacing-xl: 1.5rem;
-  --spacing-2xl: 2.25rem;
-
-  /* Border Radius - KICHIKROQ */
-  --radius-sm: 0.25rem;
-  --radius-md: 0.375rem;
-  --radius-lg: 0.5rem;
-  --radius-xl: 0.75rem;
-  --radius-2xl: 1rem;
-
-  /* Transitions */
-  --transition-fast: 0.12s ease;
-  --transition-normal: 0.25s ease;
-  --transition-slow: 0.4s ease;
-
-  /* RESPONSIVE BREAKPOINTS */
-  --breakpoint-xs: 320px;
-  --breakpoint-sm: 640px;
-  --breakpoint-md: 768px;
-  --breakpoint-lg: 1024px;
-  --breakpoint-xl: 1280px;
-  --breakpoint-2xl: 1536px;
+/* Focus visible styles */
+*:focus-visible {
+  outline: 3px solid #4f46e5;
+  outline-offset: 3px;
 }
 
-/* GLOBAL SCALING - BARCHA ELEMENTLARNI 90% QILISH */
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+  outline: 3px solid #4f46e5;
+  outline-offset: 3px;
+}
+
+/* Design System - Modern & Large */
+:root {
+  /* Primary Colors */
+  --primary-50: #eff6ff;
+  --primary-100: #dbeafe;
+  --primary-200: #bfdbfe;
+  --primary-300: #93c5fd;
+  --primary-400: #60a5fa;
+  --primary-500: #3b82f6;
+  --primary-600: #2563eb;
+  --primary-700: #1d4ed8;
+  --primary-800: #1e40af;
+  --primary-900: #1e3a8a;
+
+  /* Gray Scale */
+  --gray-50: #f9fafb;
+  --gray-100: #f3f4f6;
+  --gray-200: #e5e7eb;
+  --gray-300: #d1d5db;
+  --gray-400: #9ca3af;
+  --gray-500: #6b7280;
+  --gray-600: #4b5563;
+  --gray-700: #374151;
+  --gray-800: #1f2937;
+  --gray-900: #111827;
+
+  /* Success Colors */
+  --success-50: #ecfdf5;
+  --success-500: #10b981;
+  --success-600: #059669;
+
+  /* Warning Colors */
+  --warning-50: #fffbeb;
+  --warning-500: #f59e0b;
+  --warning-600: #d97706;
+
+  /* Error Colors */
+  --error-50: #fef2f2;
+  --error-500: #ef4444;
+  --error-600: #dc2626;
+
+  /* Gradients */
+  --gradient-primary: linear-gradient(135deg, var(--primary-600) 0%, var(--primary-700) 100%);
+  --gradient-success: linear-gradient(135deg, var(--success-500) 0%, var(--success-600) 100%);
+  --gradient-warning: linear-gradient(135deg, var(--warning-500) 0%, var(--warning-600) 100%);
+  --gradient-error: linear-gradient(135deg, var(--error-500) 0%, var(--error-600) 100%);
+  --gradient-secondary: linear-gradient(135deg, var(--gray-600) 0%, var(--gray-700) 100%);
+
+  /* Spacing - LARGE SIZES */
+  --space-1: 6px;
+  --space-2: 12px;
+  --space-3: 18px;
+  --space-4: 24px;
+  --space-5: 30px;
+  --space-6: 36px;
+  --space-8: 48px;
+  --space-10: 60px;
+  --space-12: 72px;
+  --space-16: 96px;
+  --space-20: 120px;
+  --space-24: 144px;
+
+  /* Font Sizes - LARGE */
+  --text-xs: 16px;
+  --text-sm: 18px;
+  --text-base: 20px;
+  --text-lg: 22px;
+  --text-xl: 24px;
+  --text-2xl: 30px;
+  --text-3xl: 36px;
+  --text-4xl: 42px;
+  --text-5xl: 48px;
+  --text-6xl: 60px;
+
+  /* Line Heights */
+  --leading-tight: 1.25;
+  --leading-normal: 1.5;
+  --leading-relaxed: 1.75;
+
+  /* Font Weights */
+  --font-light: 300;
+  --font-normal: 400;
+  --font-medium: 500;
+  --font-semibold: 600;
+  --font-bold: 700;
+  --font-extrabold: 800;
+
+  /* Border Radius - LARGER */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
+  --radius-2xl: 24px;
+  --radius-3xl: 32px;
+  --radius-full: 9999px;
+
+  /* Shadows - MORE PRONOUNCED */
+  --shadow-xs: 0 2px 4px rgba(0, 0, 0, 0.05);
+  --shadow-sm: 0 4px 8px rgba(0, 0, 0, 0.1);
+  --shadow-md: 0 8px 16px rgba(0, 0, 0, 0.12);
+  --shadow-lg: 0 16px 24px rgba(0, 0, 0, 0.15);
+  --shadow-xl: 0 24px 32px rgba(0, 0, 0, 0.18);
+  --shadow-2xl: 0 32px 48px rgba(0, 0, 0, 0.2);
+
+  /* Z-Index Scale */
+  --z-dropdown: 1000;
+  --z-sticky: 1020;
+  --z-fixed: 1030;
+  --z-modal-backdrop: 1040;
+  --z-modal: 1050;
+  --z-popover: 1060;
+  --z-tooltip: 1070;
+  --z-toast: 1080;
+
+  /* Transitions */
+  --transition-fast: 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-normal: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-slow: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Base Styles */
 html {
-  scroll-behavior: smooth;
+  font-size: 16px !important; /* Base font size for rem calculations */
   -webkit-text-size-adjust: 100%;
-  /* Global scaling - saytni 90% kichraytirish */
-  zoom: 0.9 !important;
+  text-size-adjust: 100%;
 }
 
 body {
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  line-height: 1.5;
-  color: var(--text-primary);
-  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  font-size: var(--text-base);
+  line-height: var(--leading-normal);
+  font-weight: var(--font-normal);
+  color: var(--gray-800);
+  background: linear-gradient(135deg, var(--gray-50) 0%, var(--primary-50) 100%);
   min-height: 100vh;
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  font-size: 13px;
 }
 
 #root {
@@ -193,231 +313,311 @@ body {
   background: radial-gradient(ellipse at top, rgba(59, 130, 246, 0.02) 0%, transparent 50%);
 }
 
-/* Typography - KOMPAKT SAYT UCHUN KICHIKROQ MATN */
+/* Typography - LARGE & BEAUTIFUL */
 h1, h2, h3, h4, h5, h6 {
-  font-weight: 700;
-  line-height: 1.1;
-  color: var(--text-primary);
-  margin-bottom: var(--spacing-sm);
+  font-weight: var(--font-bold);
+  line-height: var(--leading-tight);
+  color: var(--gray-900);
+  margin-bottom: var(--space-4);
+  letter-spacing: -0.025em;
 }
 
-h1 { font-size: 1.75rem; }
-h2 { font-size: 1.5rem; }
-h3 { font-size: 1.25rem; }
-h4 { font-size: 1.1rem; }
-h5 { font-size: 1rem; }
-h6 { font-size: 0.9rem; }
+h1 { font-size: var(--text-5xl); font-weight: var(--font-extrabold); }
+h2 { font-size: var(--text-4xl); font-weight: var(--font-bold); }
+h3 { font-size: var(--text-3xl); font-weight: var(--font-bold); }
+h4 { font-size: var(--text-2xl); font-weight: var(--font-semibold); }
+h5 { font-size: var(--text-xl); font-weight: var(--font-semibold); }
+h6 { font-size: var(--text-lg); font-weight: var(--font-medium); }
 
 p {
-  color: var(--text-secondary);
-  line-height: 1.4;
-  margin-bottom: var(--spacing-sm);
+  color: var(--gray-600);
+  line-height: var(--leading-normal);
+  margin-bottom: var(--space-4);
+  font-size: var(--text-base);
 }
 
 /* Links */
 a {
-  color: var(--primary-color);
+  color: var(--primary-600);
   text-decoration: none;
   transition: var(--transition-fast);
+  font-weight: var(--font-medium);
 }
 
 a:hover {
-  color: var(--primary-hover);
+  color: var(--primary-700);
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 4px;
 }
 
-/* Button Styles - GRADIENT VA SHADOW BILAN */
-.btn {
+/* MODERN BUTTON SYSTEM - LARGE & BEAUTIFUL */
+.btn, button {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: var(--spacing-xs);
-  padding: var(--spacing-sm) var(--spacing-md);
-  font-size: 0.8rem;
-  font-weight: 500;
-  border: none;
-  border-radius: var(--radius-md);
+  gap: var(--space-2);
+  padding: var(--space-4) var(--space-6);
+  font-size: var(--text-lg);
+  font-weight: var(--font-semibold);
+  line-height: 1;
+  border: 2px solid transparent;
+  border-radius: var(--radius-lg);
   cursor: pointer;
-  transition: var(--transition-fast);
+  transition: var(--transition-normal);
   text-decoration: none;
   white-space: nowrap;
   user-select: none;
   position: relative;
   overflow: hidden;
+  min-height: 56px;
+  box-shadow: var(--shadow-sm);
 }
 
-.btn:disabled {
-  opacity: 0.6;
+.btn:disabled, button:disabled {
+  opacity: 0.5;
   cursor: not-allowed;
   transform: none !important;
+  box-shadow: none !important;
 }
 
-.btn-primary {
+.btn-primary, .btn:not([class*="btn-"]) {
   background: var(--gradient-primary);
   color: white;
-  box-shadow: var(--shadow-md);
+  box-shadow: var(--shadow-lg);
+  border-color: var(--primary-600);
 }
 
 .btn-primary:hover:not(:disabled) {
-  transform: translateY(-1px);
-  box-shadow: var(--shadow-lg);
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-xl);
+  background: linear-gradient(135deg, var(--primary-700) 0%, var(--primary-800) 100%);
 }
 
 .btn-secondary {
   background: var(--gradient-secondary);
   color: white;
-  box-shadow: var(--shadow-md);
+  box-shadow: var(--shadow-lg);
+}
+
+.btn-secondary:hover:not(:disabled) {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-xl);
 }
 
 .btn-success {
   background: var(--gradient-success);
   color: white;
-  box-shadow: var(--shadow-md);
+  box-shadow: var(--shadow-lg);
+}
+
+.btn-success:hover:not(:disabled) {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-xl);
 }
 
 .btn-warning {
   background: var(--gradient-warning);
   color: white;
-  box-shadow: var(--shadow-md);
+  box-shadow: var(--shadow-lg);
 }
 
-.btn-error {
+.btn-warning:hover:not(:disabled) {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-xl);
+}
+
+.btn-error, .btn-danger {
   background: var(--gradient-error);
   color: white;
-  box-shadow: var(--shadow-md);
+  box-shadow: var(--shadow-lg);
+}
+
+.btn-error:hover:not(:disabled), .btn-danger:hover:not(:disabled) {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-xl);
 }
 
 .btn-outline {
   background: transparent;
-  color: var(--primary-color);
-  border: 1px solid var(--border-medium);
+  color: var(--primary-600);
+  border-color: var(--primary-600);
+  box-shadow: none;
+}
+
+.btn-outline:hover:not(:disabled) {
+  background: var(--primary-600);
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
 }
 
 .btn-ghost {
   background: transparent;
-  color: var(--text-secondary);
+  color: var(--gray-600);
+  border-color: transparent;
+  box-shadow: none;
 }
 
 .btn-ghost:hover:not(:disabled) {
-  background: var(--bg-accent);
-  color: var(--text-primary);
+  background: var(--gray-100);
+  color: var(--gray-900);
 }
 
-/* Card Styles - GRADIENT BORDER VA SHADOW */
+/* Button Sizes */
+.btn-small {
+  padding: var(--space-2) var(--space-4);
+  font-size: var(--text-sm);
+  min-height: 40px;
+}
+
+.btn-large {
+  padding: var(--space-6) var(--space-8);
+  font-size: var(--text-xl);
+  min-height: 72px;
+}
+
+/* MODERN CARD SYSTEM - LARGE & BEAUTIFUL */
 .card {
-  background: var(--bg-primary);
-  border: 1px solid transparent;
+  background: white;
+  border: 2px solid transparent;
   background-clip: padding-box;
-  border-radius: var(--radius-lg);
-  padding: var(--spacing-lg);
-  box-shadow: var(--shadow-md);
+  border-radius: var(--radius-xl);
+  padding: var(--space-8);
+  box-shadow: var(--shadow-lg);
   transition: var(--transition-normal);
   position: relative;
+  min-height: 200px;
+  display: flex;
+  flex-direction: column;
 }
 
 .card::before {
   content: '';
   position: absolute;
   inset: 0;
-  padding: 1px;
-  background: linear-gradient(135deg, rgba(59, 130, 246, 0.2), rgba(16, 185, 129, 0.1));
+  padding: 2px;
+  background: linear-gradient(135deg, var(--primary-200), var(--success-200));
   border-radius: inherit;
   mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
   mask-composite: xor;
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
 }
 
 .card:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-lg);
+  transform: translateY(-6px);
+  box-shadow: var(--shadow-2xl);
+  border-color: var(--primary-200);
 }
 
-/* Input Styles */
-.input {
+/* Input System - LARGE */
+.input, input, textarea, select {
   width: 100%;
-  padding: var(--spacing-sm) var(--spacing-md);
-  border: 1px solid var(--border-light);
-  border-radius: var(--radius-md);
-  font-size: 0.8rem;
+  padding: var(--space-4) var(--space-5);
+  border: 2px solid var(--gray-200);
+  border-radius: var(--radius-lg);
+  font-size: var(--text-lg);
+  font-family: inherit;
   transition: var(--transition-fast);
-  background: var(--bg-primary);
+  background: white;
+  min-height: 56px;
+  line-height: var(--leading-normal);
 }
 
-.input:focus {
+.input:focus, input:focus, textarea:focus, select:focus {
   outline: none;
-  border-color: var(--primary-color);
-  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
+  border-color: var(--primary-500);
+  box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
 }
 
-/* Select Styles */
-select {
-  width: 100%;
-  padding: var(--spacing-sm) var(--spacing-md);
-  border: 1px solid var(--border-light);
-  border-radius: var(--radius-md);
-  font-size: 0.8rem;
-  background: var(--bg-primary);
-  cursor: pointer;
+.input::placeholder, input::placeholder, textarea::placeholder {
+  color: var(--gray-400);
+  font-size: var(--text-base);
 }
 
-/* Badge Styles */
+/* Badge System - LARGER */
 .badge {
   display: inline-flex;
   align-items: center;
-  padding: var(--spacing-xs) var(--spacing-sm);
-  font-size: 0.7rem;
-  font-weight: 500;
-  border-radius: var(--radius-sm);
+  padding: var(--space-2) var(--space-4);
+  font-size: var(--text-sm);
+  font-weight: var(--font-semibold);
+  border-radius: var(--radius-full);
   white-space: nowrap;
+  line-height: 1;
+  min-height: 32px;
 }
 
 .badge-primary {
-  background: rgba(59, 130, 246, 0.1);
-  color: var(--primary-color);
+  background: var(--primary-100);
+  color: var(--primary-700);
+  border: 1px solid var(--primary-200);
 }
 
 .badge-success {
-  background: rgba(34, 197, 94, 0.1);
-  color: var(--success-color);
+  background: var(--success-50);
+  color: var(--success-600);
+  border: 1px solid var(--success-200);
 }
 
 .badge-warning {
-  background: rgba(245, 158, 11, 0.1);
-  color: var(--warning-color);
+  background: var(--warning-50);
+  color: var(--warning-600);
+  border: 1px solid var(--warning-200);
 }
 
 .badge-error {
-  background: rgba(239, 68, 68, 0.1);
-  color: var(--error-color);
+  background: var(--error-50);
+  color: var(--error-600);
+  border: 1px solid var(--error-200);
 }
 
-/* Modal Styles */
+/* Modal System - LARGE & BEAUTIFUL */
 .modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(15, 23, 42, 0.5);
-  backdrop-filter: blur(4px);
-  z-index: 50;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(8px);
+  z-index: var(--z-modal-backdrop);
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: var(--spacing-lg);
+  padding: var(--space-8);
+  animation: fadeIn 0.3s ease-out;
 }
 
 .modal {
-  background: var(--bg-primary);
-  border-radius: var(--radius-xl);
+  background: white;
+  border-radius: var(--radius-3xl);
   box-shadow: var(--shadow-2xl);
   width: 100%;
-  max-width: 500px;
+  max-width: 700px;
   max-height: 90vh;
   overflow-y: auto;
+  padding: var(--space-10);
+  border: 2px solid var(--gray-100);
+  animation: slideUp 0.3s ease-out;
 }
 
-/* Loading Spinner */
+.modal h2 {
+  font-size: var(--text-3xl);
+  margin-bottom: var(--space-6);
+  color: var(--gray-900);
+}
+
+.modal h3 {
+  font-size: var(--text-2xl);
+  margin-bottom: var(--space-4);
+  color: var(--gray-800);
+}
+
+/* Loading Spinner - LARGER */
 .spinner {
-  width: 20px;
-  height: 20px;
-  border: 2px solid var(--border-light);
-  border-top-color: var(--primary-color);
+  width: 32px;
+  height: 32px;
+  border: 3px solid var(--gray-200);
+  border-top-color: var(--primary-500);
   border-radius: 50%;
   animation: spin 1s linear infinite;
 }
@@ -428,7 +628,23 @@ select {
   }
 }
 
-/* Utility Classes */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(50px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* UTILITY CLASSES - MODERN & CONSISTENT */
 .text-center { text-align: center; }
 .text-left { text-align: left; }
 .text-right { text-align: right; }
@@ -438,434 +654,664 @@ select {
 .items-center { align-items: center; }
 .justify-center { justify-content: center; }
 .justify-between { justify-content: space-between; }
+.justify-start { justify-content: flex-start; }
+.justify-end { justify-content: flex-end; }
 
-.mb-2 { margin-bottom: var(--spacing-sm); }
-.mb-4 { margin-bottom: var(--spacing-md); }
-.mb-6 { margin-bottom: var(--spacing-lg); }
+.grid { display: grid; }
+.grid-cols-1 { grid-template-columns: repeat(1, minmax(0, 1fr)); }
+.grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.grid-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.grid-cols-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.grid-cols-5 { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+.gap-2 { gap: var(--space-2); }
+.gap-4 { gap: var(--space-4); }
+.gap-6 { gap: var(--space-6); }
+.gap-8 { gap: var(--space-8); }
 
-.mt-2 { margin-top: var(--spacing-sm); }
-.mt-4 { margin-top: var(--spacing-md); }
-.mt-6 { margin-top: var(--spacing-lg); }
+/* Spacing Utilities */
+.m-0 { margin: 0; }
+.m-1 { margin: var(--space-1); }
+.m-2 { margin: var(--space-2); }
+.m-4 { margin: var(--space-4); }
+.m-6 { margin: var(--space-6); }
+.m-8 { margin: var(--space-8); }
 
-.p-2 { padding: var(--spacing-sm); }
-.p-4 { padding: var(--spacing-md); }
-.p-6 { padding: var(--spacing-lg); }
+.mt-0 { margin-top: 0; }
+.mt-1 { margin-top: var(--space-1); }
+.mt-2 { margin-top: var(--space-2); }
+.mt-4 { margin-top: var(--space-4); }
+.mt-6 { margin-top: var(--space-6); }
+.mt-8 { margin-top: var(--space-8); }
 
+.mb-0 { margin-bottom: 0; }
+.mb-1 { margin-bottom: var(--space-1); }
+.mb-2 { margin-bottom: var(--space-2); }
+.mb-4 { margin-bottom: var(--space-4); }
+.mb-6 { margin-bottom: var(--space-6); }
+.mb-8 { margin-bottom: var(--space-8); }
+
+.p-0 { padding: 0; }
+.p-1 { padding: var(--space-1); }
+.p-2 { padding: var(--space-2); }
+.p-4 { padding: var(--space-4); }
+.p-6 { padding: var(--space-6); }
+.p-8 { padding: var(--space-8); }
+
+.px-2 { padding-left: var(--space-2); padding-right: var(--space-2); }
+.px-4 { padding-left: var(--space-4); padding-right: var(--space-4); }
+.px-6 { padding-left: var(--space-6); padding-right: var(--space-6); }
+.px-8 { padding-left: var(--space-8); padding-right: var(--space-8); }
+
+.py-2 { padding-top: var(--space-2); padding-bottom: var(--space-2); }
+.py-4 { padding-top: var(--space-4); padding-bottom: var(--space-4); }
+.py-6 { padding-top: var(--space-6); padding-bottom: var(--space-6); }
+.py-8 { padding-top: var(--space-8); padding-bottom: var(--space-8); }
+
+/* Border Radius */
 .rounded { border-radius: var(--radius-md); }
 .rounded-lg { border-radius: var(--radius-lg); }
+.rounded-xl { border-radius: var(--radius-xl); }
+.rounded-2xl { border-radius: var(--radius-2xl); }
+.rounded-3xl { border-radius: var(--radius-3xl); }
+.rounded-full { border-radius: var(--radius-full); }
 
-.shadow { box-shadow: var(--shadow-md); }
+/* Shadows */
+.shadow { box-shadow: var(--shadow-sm); }
+.shadow-md { box-shadow: var(--shadow-md); }
 .shadow-lg { box-shadow: var(--shadow-lg); }
+.shadow-xl { box-shadow: var(--shadow-xl); }
+.shadow-2xl { box-shadow: var(--shadow-2xl); }
 
-/* ===== RESPONSIVE DESIGN - NOTEBOOK/LAPTOP OPTIMIZATION ===== */
+/* Text Sizes */
+.text-xs { font-size: var(--text-xs); }
+.text-sm { font-size: var(--text-sm); }
+.text-base { font-size: var(--text-base); }
+.text-lg { font-size: var(--text-lg); }
+.text-xl { font-size: var(--text-xl); }
+.text-2xl { font-size: var(--text-2xl); }
+.text-3xl { font-size: var(--text-3xl); }
 
-/* 1. DESKTOP LARGE (1536px+) - Katta monitorlar */
-@media (min-width: 1536px) {
-  body { font-size: 15px; }
-  h1 { font-size: 2.5rem; }
-  h2 { font-size: 2rem; }
-  h3 { font-size: 1.75rem; }
+/* Font Weights */
+.font-light { font-weight: var(--font-light); }
+.font-normal { font-weight: var(--font-normal); }
+.font-medium { font-weight: var(--font-medium); }
+.font-semibold { font-weight: var(--font-semibold); }
+.font-bold { font-weight: var(--font-bold); }
+
+/* Text Colors */
+.text-gray-500 { color: var(--gray-500); }
+.text-gray-600 { color: var(--gray-600); }
+.text-gray-700 { color: var(--gray-700); }
+.text-gray-800 { color: var(--gray-800); }
+.text-gray-900 { color: var(--gray-900); }
+.text-primary { color: var(--primary-600); }
+.text-success { color: var(--success-600); }
+.text-warning { color: var(--warning-600); }
+.text-error { color: var(--error-600); }
+.text-white { color: white; }
+
+/* Background Colors */
+.bg-white { background-color: white; }
+.bg-gray-50 { background-color: var(--gray-50); }
+.bg-gray-100 { background-color: var(--gray-100); }
+.bg-primary { background-color: var(--primary-600); }
+.bg-success { background-color: var(--success-600); }
+.bg-warning { background-color: var(--warning-600); }
+.bg-error { background-color: var(--error-600); }
+
+/* Responsive Design - Optimized for modern screens */
+@media (max-width: 1536px) {
+  html { font-size: 15px; }
+  .card { padding: var(--space-6); min-height: 180px; }
+  .btn, button { padding: var(--space-3) var(--space-5); min-height: 52px; }
 }
 
-/* 2. DESKTOP (1280px - 1535px) - Standart desktop */
-@media (min-width: 1280px) and (max-width: 1535px) {
-  body { font-size: 14px; }
+@media (max-width: 1280px) {
+  html { font-size: 14px; }
+  .card { padding: var(--space-5); min-height: 160px; }
+  .btn, button { padding: var(--space-3) var(--space-4); min-height: 48px; }
+  .modal { max-width: 600px; padding: var(--space-8); }
 }
 
-/* 3. DESKTOP SMALL (1024px - 1279px) - Kichik desktop/Notebook */
-@media (min-width: 1024px) and (max-width: 1279px) {
-  body { font-size: 13px; }
-  .card { padding: 16px !important; }
-  button { padding: 8px 16px !important; font-size: 13px !important; }
+@media (max-width: 1024px) {
+  html { font-size: 13px; }
+  .card { padding: var(--space-4); min-height: 140px; }
+  .btn, button { padding: var(--space-2) var(--space-4); min-height: 44px; }
+  .modal { max-width: 500px; padding: var(--space-6); }
+  .grid-cols-5 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
 }
 
-/* 4. TABLET LANDSCAPE (768px - 1023px) */
-@media (min-width: 768px) and (max-width: 1023px) {
-  body { font-size: 12px; }
-  .card { padding: 12px !important; }
-  h1 { font-size: 1.5rem; }
-  h2 { font-size: 1.25rem; }
-  h3 { font-size: 1.1rem; }
+@media (max-width: 768px) {
+  html { font-size: 12px; }
+  .card { padding: var(--space-3); min-height: 120px; }
+  .btn, button { padding: var(--space-2) var(--space-3); min-height: 40px; }
+  .modal { max-width: 90vw; padding: var(--space-4); }
+  .grid-cols-4 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .grid-cols-5 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .grid-cols-3 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 
-/* 5. SPECIAL NOTEBOOK OPTIMIZATION (1366x768, 1440x900) */
-@media (min-width: 1024px) and (max-width: 1440px) and (min-height: 600px) and (max-height: 900px) {
-  html { zoom: 0.85 !important; }
+@media (max-width: 640px) {
+  .grid-cols-2 { grid-template-columns: repeat(1, minmax(0, 1fr)); }
+  .grid-cols-3 { grid-template-columns: repeat(1, minmax(0, 1fr)); }
+  .grid-cols-4 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .grid-cols-5 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 
-/* 6. TYPOGRAPHY RESPONSIVE */
-@media (max-width: 1279px) {
-  h1 { font-size: 1.75rem; }
-  h2 { font-size: 1.5rem; }
-  h3 { font-size: 1.25rem; }
-  h4 { font-size: 1.1rem; }
-  h5 { font-size: 1rem; }
-  h6 { font-size: 0.9rem; }
+/* COMPREHENSIVE BUTTON FUNCTIONALITY FIXES */
+button, .btn, input[type="submit"], input[type="button"], a[role="button"], [role="button"] {
+  cursor: pointer !important;
+  pointer-events: auto !important;
+  user-select: none !important;
+  -webkit-user-select: none !important;
+  -moz-user-select: none !important;
+  -ms-user-select: none !important;
+  text-decoration: none !important;
+  position: relative !important;
+  z-index: 1 !important;
+  border: none !important;
+  outline: none !important;
+  transition: all 0.2s ease !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
 }
 
-@media (max-width: 1023px) {
-  h1 { font-size: 1.5rem; }
-  h2 { font-size: 1.25rem; }
-  h3 { font-size: 1.1rem; }
-  h4 { font-size: 1rem; }
-  h5 { font-size: 0.9rem; }
-  h6 { font-size: 0.8rem; }
+/* Ensure buttons work on hover */
+button:hover:not(:disabled), .btn:hover:not(:disabled) {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
 }
 
-/* 7. BUTTON RESPONSIVE */
-@media (max-width: 1279px) {
+/* Ensure buttons work on click */
+button:active:not(:disabled), .btn:active:not(:disabled) {
+  transform: translateY(0) !important;
+  transition: all 0.1s ease !important;
+}
+
+/* Disabled button states */
+button:disabled, .btn:disabled {
+  opacity: 0.5 !important;
+  cursor: not-allowed !important;
+  pointer-events: none !important;
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+/* Navigation Links - Ensure all work */
+.website-nav a, nav a, .nav-item, .navigation-link {
+  text-decoration: none !important;
+  color: inherit !important;
+  cursor: pointer !important;
+  pointer-events: auto !important;
+  user-select: none !important;
+  -webkit-user-select: none !important;
+  -moz-user-select: none !important;
+  -ms-user-select: none !important;
+  position: relative !important;
+  z-index: 1 !important;
+  display: block !important;
+  transition: all 0.2s ease !important;
+}
+
+/* Sidebar links */
+.sidebar a, .sidebar .nav-item {
+  pointer-events: auto !important;
+  cursor: pointer !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 12px !important;
+  padding: 12px 16px !important;
+  border-radius: 8px !important;
+  margin-bottom: 4px !important;
+  transition: all 0.2s ease !important;
+  text-decoration: none !important;
+}
+
+.sidebar a:hover, .sidebar .nav-item:hover {
+  background: rgba(255, 255, 255, 0.1) !important;
+  transform: translateX(4px) !important;
+}
+
+/* Modal system fixes */
+.modal-overlay {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  background-color: rgba(0, 0, 0, 0.7) !important;
+  backdrop-filter: blur(8px) !important;
+  z-index: var(--z-modal-backdrop) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: var(--space-8) !important;
+  animation: fadeIn 0.3s ease-out !important;
+}
+
+.modal {
+  background: white !important;
+  border-radius: var(--radius-3xl) !important;
+  box-shadow: var(--shadow-2xl) !important;
+  width: 100% !important;
+  max-width: 700px !important;
+  max-height: 90vh !important;
+  overflow-y: auto !important;
+  padding: var(--space-10) !important;
+  border: 2px solid var(--gray-100) !important;
+  animation: slideUp 0.3s ease-out !important;
+  position: relative !important;
+  z-index: var(--z-modal) !important;
+}
+
+/* Card button fixes */
+.card button, .card .btn {
+  position: relative !important;
+  z-index: 10 !important;
+  pointer-events: auto !important;
+  cursor: pointer !important;
+}
+
+/* Grid button fixes */
+.grid button, .grid .btn {
+  position: relative !important;
+  z-index: 5 !important;
+}
+
+/* Form button fixes */
+form button, form .btn {
+  pointer-events: auto !important;
+  cursor: pointer !important;
+  z-index: 2 !important;
+}
+
+/* Table button fixes */
+table button, table .btn, td button, td .btn, th button, th .btn {
+  pointer-events: auto !important;
+  cursor: pointer !important;
+  position: relative !important;
+  z-index: 3 !important;
+}
+
+/* Icon button fixes */
+.icon-btn, button.icon, .btn.icon {
+  min-width: 40px !important;
+  min-height: 40px !important;
+  padding: 8px !important;
+  border-radius: var(--radius-lg) !important;
+}
+
+/* Dropdown button fixes */
+.dropdown button, .dropdown .btn {
+  pointer-events: auto !important;
+  cursor: pointer !important;
+  z-index: 15 !important;
+}
+
+/* Admin page specific button fixes */
+.admin-page button, .admin-page .btn {
+  pointer-events: auto !important;
+  cursor: pointer !important;
+  position: relative !important;
+  z-index: 5 !important;
+}
+
+/* Website page specific button fixes */
+.website-page button, .website-page .btn {
+  pointer-events: auto !important;
+  cursor: pointer !important;
+  position: relative !important;
+  z-index: 5 !important;
+}
+
+/* Cart button fixes */
+.cart button, .cart .btn, .cart-item button, .cart-item .btn {
+  pointer-events: auto !important;
+  cursor: pointer !important;
+  z-index: 10 !important;
+}
+
+/* Product card button fixes */
+.product-card button, .product-card .btn {
+  pointer-events: auto !important;
+  cursor: pointer !important;
+  z-index: 8 !important;
+  position: relative !important;
+}
+
+/* Header button fixes */
+.header button, .header .btn {
+  pointer-events: auto !important;
+  cursor: pointer !important;
+  z-index: 20 !important;
+}
+
+/* Footer button fixes */
+.footer button, .footer .btn {
+  pointer-events: auto !important;
+  cursor: pointer !important;
+  z-index: 5 !important;
+}
+
+/* Search button fixes */
+.search button, .search .btn {
+  pointer-events: auto !important;
+  cursor: pointer !important;
+  z-index: 12 !important;
+}
+
+/* Filter button fixes */
+.filter button, .filter .btn {
+  pointer-events: auto !important;
+  cursor: pointer !important;
+  z-index: 8 !important;
+}
+
+/* Pagination button fixes */
+.pagination button, .pagination .btn {
+  pointer-events: auto !important;
+  cursor: pointer !important;
+  z-index: 5 !important;
+}
+
+/* Overlay prevention fixes */
+* {
+  pointer-events: auto;
+}
+
+.overlay-blocker {
+  pointer-events: none !important;
+}
+
+/* Ensure no element blocks button clicks */
+.no-pointer-events {
+  pointer-events: none !important;
+}
+
+.force-pointer-events {
+  pointer-events: auto !important;
+}
+
+/* Fix any CSS that might interfere with clicks */
+.clickable, [data-clickable], [onclick] {
+  pointer-events: auto !important;
+  cursor: pointer !important;
+  user-select: none !important;
+}
+
+/* Enhanced focus states for accessibility */
+button:focus-visible, .btn:focus-visible, a:focus-visible {
+  outline: 3px solid var(--primary-500) !important;
+  outline-offset: 3px !important;
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1) !important;
+}
+
+/* Touch device optimizations */
+@media (hover: none) and (pointer: coarse) {
+  button, .btn, a[role="button"] {
+    min-height: 44px !important;
+    min-width: 44px !important;
+    touch-action: manipulation !important;
+    -webkit-tap-highlight-color: transparent !important;
+  }
+}
+
+/* Prevent text selection on buttons */
+button *, .btn *, a[role="button"] * {
+  pointer-events: none !important;
+  user-select: none !important;
+}
+
+/* Ensure button content doesn't block clicks */
+button > *, .btn > * {
+  pointer-events: none !important;
+}
+
+/* Special handling for icon buttons */
+button svg, .btn svg, button .icon, .btn .icon {
+  pointer-events: none !important;
+}
+
+/* Loading state buttons */
+.loading button, .loading .btn, button.loading, .btn.loading {
+  pointer-events: none !important;
+  cursor: wait !important;
+}
+
+/* Success/Error state buttons maintain functionality */
+.success button, .success .btn, .error button, .error .btn {
+  pointer-events: auto !important;
+  cursor: pointer !important;
+}
+
+/* Ensure all interactive elements work */
+[onclick], [data-action], [data-click] {
+  cursor: pointer !important;
+  pointer-events: auto !important;
+  user-select: none !important;
+}
+
+/* ADDITIONAL EVENT HANDLER FIXES */
+
+/* Ensure all click events work properly */
+[onclick], [data-onclick], .clickable, .interactive {
+  cursor: pointer !important;
+  pointer-events: auto !important;
+  user-select: none !important;
+}
+
+/* Fix for React onClick handlers */
+[data-react-onclick="true"] {
+  cursor: pointer !important;
+  pointer-events: auto !important;
+}
+
+/* Prevent event propagation issues */
+button, .btn {
+  isolation: isolate !important;
+}
+
+/* Fix for nested elements inside buttons */
+button *, .btn * {
+  pointer-events: none !important;
+}
+
+/* But allow SVG icons to be clickable */
+button svg, .btn svg {
+  pointer-events: none !important;
+}
+
+/* Ensure button text is not selectable */
+button, .btn {
+  -webkit-user-select: none !important;
+  -moz-user-select: none !important;
+  -ms-user-select: none !important;
+  user-select: none !important;
+}
+
+/* Fix for buttons inside cards with onClick */
+.card[onclick] button, .card[onclick] .btn {
+  pointer-events: auto !important;
+  z-index: 10 !important;
+}
+
+/* Ensure dropdown menus work */
+.dropdown-menu, .menu {
+  pointer-events: auto !important;
+  z-index: 999 !important;
+}
+
+.dropdown-menu button, .menu button {
+  pointer-events: auto !important;
+  cursor: pointer !important;
+  width: 100% !important;
+  text-align: left !important;
+}
+
+/* Cart specific button fixes */
+.cart-item button, .cart-sidebar button {
+  pointer-events: auto !important;
+  cursor: pointer !important;
+  z-index: 15 !important;
+}
+
+/* Quantity control button fixes */
+.quantity-control button {
+  pointer-events: auto !important;
+  cursor: pointer !important;
+  z-index: 12 !important;
+}
+
+/* Product card button fixes */
+.product-card .add-to-cart, .product-card .buy-now {
+  pointer-events: auto !important;
+  cursor: pointer !important;
+  z-index: 8 !important;
+}
+
+/* Modal button fixes */
+.modal-content button, .modal-body button, .modal-footer button {
+  pointer-events: auto !important;
+  cursor: pointer !important;
+  z-index: 20 !important;
+}
+
+/* Form submit button fixes */
+form [type="submit"], form .submit-btn, form .btn-submit {
+  pointer-events: auto !important;
+  cursor: pointer !important;
+  z-index: 10 !important;
+}
+
+/* Login/logout button fixes */
+.login-btn, .logout-btn, .auth-btn {
+  pointer-events: auto !important;
+  cursor: pointer !important;
+  z-index: 15 !important;
+}
+
+/* Search button fixes */
+.search-btn, .filter-btn {
+  pointer-events: auto !important;
+  cursor: pointer !important;
+  z-index: 8 !important;
+}
+
+/* Admin CRUD button fixes */
+.edit-btn, .delete-btn, .add-btn, .save-btn, .cancel-btn {
+  pointer-events: auto !important;
+  cursor: pointer !important;
+  z-index: 10 !important;
+}
+
+/* Ensure hover and active states work */
+button:not(:disabled):hover, .btn:not(:disabled):hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+  z-index: 20 !important;
+}
+
+button:not(:disabled):active, .btn:not(:disabled):active {
+  transform: translateY(0) !important;
+  transition: all 0.1s ease !important;
+}
+
+/* Ensure loading states don't block interaction when needed */
+.loading:not(.disabled) button, .loading:not(.disabled) .btn {
+  pointer-events: auto !important;
+}
+
+/* Fix for overlapping elements */
+.overlay, .backdrop {
+  pointer-events: auto !important;
+}
+
+.overlay > *, .backdrop > * {
+  pointer-events: auto !important;
+}
+
+/* Prevent interference from pseudo-elements */
+button::before, button::after, .btn::before, .btn::after {
+  pointer-events: none !important;
+}
+
+/* Ensure all interactive elements are properly marked */
+button, .btn, input[type="submit"], input[type="button"], 
+a[href], [role="button"], [tabindex]:not([tabindex="-1"]),
+[onclick], [onmouseover], [onfocus] {
+  cursor: pointer !important;
+  pointer-events: auto !important;
+}
+
+/* Special handling for mobile devices */
+@media (pointer: coarse) {
   button, .btn {
-    padding: 6px 12px !important;
-    font-size: 12px !important;
+    min-height: 48px !important;
+    padding: 12px 16px !important;
+  }
+  
+  .icon-btn, .small-btn {
+    min-height: 44px !important;
+    min-width: 44px !important;
   }
 }
 
-@media (max-width: 1023px) {
-  button, .btn {
-    padding: 4px 8px !important;
-    font-size: 11px !important;
-  }
+/* Ensure tooltips don't interfere */
+[title]:hover::after, .tooltip:hover::after {
+  pointer-events: none !important;
 }
 
-/* 8. CARD RESPONSIVE */
-@media (max-width: 1279px) {
-  .card {
-    padding: 12px !important;
-    margin-bottom: 8px !important;
-  }
+/* Fix for React event handlers */
+[data-testid] {
+  pointer-events: auto !important;
 }
 
-@media (max-width: 1023px) {
-  .card {
-    padding: 8px !important;
-    margin-bottom: 6px !important;
-  }
+/* Ensure animations don't block clicks */
+@keyframes buttonHover {
+  0% { transform: translateY(0); }
+  100% { transform: translateY(-2px); }
 }
 
-/* 9. SPECIAL COMMON LAPTOP RESOLUTIONS */
-
-/* 1366x768 - ENG MASHHUR NOTEBOOK RAZMERI - MAXSUS OPTIMIZATSIYA */
-@media (width: 1366px) and (height: 768px) {
-  html { 
-    zoom: 0.78 !important; 
-    transform: scale(0.78) !important;
-    transform-origin: 0 0 !important;
-  }
-  
-  body { 
-    font-size: 11px; 
-    width: 128.2% !important; /* zoom ni qoplash uchun */
-    height: 128.2% !important;
-  }
-  
-  /* Sidebar kichikroq */
-  .sidebar-container {
-    width: 200px !important;
-  }
-  
-  /* Header balandlik uzunroq */
-  header {
-    height: 60px !important; /* 50px dan uzunroq */
-    padding: 8px 12px !important; /* 6px dan uzunroq */
-  }
-  
-  /* Main content padding uzunroq */
-  main {
-    padding: 12px !important; /* 8px dan uzunroq */
-    min-height: calc(100vh - 60px) !important; /* Header height ga mos */
-  }
-  
-  /* Gap'larni uzunroq qilish */
-  [style*="gap: '20px'"] {
-    gap: 12px !important; /* 8px dan uzunroq */
-  }
-  
-  [style*="gap: '16px'"] {
-    gap: 10px !important; /* 6px dan uzunroq */
-  }
-  
-  /* Padding'larni uzunroq qilish */
-  [style*="padding: '20px'"] {
-    padding: 12px !important; /* 8px dan uzunroq */
-  }
-  
-  [style*="padding: '16px'"] {
-    padding: 10px !important; /* 6px dan uzunroq */
-  }
-  
-  /* Margin'larni uzunroq qilish */
-  [style*="marginBottom: '20px'"] {
-    margin-bottom: 12px !important; /* 8px dan uzunroq */
-  }
-  
-  [style*="marginBottom: '24px'"] {
-    margin-bottom: 15px !important; /* 10px dan uzunroq */
-  }
-  
-  /* Modal kichikroq */
-  .modal {
-    max-width: 400px !important;
-    padding: 12px !important;
-  }
-  
-  /* Input sizes */
-  input, select, textarea {
-    padding: 4px 6px !important;
-    font-size: 10px !important;
-  }
-  
-  /* Vertical spacing tejash */
-  .spacing-tight {
-    margin-bottom: 4px !important;
-  }
+@keyframes buttonPress {
+  0% { transform: translateY(-2px); }
+  100% { transform: translateY(0); }
 }
 
-/* 1366x768 ning kichik variantlari */
-@media (min-width: 1360px) and (max-width: 1370px) and (min-height: 760px) and (max-height: 770px) {
-  html { zoom: 0.78 !important; }
-  body { font-size: 11px; }
+.btn-animate:hover {
+  animation: buttonHover 0.2s ease-out forwards !important;
 }
 
-@media (width: 1920px) and (height: 1080px) {
-  html { zoom: 0.9 !important; }
-  body { font-size: 14px; }
+.btn-animate:active {
+  animation: buttonPress 0.1s ease-out forwards !important;
 }
 
-@media (width: 1440px) and (height: 900px) {
-  html { zoom: 0.85 !important; }
-  body { font-size: 13px; }
+/* Prevent text selection during button operations */
+.no-select, .btn-active {
+  -webkit-user-select: none !important;
+  -moz-user-select: none !important;
+  -ms-user-select: none !important;
+  user-select: none !important;
 }
 
-@media (width: 1600px) and (height: 900px) {
-  html { zoom: 0.88 !important; }
-  body { font-size: 13px; }
+/* Fix for buttons with complex layouts */
+.btn-complex, .btn-with-icon {
+  position: relative !important;
 }
 
-/* ===== END RESPONSIVE DESIGN ===== */
-/* ===== 1366x768 MAXSUS GRID OPTIMIZATSIYA ===== */
-
-/* 1366x768 da inline style'larni override qilish */
-@media (width: 1366px) and (height: 768px) {
-  /* Barcha 5 ustunli grid'larni 4 ga o'tkazish */
-  [style*="repeat(5, 1fr)"] {
-    grid-template-columns: repeat(4, 1fr) !important;
-  }
-  
-  /* Gap'larni kichikroq qilish */
-  [style*="gap: '20px'"] {
-    gap: 8px !important;
-  }
-  
-  [style*="gap: '16px'"] {
-    gap: 6px !important;
-  }
-  
-  /* Padding'larni kichikroq qilish */
-  [style*="padding: '20px'"] {
-    padding: 8px !important;
-  }
-  
-  [style*="padding: '16px'"] {
-    padding: 6px !important;
-  }
-  
-  /* Margin'larni kichikroq qilish */
-  [style*="marginBottom: '20px'"] {
-    margin-bottom: 8px !important;
-  }
-  
-  [style*="marginBottom: '24px'"] {
-    margin-bottom: 10px !important;
-  }
-  
-  /* Font size'larni kichikroq qilish */
-  [style*="fontSize: '28px'"] {
-    font-size: 18px !important;
-  }
-  
-  [style*="fontSize: '18px'"] {
-    font-size: 14px !important;
-  }
-  
-  [style*="fontSize: '16px'"] {
-    font-size: 12px !important;
-  }
-  
-  [style*="fontSize: '14px'"] {
-    font-size: 11px !important;
-  }
-  
-  /* Card height'larni UZUNROQ qilish */
-  [style*="height: '180px'"] {
-    height: 160px !important; /* Kichikroq emas, biroz uzunroq */
-  }
-  
-  [style*="height: '200px'"] {
-    height: 180px !important; /* Uzunroq */
-  }
-  
-  [style*="height: '120px'"] {
-    height: 140px !important; /* Uzunroq */
-  }
-  
-  /* Card padding uzunroq */
-  .card {
-    padding: 12px !important; /* 8px dan uzunroq */
-    margin-bottom: 10px !important; /* 6px dan uzunroq */
-    border-radius: 6px !important; /* Biroz kattaroq radius */
-    min-height: 140px !important; /* Minimal balandlik */
-  }
-  
-  /* Button height uzunroq */
-  button, .btn {
-    padding: 6px 8px !important; /* 3px dan uzunroq */
-    font-size: 10px !important; /* 9px dan biroz kattaroq */
-    min-height: 32px !important; /* 24px dan uzunroq */
-    line-height: 1.4 !important; /* Matn uchun joy */
-  }
-  
-  /* Input height uzunroq */
-  input, select, textarea {
-    padding: 6px 8px !important; /* 3px dan uzunroq */
-    font-size: 11px !important; /* 10px dan kattaroq */
-    min-height: 32px !important; /* 24px dan uzunroq */
-    line-height: 1.3 !important;
-  }
-  
-  /* Sidebar uzunroq optimizatsiya - MAKSIMAL BALANDLIK */
-  .sidebar-container {
-    width: 180px !important; /* 160px dan kengroq */
-    height: 100vh !important; /* To'liq ekran balandligi */
-    display: flex !important;
-    flex-direction: column !important;
-  }
-  
-  /* Sidebar item'lari YANADA UZUNROQ */
-  nav a {
-    padding: 14px 12px !important; /* 10px dan UZUNROQ */
-    margin-bottom: 4px !important; /* Item'lar orasida ko'proq joy */
-    border-radius: 8px !important; /* Kattaroq radius */
-    min-height: 50px !important; /* 40px dan BALANDROQ */
-    display: flex !important;
-    align-items: center !important;
-    font-size: 13px !important; /* Matn kattaroq */
-  }
-  
-  /* Sidebar navigation to'liq balandlik */
-  nav {
-    flex: 1 !important; /* Qolgan joyni to'ldirish */
-    display: flex !important;
-    flex-direction: column !important;
-    justify-content: flex-start !important;
-    padding: 20px 0 20px 0 !important; /* Pastga padding ko'proq */
-  }
-  
-  /* Sidebar header UZUNROQ */
-  .sidebar-header {
-    padding: 20px 12px !important; /* 15px dan uzunroq */
-    min-height: 90px !important; /* 80px dan balandroq */
-    flex-shrink: 0 !important; /* Siqilmaslik */
-  }
-  
-  /* Sidebar brand text KATTAROQ */
-  .sidebar-brand h2 {
-    font-size: 17px !important; /* 16px dan kattaroq */
-    line-height: 1.3 !important;
-    margin-bottom: 2px !important;
-  }
-  
-  .sidebar-brand p {
-    font-size: 13px !important; /* 12px dan kattaroq */
-    margin-top: 6px !important; /* Ko'proq joy */
-  }
-  
-  /* Sidebar icon va text spacing KATTAROQ */
-  .sidebar-item {
-    gap: 12px !important; /* 10px dan ko'proq gap */
-  }
-  
-  .sidebar-item span {
-    font-size: 13px !important; /* 12px dan kattaroq */
-    font-weight: 500 !important;
-    line-height: 1.3 !important;
-  }
-  
-  /* Sidebar icon size KATTAROQ */
-  .sidebar-item svg {
-    width: 20px !important; /* 18px dan kattaroq */
-    height: 20px !important;
-    flex-shrink: 0 !important;
-  }
-  
-  /* Sidebar pastki qismini to'ldirish */
-  .sidebar-footer {
-    margin-top: auto !important; /* Pastga itarish */
-    padding: 15px 12px !important;
-    border-top: 1px solid #374151 !important;
-  }
-  
-  /* Main content margin */
-  .main-content {
-    margin-left: 0px !important;
-  }
-  
-  /* Table cell padding */
-  td, th {
-    padding: 2px 4px !important;
-    font-size: 10px !important;
-  }
-  
-  /* Typography UZUNROQ */
-  h1 { font-size: 1.4rem !important; } /* 1.2rem dan kattaroq */
-  h2 { font-size: 1.2rem !important; } /* 1.1rem dan kattaroq */
-  h3 { font-size: 1.1rem !important; } /* 1rem dan kattaroq */
-  h4 { font-size: 1rem !important; }   /* 0.9rem dan kattaroq */
-  
-  /* Grid columns 1366x768 uchun */
-  [style*="gridTemplateColumns"] {
-    grid-template-columns: repeat(4, 1fr) !important;
-    gap: 12px !important; /* 8px dan uzunroq */
-  }
-  
-  /* Employees sahifasi maxsus - har doim 4 ustun */
-  .employees-grid {
-    grid-template-columns: repeat(4, 1fr) !important;
-  }
-  
-  /* Icon size'lar uzunroq */
-  svg {
-    width: 18px !important; /* 16px dan kattaroq */
-    height: 18px !important;
-  }
-  
-  /* Table cell padding uzunroq */
-  td, th {
-    padding: 4px 6px !important; /* 2px 4px dan uzunroq */
-    font-size: 11px !important; /* 10px dan kattaroq */
-    line-height: 1.4 !important;
-  }
-  
-  /* Modal responsive uzunroq */
-  .modal-overlay {
-    padding: 12px !important; /* 8px dan uzunroq */
-  }
-  
-  .modal {
-    max-width: 400px !important; /* 350px dan kengroq */
-    padding: 12px !important; /* 8px dan uzunroq */
-    min-height: 200px !important; /* Minimal balandlik */
-  }
-  
-  /* Form elements spacing uzunroq */
-  .form-group {
-    margin-bottom: 10px !important; /* 6px dan uzunroq */
-  }
-  
-  label {
-    font-size: 11px !important; /* 10px dan kattaroq */
-    margin-bottom: 4px !important; /* 2px dan uzunroq */
-    line-height: 1.3 !important;
-  }
+.btn-complex > *, .btn-with-icon > * {
+  pointer-events: none !important;
 }
 
-/* ===== END 1366x768 OPTIMIZATSIYA ===== */
+/* Ensure proper event handling for dynamic content */
+[data-dynamic="true"] button, [data-dynamic="true"] .btn {
+  pointer-events: auto !important;
+  cursor: pointer !important;
+}
+
+/* FINAL BUTTON FUNCTIONALITY STYLES */
+*[class*="btn"], *[id*="btn"], *[class*="button"], *[id*="button"] {
+  cursor: pointer !important;
+  pointer-events: auto !important;
+  user-select: none !important;
+}

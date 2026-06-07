@@ -70,13 +70,16 @@ const CartSidebar = ({ isOpen, onClose }) => {
           </h2>
           <button
             onClick={onClose}
+            className="btn btn-ghost"
             style={{
-              background: 'none',
-              border: 'none',
-              cursor: 'pointer',
-              padding: '4px',
-              color: '#6b7280'
+              width: '32px',
+              height: '32px',
+              minWidth: '32px',
+              minHeight: '32px',
+              padding: '4px'
             }}
+            type="button"
+            aria-label="Savatni yopish"
           >
             <X size={22} />
           </button>

@@ -1,42 +1,66 @@
 import { useState } from 'react'
-import { Plus, Search, Calendar, User, AlertTriangle, CheckCircle, Clock, Edit3, Trash2 } from 'lucide-react'
+import { Plus, Search, Calendar, AlertTriangle, CheckCircle, Clock, Edit3, Trash2, CreditCard, TrendingUp } from 'lucide-react'
 import { useLanguage } from '../../context/LanguageContext'
 
 const Debts = () => {
   const { t } = useLanguage()
   const [showAddModal, setShowAddModal] = useState(false)
+  const [showPaymentModal, setShowPaymentModal] = useState(false)
+  const [selectedDebt, setSelectedDebt] = useState(null)
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedFilter, setSelectedFilter] = useState('barchasi')
+  const [notification, setNotification] = useState(null)
+  
+  // To'lov ma'lumotlari
+  const [paymentData, setPaymentData] = useState({
+    amount: '',
+    percentage: '',
+    paymentType: 'partial', // partial, full
+    note: ''
+  })
   const [debts, setDebts] = useState([
     {
       id: 1,
       customerName: 'Akmal Karimov',
       phone: '+998901234567',
-      amount: 5283600,
+      totalAmount: 5283600,
+      paidAmount: 0,
+      remainingAmount: 5283600,
       date: '2024-04-15',
       dueDate: '2024-05-15',
       description: 'iPhone 15 Pro Max',
-      status: 'active'
+      status: 'active',
+      payments: [] // To'lovlar tarixi
     },
     {
       id: 2,
       customerName: 'Dilshod Toshev',
       phone: '+998907654321',
-      amount: 250000,
+      totalAmount: 2500000,
+      paidAmount: 1000000,
+      remainingAmount: 1500000,
       date: '2024-04-20',
       dueDate: '2024-05-20',
-      description: 'Samsung aksessuarlar',
-      status: 'overdue'
+      description: 'Samsung Galaxy S24',
+      status: 'partial',
+      payments: [
+        { date: '2024-04-25', amount: 1000000, percentage: 40, note: 'Birinchi to\'lov' }
+      ]
     },
     {
       id: 3,
       customerName: 'Nodira Saidova',
       phone: '+998909876543',
-      amount: 1200000,
+      totalAmount: 1200000,
+      paidAmount: 1200000,
+      remainingAmount: 0,
       date: '2024-04-25',
       dueDate: '2024-05-25',
       description: 'Xiaomi 14 Pro',
-      status: 'paid'
+      status: 'paid',
+      payments: [
+        { date: '2024-05-01', amount: 1200000, percentage: 100, note: 'To\'liq to\'landi' }
+      ]
     }
   ])
 
@@ -51,7 +75,8 @@ const Debts = () => {
   const filters = [
     { key: 'barchasi', label: 'Barchasi', count: debts.length },
     { key: 'active', label: 'Faol', count: debts.filter(d => d.status === 'active').length },
-    { key: 'overdue', label: 'Muddati o\'tgan', count: debts.filter(d => d.status === 'overdue').length },
+    { key: 'partial', label: 'Qisman to\'langan', count: debts.filter(d => d.status === 'partial').length },
+    { key: 'overdue', label: 'Muddati o\'tgan', count: debts.filter(d => d.status === 'overdue' || (d.status === 'active' && new Date(d.dueDate) < new Date())).length },
     { key: 'paid', label: 'To\'langan', count: debts.filter(d => d.status === 'paid').length }
   ]
 
@@ -62,14 +87,113 @@ const Debts = () => {
     return matchesSearch && matchesFilter
   })
 
+  // To'lov modalini ochish
+  const openPaymentModal = (debt) => {
+    setSelectedDebt(debt)
+    setPaymentData({
+      amount: '',
+      percentage: '',
+      paymentType: 'partial',
+      note: ''
+    })
+    setShowPaymentModal(true)
+  }
+
+  // To'lov qilish
+  const handlePayment = (e) => {
+    e.preventDefault()
+    
+    if (!selectedDebt || !paymentData.amount) return
+
+    const paymentAmount = parseFloat(paymentData.amount)
+    const percentage = ((paymentAmount / selectedDebt.remainingAmount) * 100).toFixed(1)
+    
+    const payment = {
+      id: Date.now(),
+      date: new Date().toISOString().split('T')[0],
+      amount: paymentAmount,
+      percentage: parseFloat(percentage),
+      note: paymentData.note || `${percentage}% to'lov`
+    }
+
+    const newPaidAmount = selectedDebt.paidAmount + paymentAmount
+    const newRemainingAmount = selectedDebt.totalAmount - newPaidAmount
+    
+    let newStatus = selectedDebt.status
+    if (newRemainingAmount <= 0) {
+      newStatus = 'paid'
+    } else if (newPaidAmount > 0) {
+      newStatus = 'partial'
+    }
+
+    // Qarzni yangilash
+    setDebts(prevDebts => 
+      prevDebts.map(debt => 
+        debt.id === selectedDebt.id 
+          ? {
+              ...debt,
+              paidAmount: newPaidAmount,
+              remainingAmount: Math.max(0, newRemainingAmount),
+              status: newStatus,
+              payments: [...debt.payments, payment]
+            }
+          : debt
+      )
+    )
+
+    // Notification ko'rsatish
+    setNotification({
+      type: 'success',
+      title: `To'lov muvaffaqiyatli qabul qilindi!`,
+      message: `${selectedDebt.customerName} uchun ${paymentAmount.toLocaleString()} so'm (${percentage}%) to'lov amalga oshirildi`,
+      action: newStatus === 'paid' ? 'Qarz to\'liq yopildi!' : `Qoldiq: ${Math.max(0, newRemainingAmount).toLocaleString()} so'm`,
+      percentage: parseFloat(percentage),
+      paymentDate: new Date().toLocaleDateString('uz-UZ'),
+      customerName: selectedDebt.customerName
+    })
+
+    // Modallarni yopish
+    setShowPaymentModal(false)
+    setSelectedDebt(null)
+
+    // Notificationni 5 soniyadan keyin yashirish
+    setTimeout(() => setNotification(null), 5000)
+  }
+
+  // Miqdor o'zgarganda foizni hisoblash
+  const handleAmountChange = (value) => {
+    const amount = parseFloat(value) || 0
+    const percentage = selectedDebt ? ((amount / selectedDebt.remainingAmount) * 100).toFixed(1) : 0
+    
+    setPaymentData({
+      ...paymentData,
+      amount: value,
+      percentage: isNaN(percentage) ? 0 : percentage
+    })
+  }
+
+  // Foiz o'zgarganda miqdorni hisoblash
+  const handlePercentageChange = (value) => {
+    const percentage = parseFloat(value) || 0
+    const amount = selectedDebt ? Math.round((percentage / 100) * selectedDebt.remainingAmount) : 0
+    
+    setPaymentData({
+      ...paymentData,
+      percentage: value,
+      amount: amount.toString()
+    })
+  }
   const handleAddDebt = (e) => {
     e.preventDefault()
     const debt = {
       id: Date.now(),
       ...newDebt,
-      amount: parseFloat(newDebt.amount),
+      totalAmount: parseFloat(newDebt.amount),
+      paidAmount: 0,
+      remainingAmount: parseFloat(newDebt.amount),
       date: new Date().toISOString().split('T')[0],
-      status: 'active'
+      status: 'active',
+      payments: []
     }
     setDebts([...debts, debt])
     setNewDebt({
@@ -86,6 +210,8 @@ const Debts = () => {
     switch (status) {
       case 'active':
         return { icon: Clock, color: '#f59e0b', text: 'Faol' }
+      case 'partial':
+        return { icon: TrendingUp, color: '#3b82f6', text: 'Qisman to\'langan' }
       case 'overdue':
         return { icon: AlertTriangle, color: '#ef4444', text: 'Muddati o\'tgan' }
       case 'paid':
@@ -104,8 +230,8 @@ const Debts = () => {
   }
 
   const totalActiveDebt = debts
-    .filter(d => d.status === 'active' || d.status === 'overdue')
-    .reduce((sum, d) => sum + d.amount, 0)
+    .filter(d => d.status === 'active' || d.status === 'overdue' || d.status === 'partial')
+    .reduce((sum, d) => sum + d.remainingAmount, 0)
 
   return (
     <div>
@@ -139,7 +265,83 @@ const Debts = () => {
       </div>
 
       {/* Stats */}
-      {/* Stats Cards - 4 ustun */}
+      {/* Notification */}
+      {notification && (
+        <div style={{
+          position: 'fixed',
+          top: '20px',
+          right: '20px',
+          background: notification.type === 'success' ? 'linear-gradient(135deg, #10b981 0%, #059669 100%)' : '#ef4444',
+          color: 'white',
+          padding: '20px 28px',
+          borderRadius: '16px',
+          boxShadow: '0 12px 32px rgba(0, 0, 0, 0.25)',
+          zIndex: 9999,
+          minWidth: '380px',
+          animation: 'slideInBounce 0.4s ease-out',
+          border: '3px solid rgba(255, 255, 255, 0.3)'
+        }}>
+          {/* Notification header */}
+          <div style={{ 
+            display: 'flex', 
+            alignItems: 'center', 
+            gap: '12px',
+            marginBottom: '12px'
+          }}>
+            <CheckCircle size={24} />
+            <div style={{ 
+              fontSize: '18px', 
+              fontWeight: '700',
+              letterSpacing: '0.5px'
+            }}>
+              {notification.title || notification.message}
+            </div>
+          </div>
+
+          {/* Payment details */}
+          <div style={{
+            background: 'rgba(255, 255, 255, 0.15)',
+            padding: '12px 16px',
+            borderRadius: '12px',
+            marginBottom: '12px'
+          }}>
+            <div style={{ 
+              display: 'grid', 
+              gridTemplateColumns: '1fr 1fr', 
+              gap: '8px',
+              fontSize: '14px'
+            }}>
+              <div>
+                <strong>Mijoz:</strong> {notification.customerName}
+              </div>
+              <div>
+                <strong>Sana:</strong> {notification.paymentDate}
+              </div>
+              <div>
+                <strong>Foiz:</strong> {notification.percentage}%
+              </div>
+              <div>
+                <strong>To'lov:</strong> {parseFloat(notification.message.match(/[\d,]+/)?.[0]?.replace(/,/g, '') || 0).toLocaleString()} so'm
+              </div>
+            </div>
+          </div>
+
+          {/* Action message */}
+          {notification.action && (
+            <div style={{ 
+              fontSize: '16px', 
+              opacity: 0.95,
+              fontWeight: '600',
+              textAlign: 'center',
+              padding: '8px 12px',
+              background: 'rgba(255, 255, 255, 0.1)',
+              borderRadius: '8px'
+            }}>
+              ✅ {notification.action}
+            </div>
+          )}
+        </div>
+      )}
       <div style={{
         display: 'grid',
         gridTemplateColumns: 'repeat(5, 1fr)',
@@ -332,12 +534,63 @@ const Debts = () => {
                   color: '#ef4444',
                   marginBottom: '4px'
                 }}>
-                  {debt.amount.toLocaleString()} so'm
+                  {debt.remainingAmount.toLocaleString()} so'm
                 </div>
+                {debt.status === 'partial' && (
+                  <div style={{
+                    fontSize: '14px',
+                    color: '#3b82f6',
+                    marginBottom: '4px'
+                  }}>
+                    To'langan: {debt.paidAmount.toLocaleString()} so'm ({((debt.paidAmount / debt.totalAmount) * 100).toFixed(1)}%)
+                  </div>
+                )}
+                
+                {/* Payment history display */}
+                {debt.payments && debt.payments.length > 0 && (
+                  <div style={{
+                    background: '#f8fafc',
+                    border: '1px solid #e2e8f0',
+                    borderRadius: '6px',
+                    padding: '8px',
+                    marginTop: '8px'
+                  }}>
+                    <div style={{
+                      fontSize: '12px',
+                      fontWeight: '600',
+                      color: '#475569',
+                      marginBottom: '6px'
+                    }}>
+                      To'lov tarixi ({debt.payments.length} ta):
+                    </div>
+                    <div style={{ maxHeight: '80px', overflowY: 'auto' }}>
+                      {debt.payments.slice(-2).map((payment, index) => (
+                        <div key={index} style={{
+                          fontSize: '11px',
+                          color: '#64748b',
+                          marginBottom: '2px',
+                          display: 'flex',
+                          justifyContent: 'space-between'
+                        }}>
+                          <span>{new Date(payment.date).toLocaleDateString('uz-UZ')}</span>
+                          <span style={{ fontWeight: '600' }}>
+                            {payment.amount.toLocaleString()} so'm ({payment.percentage}%)
+                          </span>
+                        </div>
+                      ))}
+                      {debt.payments.length > 2 && (
+                        <div style={{ fontSize: '10px', color: '#94a3b8', textAlign: 'center' }}>
+                          +{debt.payments.length - 2} ta yana
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+                
                 <p style={{
                   fontSize: '14px',
                   color: '#6b7280',
-                  margin: 0
+                  margin: '8px 0 0 0'
                 }}>
                   {debt.description}
                 </p>
@@ -370,65 +623,273 @@ const Debts = () => {
                 </div>
               </div>
 
-              {debt.status === 'active' && (
-                <div style={{
-                  display: 'grid',
-                  gridTemplateColumns: '2fr 1fr 1fr',
-                  gap: '8px'
-                }}>
-                  <button
-                    className="btn btn-primary"
-                    style={{
-                      fontSize: '12px',
-                      padding: '8px 12px',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      gap: '4px'
-                    }}
-                    onClick={() => {
-                      setDebts(debts.map(d =>
-                        d.id === debt.id ? { ...d, status: 'paid' } : d
-                      ))
-                    }}
-                  >
-                    <CheckCircle size={14} />
-                    To'landi
-                  </button>
-                  <button
-                    className="btn"
-                    style={{
-                      fontSize: '12px',
-                      padding: '8px 12px',
-                      backgroundColor: '#f3f4f6',
-                      color: '#374151',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center'
-                    }}
-                  >
-                    <Edit3 size={14} />
-                  </button>
-                  <button
-                    className="btn"
-                    style={{
-                      fontSize: '12px',
-                      padding: '8px 12px',
-                      backgroundColor: '#fef2f2',
-                      color: '#ef4444',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center'
-                    }}
-                  >
-                    <Trash2 size={14} />
-                  </button>
-                </div>
-              )}
+              {/* Always show payment buttons for active/partial debts */}
+              <div style={{
+                display: 'grid',
+                gridTemplateColumns: '1fr',
+                gap: '8px',
+                marginTop: '12px'
+              }}>
+                <button
+                  className="btn btn-success"
+                  style={{
+                    fontSize: '14px',
+                    padding: '12px 16px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '6px',
+                    cursor: 'pointer',
+                    pointerEvents: 'auto',
+                    width: '100%',
+                    background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '8px'
+                  }}
+                  onClick={() => {
+                    console.log('Payment button clicked for debt:', debt.id)
+                    openPaymentModal(debt)
+                  }}
+                >
+                  <CreditCard size={16} />
+                  To'lov qilish ({debt.remainingAmount.toLocaleString()} so'm)
+                </button>
+              </div>
             </div>
           )
         })}
       </div>
+
+      {/* Payment Modal */}
+      {showPaymentModal && selectedDebt && (
+        <div className="modal-overlay" onClick={() => setShowPaymentModal(false)}>
+          <div className="modal" onClick={(e) => e.stopPropagation()}>
+            <div style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              marginBottom: '20px'
+            }}>
+              <h3 style={{ margin: 0, fontSize: '18px', fontWeight: '600' }}>
+                Qarz to'lash - {selectedDebt.customerName}
+              </h3>
+              <button
+                onClick={() => setShowPaymentModal(false)}
+                className="btn btn-ghost"
+                style={{ width: '40px', height: '40px', padding: '8px' }}
+              >
+                ×
+              </button>
+            </div>
+
+            {/* Qarz haqida ma'lumot */}
+            <div style={{
+              background: '#f9fafb',
+              padding: '16px',
+              borderRadius: '8px',
+              marginBottom: '20px'
+            }}>
+              <h4 style={{ margin: '0 0 12px 0', color: '#1f2937', fontSize: '16px' }}>
+                Qarz ma'lumotlari
+              </h4>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                <div>
+                  <p style={{ margin: '0 0 4px 0', fontSize: '14px', color: '#6b7280' }}>
+                    Jami qarz miqdori:
+                  </p>
+                  <div style={{ fontSize: '18px', fontWeight: '600', color: '#1f2937' }}>
+                    {selectedDebt.totalAmount.toLocaleString()} so'm
+                  </div>
+                </div>
+                <div>
+                  <p style={{ margin: '0 0 4px 0', fontSize: '14px', color: '#6b7280' }}>
+                    Qolgan miqdor:
+                  </p>
+                  <div style={{ fontSize: '18px', fontWeight: '600', color: '#ef4444' }}>
+                    {selectedDebt.remainingAmount.toLocaleString()} so'm
+                  </div>
+                </div>
+                {selectedDebt.paidAmount > 0 && (
+                  <>
+                    <div>
+                      <p style={{ margin: '0 0 4px 0', fontSize: '14px', color: '#6b7280' }}>
+                        To'langan miqdor:
+                      </p>
+                      <div style={{ fontSize: '18px', fontWeight: '600', color: '#10b981' }}>
+                        {selectedDebt.paidAmount.toLocaleString()} so'm
+                      </div>
+                    </div>
+                    <div>
+                      <p style={{ margin: '0 0 4px 0', fontSize: '14px', color: '#6b7280' }}>
+                        To'langan foiz:
+                      </p>
+                      <div style={{ fontSize: '18px', fontWeight: '600', color: '#3b82f6' }}>
+                        {((selectedDebt.paidAmount / selectedDebt.totalAmount) * 100).toFixed(1)}%
+                      </div>
+                    </div>
+                  </>
+                )}
+              </div>
+              
+              {/* Muddat ma'lumotlari */}
+              <div style={{ marginTop: '12px', paddingTop: '12px', borderTop: '1px solid #e5e7eb' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <span style={{ fontSize: '14px', color: '#6b7280' }}>
+                    Berilgan sana: {new Date(selectedDebt.date).toLocaleDateString('uz-UZ')}
+                  </span>
+                  <span style={{ fontSize: '14px', color: getDaysRemaining(selectedDebt.dueDate) < 0 ? '#ef4444' : '#6b7280' }}>
+                    To'lash muddati: {new Date(selectedDebt.dueDate).toLocaleDateString('uz-UZ')}
+                    {getDaysRemaining(selectedDebt.dueDate) < 0 && (
+                      <span style={{ color: '#ef4444', fontWeight: '600', marginLeft: '8px' }}>
+                        ({Math.abs(getDaysRemaining(selectedDebt.dueDate))} kun kechikdi)
+                      </span>
+                    )}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Simplified payment form */}
+            <form onSubmit={handlePayment}>
+              <div style={{ marginBottom: '20px' }}>
+                <label style={{
+                  display: 'block',
+                  marginBottom: '8px',
+                  fontSize: '16px',
+                  fontWeight: '600',
+                  color: '#1f2937'
+                }}>
+                  To'lov miqdorini kiriting:
+                </label>
+                <input
+                  type="number"
+                  className="input"
+                  value={paymentData.amount}
+                  onChange={(e) => setPaymentData({...paymentData, amount: e.target.value})}
+                  placeholder="Miqdorni kiriting (so'm)"
+                  min="1"
+                  max={selectedDebt.remainingAmount}
+                  required
+                  style={{
+                    width: '100%',
+                    padding: '16px',
+                    fontSize: '16px',
+                    border: '2px solid #d1d5db',
+                    borderRadius: '12px',
+                    background: 'white'
+                  }}
+                />
+                <div style={{
+                  marginTop: '8px',
+                  fontSize: '14px',
+                  color: '#6b7280'
+                }}>
+                  Maksimal: {selectedDebt.remainingAmount.toLocaleString()} so'm
+                </div>
+              </div>
+
+              <div style={{ marginBottom: '20px' }}>
+                <label style={{
+                  display: 'block',
+                  marginBottom: '8px',
+                  fontSize: '16px',
+                  fontWeight: '600',
+                  color: '#1f2937'
+                }}>
+                  Izoh (ixtiyoriy):
+                </label>
+                <textarea
+                  className="input"
+                  rows="3"
+                  value={paymentData.note}
+                  onChange={(e) => setPaymentData({...paymentData, note: e.target.value})}
+                  placeholder="To'lov haqida qo'shimcha ma'lumot..."
+                  style={{
+                    width: '100%',
+                    padding: '16px',
+                    fontSize: '16px',
+                    border: '2px solid #d1d5db',
+                    borderRadius: '12px',
+                    background: 'white',
+                    resize: 'vertical'
+                  }}
+                />
+              </div>
+
+              {/* Payment summary */}
+              {paymentData.amount && (
+                <div style={{
+                  background: '#f0fdf4',
+                  border: '2px solid #d1fae5',
+                  borderRadius: '12px',
+                  padding: '20px',
+                  marginBottom: '24px'
+                }}>
+                  <h5 style={{
+                    margin: '0 0 12px 0',
+                    fontSize: '16px',
+                    fontWeight: '700',
+                    color: '#065f46'
+                  }}>
+                    To'lov ma'lumotlari:
+                  </h5>
+                  <div style={{ fontSize: '15px', color: '#374151', lineHeight: '1.6' }}>
+                    <div style={{ marginBottom: '8px' }}>
+                      <strong>To'lanadi:</strong> {parseFloat(paymentData.amount || 0).toLocaleString()} so'm
+                    </div>
+                    <div style={{ marginBottom: '8px' }}>
+                      <strong>Qoldiq:</strong> {(selectedDebt.remainingAmount - parseFloat(paymentData.amount || 0)).toLocaleString()} so'm
+                    </div>
+                    <div>
+                      <strong>Holat:</strong> {(selectedDebt.remainingAmount - parseFloat(paymentData.amount || 0)) <= 0 ? 'To\'liq to\'landi' : 'Qisman to\'landi'}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Form buttons */}
+              <div style={{ 
+                display: 'flex', 
+                gap: '16px', 
+                justifyContent: 'flex-end',
+                paddingTop: '20px',
+                borderTop: '2px solid #e5e7eb'
+              }}>
+                <button
+                  type="button"
+                  onClick={() => setShowPaymentModal(false)}
+                  className="btn btn-secondary"
+                  style={{ 
+                    minWidth: '120px',
+                    padding: '14px 20px',
+                    fontSize: '16px'
+                  }}
+                >
+                  Bekor qilish
+                </button>
+                <button
+                  type="submit"
+                  className="btn btn-success"
+                  disabled={!paymentData.amount || parseFloat(paymentData.amount) <= 0}
+                  style={{ 
+                    minWidth: '160px',
+                    padding: '14px 20px',
+                    fontSize: '16px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '8px'
+                  }}
+                >
+                  <CreditCard size={18} />
+                  To'lovni tasdiqlash
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
 
       {/* Add Debt Modal */}
       {showAddModal && (
