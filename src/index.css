@@ -351,18 +351,18 @@ a:hover {
   text-underline-offset: 4px;
 }
 
-/* MODERN BUTTON SYSTEM - LARGE & BEAUTIFUL */
+/* MODERN BUTTON SYSTEM - KICHIKROQ VA CHIROYLI */
 .btn, button {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: var(--space-2);
-  padding: var(--space-4) var(--space-6);
-  font-size: var(--text-lg);
+  gap: 6px;
+  padding: 6px 12px;
+  font-size: 13px;
   font-weight: var(--font-semibold);
   line-height: 1;
   border: 2px solid transparent;
-  border-radius: var(--radius-lg);
+  border-radius: 6px;
   cursor: pointer;
   transition: var(--transition-normal);
   text-decoration: none;
@@ -370,7 +370,7 @@ a:hover {
   user-select: none;
   position: relative;
   overflow: hidden;
-  min-height: 56px;
+  min-height: 32px;
   box-shadow: var(--shadow-sm);
 }
 
@@ -866,11 +866,35 @@ button:disabled, .btn:disabled {
   margin-bottom: 4px !important;
   transition: all 0.2s ease !important;
   text-decoration: none !important;
+  color: #94a3b8 !important; /* Ko'k-kulrang matn */
 }
 
 .sidebar a:hover, .sidebar .nav-item:hover {
   background: rgba(255, 255, 255, 0.1) !important;
   transform: translateX(4px) !important;
+  color: #ffffff !important; /* Hover qilganda oq */
+}
+
+.sidebar a.active, .sidebar .nav-item.active {
+  color: #4f46e5 !important; /* Active link ko'k */
+  background: rgba(79, 70, 229, 0.1) !important;
+}
+
+.sidebar a svg, .sidebar .nav-item svg {
+  color: inherit !important;
+}
+
+/* Sidebar-item class uchun ham */
+.sidebar-item {
+  color: #94a3b8 !important;
+}
+
+.sidebar-item:hover {
+  color: #ffffff !important;
+}
+
+.sidebar-item.active {
+  color: #4f46e5 !important;
 }
 
 /* Modal system fixes */
